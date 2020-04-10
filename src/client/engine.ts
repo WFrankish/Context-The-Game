@@ -1,10 +1,12 @@
+import { Canvas } from "../common/drawing/canvas.js";
+
 export class Engine {
-    private readonly ctx: CanvasRenderingContext2D;
+    private readonly canvas: Canvas;;
 
     private isAlive: boolean;
 
-    constructor(ctx: CanvasRenderingContext2D) {
-        this.ctx = ctx;
+    constructor(canvas: HTMLCanvasElement) {
+        this.canvas = new Canvas(canvas);
         this.isAlive = false;
 
         this.render = this.render.bind(this);
@@ -34,7 +36,7 @@ export class Engine {
     }
 
     private render(totalMilliseconds: number): void {
-        // TODO
+        this.canvas.clear();
 
         if (this.isAlive) {
             window.requestAnimationFrame(this.render);
