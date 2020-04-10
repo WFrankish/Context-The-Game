@@ -9,10 +9,8 @@ export class Canvas {
         this._width = canvas.width;
         this._height = canvas.height;
 
-        canvas.onresize = () => {
-            this._width = canvas.width;
-            this._height = canvas.height;
-        };
+        window.onresize = () => this.resize();
+        this.resize();
     }
 
     get width(): number {
@@ -40,5 +38,16 @@ export class Canvas {
         scaleY = 1
     ) {
         this.ctx.drawImage(img, imgX, imgY, width, height, posX, posY, width * scaleX, height * scaleY);
+    }
+
+    private resize(){
+        const {width, height} = this.ctx.canvas.getBoundingClientRect();
+
+        this._width = width;
+        this._height = height;
+        this.ctx.canvas.width = width;
+        this.ctx.canvas.height = height;
+
+        this.ctx.imageSmoothingEnabled = false;
     }
 }
