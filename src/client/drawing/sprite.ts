@@ -4,7 +4,7 @@ import { Drawable } from './drawable.js';
 import { Loadable } from './loadable.js';
 import { Canvas } from './canvas.js';
 
-export class Sprite implements Drawable, Loadable {
+export class Sprite implements Drawable {
     readonly img: Image;
 
     private readonly x: number;
