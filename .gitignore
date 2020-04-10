@@ -1,3 +1,5 @@
 .*
 !.gitignore
 /site/**
+.maps/**
+/node_modules/**
