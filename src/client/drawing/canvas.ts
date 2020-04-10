@@ -58,26 +58,20 @@ export class Canvas {
         // 0,0 is in the middle
         // positive is up and right
 
-
         // centre sprites horizontally
         const imgWidth = width * scaleX;
-        const imgPosX = (this._width / 2) + (posX * tileWidth) - ((imgWidth - tileWidth) /2);
+        const imgPosX = this._width / 2 + posX * tileWidth - (imgWidth - tileWidth) / 2;
 
         // draw from bottom
         const imgHeight = height * scaleY;
-        const imgPosY = (this._height / 2) - (posY * tileWidth) - imgHeight;
+        const imgPosY = this._height / 2 - posY * tileWidth - imgHeight;
 
-        this.ctx.drawImage(
-            img,
-            imgX,
-            imgY,
-            width,
-            height,
-            imgPosX,
-            imgPosY,
-            imgWidth,
-            imgHeight
-        );
+        const offscreen =
+            imgPosY + imgHeight < 0 || imgPosY > this._height || imgPosX + imgWidth < 0 || imgPosX > this._width;
+
+        if (!offscreen) {
+            this.ctx.drawImage(img, imgX, imgY, width, height, imgPosX, imgPosY, imgWidth, imgHeight);
+        }
     }
 
     private resize() {
