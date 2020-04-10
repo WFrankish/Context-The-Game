@@ -3,12 +3,25 @@ import Armour, { isArmour } from "../items/armours/armour";
 import Weapon, { isWeapon } from "../items/weapons/weapon";
 import BodyPart from "./body_part";
 
+interface InventoryConstructorOptions {
+  sizeCapacity?: number;
+  weightCapacity?: number;
+}
+
 export default class Inventory {
   private _contents = new Set<Item>();
   private _equippedWeapons = new Map<BodyPart, Weapon>();
   private _equippedArmour = new Map<BodyPart, Armour>();
-  private _sizeCapacity: number = 10;
-  private _weightCapacity: number = 50;
+  private _sizeCapacity: number;
+  private _weightCapacity: number;
+
+  constructor({
+    sizeCapacity = 50,
+    weightCapacity = 100,
+  }: InventoryConstructorOptions) {
+    this._sizeCapacity = sizeCapacity;
+    this._weightCapacity = weightCapacity;
+  }
 
   get usedSize(): number {
     let size = 0;
