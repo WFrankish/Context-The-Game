@@ -1,9 +1,16 @@
-let canvas: HTMLCanvasElement;
-let ctx: CanvasRenderingContext2D;
+import { Engine } from "./engine.js";
+
+let engine: Engine;
+
+const kill = () => {
+    engine.kill();
+}
 
 const main = () => {
-    canvas = document.getElementsByTagName("canvas")[0];
-    ctx = canvas.getContext("2d")!;
+    const canvas = document.getElementsByTagName("canvas")[0];
+    const ctx = canvas.getContext("2d")!;
+    engine = new Engine(ctx);
+    engine.run();
 }
 
 main();
