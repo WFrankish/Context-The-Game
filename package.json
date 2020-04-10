@@ -4,7 +4,7 @@
   "description": "Context makes a game because we're stuck in doors on holiday",
   "private": true,
   "scripts": {
-    "build": "tsc && @powershell -ExecutionPolicy Unrestricted -Command ./make.ps1",
+    "build": "@powershell -ExecutionPolicy Unrestricted -Command ./make.ps1 && tsc",
     "watch": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "clang-format"
