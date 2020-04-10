@@ -6,8 +6,6 @@ import * as common from '../common/net.js';
 export type Handler<SnapshotType, UpdateType> =
     common.ServerHandler<SnapshotType, UpdateType>;
 
-console.log(WebSocket);
-
 const channels: Map<string, ChannelState<any, any>> = new Map;
 const clients: Set<Client> = new Set;
 const webSocketServer = new WebSocket.Server({server});
