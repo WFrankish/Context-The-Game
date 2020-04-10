@@ -15,7 +15,8 @@ ALL=  \
 	${TS_OUT}  \
 	${ASSET_OUT}  \
 	site/client/index.html  \
-	site/client/display_demo.html
+	site/client/display_demo.html  \
+	site/client/chat.html
 all: ${ALL}
 
 clean:

@@ -1,0 +1,33 @@
+<!doctype html>
+<style>
+#messages, #message {
+  box-sizing: border-box;
+  padding: 5px;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  font-family: monospace;
+}
+#messages {
+  top: 0;
+  height: calc(100% - 30px);
+  overflow-y: scroll;
+}
+#message {
+  bottom: 0;
+  height: 30px;
+}
+</style>
+<code id=messages></code>
+<input type=text id=message autofocus />
+<script type=module>
+import * as chat from '/client/chat.js';
+// Pick a random username for lols.
+const verbs = ['crusty', 'crunchy', 'flaming', 'sweaty', 'sneaky'];
+const nouns = ['goat', 'llama', 'panda', 'coyote', 'eel'];
+const username = verbs[Math.floor(verbs.length * Math.random())] + ' ' +
+                 nouns[Math.floor(nouns.length * Math.random())];
+// Start the chat channel.
+const channel = new chat.Handler(username, messages, message);
+channel.start();
+</script>
