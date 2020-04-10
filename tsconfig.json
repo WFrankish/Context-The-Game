@@ -10,7 +10,5 @@
         },
         "outDir": "site"
     },
-    "include": [
-      "src/**/*"
-  ],
+    "include": ["src/**/*"]
 }
