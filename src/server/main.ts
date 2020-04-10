@@ -32,4 +32,79 @@ class HttpError extends Error {
   code: number
 }
 
-function handle(handler: http.RequestListener) {}
+// Wraps a request handler to automatically convert exceptions into error pages.
+interface Response {
+  contentType: string, data: string|Buffer,
+}
+type SimpleListener = (request: http.IncomingMessage) => Promise<Response>;
+function handle(handler: SimpleListener): http.RequestListener {
+  return async (
+             request: http.IncomingMessage, response: http.ServerResponse) => {
+    const url = new URL(request.url!, 'http://localhost:8000');
+    const respond =
+        (code: number, contentType: string, data: string|Buffer) => {
+          console.log(
+              '%s %s %d %s', request.method, url.pathname, code,
+              HttpError.statusText(code));
+          response.writeHead(code, {'Content-Type': contentType});
+          response.write(data);
+          response.end();
+        };
+    try {
+      const {contentType, data} = await handler(request);
+      respond(200, contentType, data);
+    } catch (error) {
+      if (error instanceof HttpError) {
+        respond(error.code, 'text/plain', error.message);
+      } else {
+        console.error(error.toString());
+        respond(500, 'text/plain', 'Something bad happened :(');
+      }
+    }
+  };
+}
+
+// Content type mapping used for serving static content.
+const contentTypes = new Map([
+  ['js', 'text/javascript'],
+  ['html', 'text/html'],
+  ['ico', 'image/x-icon'],
+  ['png', 'image/png'],
+]);
+
+async function handleStatic(path: string): Promise<Response> {
+  const result = path.match(/\.(.*)$/);
+  if (!result || !contentTypes.has(result[1])) {
+    throw new HttpError(403, 'Forbidden.');
+  }
+  try {
+    const contentType = contentTypes.get(result[1])!;
+    const data = await load(path);
+    return {contentType, data};
+  } catch (error) {
+    throw new HttpError(404, 'Not Found: ' + path);
+  }
+}
+
+async function handleRequest(request: http.IncomingMessage): Promise<Response> {
+  const url = new URL(request.url!, 'http://localhost:8000');
+  const path = url.pathname;
+  if (path == '/') return await handleStatic('client/index.html');
+  if (path == '/favicon.ico') return await handleStatic('assets/favicon.ico');
+  if (path.startsWith('/scripts/common/')) {
+    // `/scripts/common/foo.js` -> `common/foo.js`
+    return await handleStatic(path.substr('/scripts/'.length));
+  } else if (path.startsWith('/scripts/')) {
+    // `/scripts/foo.js` -> `client/foo.js`
+    return await handleStatic('client/' + path.substr('/scripts/'.length));
+  } else if (path.startsWith('/assets/')) {
+    // `/assets/foo.png` -> `assets/foo.png`
+    return await handleStatic(path.substr('/'.length));
+  } else {
+    throw new HttpError(404, 'Not Found');
+  }
+}
+
+const server = http.createServer();
+server.on('request', handle(handleRequest));
+server.listen(8000);
