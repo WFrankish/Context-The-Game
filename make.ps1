@@ -1,0 +1,1 @@
+Copy-Item "./src/*.html" -Destination "./site/"
