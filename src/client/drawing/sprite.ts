@@ -1,8 +1,8 @@
-import { Entity } from '../entity.js';
+import { Entity } from '../../common/entity.js';
 import { Image } from './image.js';
 import { Drawable } from './drawable.js';
 import { Loadable } from './loadable.js';
-import { tileWidth, tileHeight } from '../constants.js';
+import { tileWidth, tileHeight } from '../../common/constants.js';
 import { Canvas } from './canvas.js';
 
 export class Sprite implements Drawable, Loadable {

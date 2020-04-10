@@ -1,4 +1,4 @@
-import { Entity } from '../entity.js';
+import { Entity } from '../../common/entity.js';
 import { Canvas } from './canvas.js';
 
 export interface Drawable {

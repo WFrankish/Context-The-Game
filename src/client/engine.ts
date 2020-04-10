@@ -1,4 +1,4 @@
-import { Canvas } from "../common/drawing/canvas.js";
+import { Canvas } from "./drawing/canvas.js";
 
 export class Engine {
     private readonly canvas: Canvas;;
