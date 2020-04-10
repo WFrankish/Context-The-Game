@@ -21,11 +21,27 @@ class HttpError extends Error {
     switch (code) {
       case 200:
         return 'OK';
+      case 403:
+        return 'Forbidden';
       case 404:
         return 'Not Found';
+      case 418:
+        return 'I Am A Teapot';
       case 500:
-        return 'Server Error';
+        return 'Internal Server Error';
       default:
+        switch (code - code % 100) {
+          case 100:
+            return 'Something Informational';
+          case 200:
+            return 'Something Resembling Success';
+          case 300:
+            return 'Something Somewhere Else';
+          case 400:
+            return 'Something The Client Did Wrong';
+          case 500:
+            return 'Something The Server Did Wrong';
+        }
         return 'Something Bad';
     }
   }
@@ -67,6 +83,7 @@ function handle(handler: SimpleListener): http.RequestListener {
 // Content type mapping used for serving static content.
 const contentTypes = new Map([
   ['js', 'text/javascript'],
+  ['js.map', 'application/octet-stream'],
   ['html', 'text/html'],
   ['ico', 'image/x-icon'],
   ['png', 'image/png'],
