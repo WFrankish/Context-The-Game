@@ -1,6 +1,6 @@
 import { Drawable } from './drawable.js';
 import { Canvas } from './canvas.js';
-import { Entity } from 'src/common/entity.js';
+import { Vector2 } from '../../common/vector2.js';
 
 export class LoopAnimation implements Drawable {
     private _isLoaded: boolean;
@@ -28,10 +28,10 @@ export class LoopAnimation implements Drawable {
         }
     }
 
-    draw(canvas: Canvas, anchor: Entity, dt: number): void {
+    draw(canvas: Canvas, position: Vector2, dt: number): void {
         const frame = Math.trunc(this.currentTimeMs / this.frameLengthMs);
 
-        this.drawables[frame].draw(canvas, anchor, dt);
+        this.drawables[frame].draw(canvas, position, dt);
 
         this.currentTimeMs = (this.currentTimeMs + dt) % (this.frameLengthMs * this.drawables.length);
     }

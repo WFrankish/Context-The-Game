@@ -1,6 +1,5 @@
 import { Canvas } from "./drawing/canvas.js";
 import { SpriteSheet } from "./drawing/spritesheet.js";
-import { Entity } from "../common/entity.js";
 import { LoopAnimation } from "./drawing/loop_animation.js";
 import { Vector2 } from "../common/vector2.js";
 
@@ -59,7 +58,7 @@ export class Engine {
 
 
         const temp = Math.trunc(totalMilliseconds / 200);
-        this.temp2?.draw(this.canvas, new Entity(new Vector2(temp % 13, temp % 17)), dt);
+        this.temp2?.draw(this.canvas, new Vector2(temp % 13, temp % 17), dt);
 
         this.canvas.endFrame();
         if (this.isAlive) {
