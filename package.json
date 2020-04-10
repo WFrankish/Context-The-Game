@@ -20,5 +20,6 @@
   "homepage": "https://github.com/WFrankish/Context-The-Game#readme",
   "devDependencies": {
     "@types/node": "^13.11.1"
-  }
+  },
+  "type": "module"
 }

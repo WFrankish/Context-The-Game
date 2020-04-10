@@ -13,7 +13,7 @@ Context makes a game because we're stuck in doors on holiday
 1. node server.js
 
 # typescript settings
-* module: es2015 - use javascript modules
+* module: es2015 - use ecmascript modules
 * target: esnext - do not attempt to compile to code compatible with older browsers
 * sourceMap: true - allow debugging with original code
 * strict: true - enforce EVERYTHING (except the below)
