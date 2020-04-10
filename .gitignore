@@ -3,3 +3,4 @@
 /site/**
 .maps/**
 /node_modules/**
+*.code-workspace
