@@ -1,19 +1,14 @@
-interface Dimension {
-  width: number;
-  height: number;
-}
-
 export enum ItemCategory {
-  Weapon,
-  Armour,
-  Potion,
+  Weapon = "Weapon",
+  Armour = "Armour",
+  Consumable = "Consumable",
 }
 
 export default interface Item {
+  category: ItemCategory;
   name: string;
   weight: number;
-  size: Dimension;
+  size: number;
   value: number;
   imagePath: string;
-  category: ItemCategory;
 }

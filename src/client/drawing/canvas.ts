@@ -1,3 +1,5 @@
+import { tileWidth } from '../../common/constants.js';
+
 export class Canvas {
     private readonly ctx: CanvasRenderingContext2D;
 
@@ -21,10 +23,12 @@ export class Canvas {
         return this._height;
     }
 
-    clear(){
-        this.ctx.fillStyle = "black";
+    startFrame() {
+        this.ctx.fillStyle = 'black';
         this.ctx.fillRect(0, 0, this._width, this._height);
     }
+
+    endFrame() {}
 
     drawImage(
         img: HTMLImageElement,
@@ -37,11 +41,29 @@ export class Canvas {
         scaleX = 1,
         scaleY = 1
     ) {
-        this.ctx.drawImage(img, imgX, imgY, width, height, posX, posY, width * scaleX, height * scaleY);
+        // centre images horizontally
+        const imgWidth = width * scaleX;
+        const imgPosX = (posX * tileWidth) - ((imgWidth - tileWidth) /2);
+
+        // draw from bottom
+        const imgHeight = height * scaleY;
+        const imgPosY = this._height - (posY * tileWidth) - imgHeight;
+
+        this.ctx.drawImage(
+            img,
+            imgX,
+            imgY,
+            width,
+            height,
+            imgPosX,
+            imgPosY,
+            imgWidth,
+            imgHeight
+        );
     }
 
-    private resize(){
-        const {width, height} = this.ctx.canvas.getBoundingClientRect();
+    private resize() {
+        const { width, height } = this.ctx.canvas.getBoundingClientRect();
 
         this._width = width;
         this._height = height;

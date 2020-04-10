@@ -1,11 +1,9 @@
-import { Entity } from '../../common/entity.js';
 import { Image } from './image.js';
 import { Drawable } from './drawable.js';
-import { Loadable } from './loadable.js';
-import { tileWidth, tileHeight } from '../../common/constants.js';
 import { Canvas } from './canvas.js';
+import { Vector2 } from '../../common/vector2.js';
 
-export class Sprite implements Drawable, Loadable {
+export class Sprite implements Drawable {
     readonly img: Image;
 
     private readonly x: number;
@@ -29,15 +27,15 @@ export class Sprite implements Drawable, Loadable {
         return this.img.loadPromise;
     }
 
-    draw(canvas: Canvas, anchor: Entity): void {
+    draw(canvas: Canvas, position: Vector2): void {
         canvas.drawImage(
             this.img.data,
             this.x,
             this.y,
             this.width,
             this.height,
-            anchor.position.x * tileWidth,
-            anchor.position.y * tileHeight
+            position.x,
+            position.y
         );
     }
 }
