@@ -10,7 +10,9 @@ Context makes a game because we're stuck in doors on holiday
 1. tsc --watch
 
 ## to run
-1. node server.js
+* `cd site; node server/main.js`
+* `make run`
+
 
 # typescript settings
 * module: es2015 - use ecmascript modules
