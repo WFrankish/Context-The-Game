@@ -19,4 +19,4 @@ site/static/%: src/static/%
 # Build typescript sources.
 ${OUTPUTS}: ${SOURCES}
 	mkdir -p $(@D)
-	tsc --incremental
+	tsc --incremental | src/format_errors.sh
