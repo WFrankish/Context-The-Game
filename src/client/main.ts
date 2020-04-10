@@ -1,7 +1,5 @@
-import { Engine } from "./engine.js";
-import * as charCreator from './character_creation.js';
-
-let engine: Engine;
+import * as engine from './engine.js';
+import {creationInit} from './character_creation.js';
 
 const kill = () => {
   engine.kill();
