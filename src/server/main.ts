@@ -94,9 +94,9 @@ async function handleRequest(request: http.IncomingMessage): Promise<Response> {
   if (path.startsWith('/scripts/common/')) {
     // `/scripts/common/foo.js` -> `common/foo.js`
     return await handleStatic(path.substr('/scripts/'.length));
-  } else if (path.startsWith('/scripts/')) {
+  } else if (path.startsWith('/scripts/client/')) {
     // `/scripts/foo.js` -> `client/foo.js`
-    return await handleStatic('client/' + path.substr('/scripts/'.length));
+    return await handleStatic(path.substr('/scripts/'.length));
   } else if (path.startsWith('/assets/')) {
     // `/assets/foo.png` -> `assets/foo.png`
     return await handleStatic(path.substr('/'.length));
