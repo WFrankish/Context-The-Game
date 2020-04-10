@@ -2,7 +2,6 @@ import { Entity } from '../../common/entity.js';
 import { Image } from './image.js';
 import { Drawable } from './drawable.js';
 import { Loadable } from './loadable.js';
-import { tileWidth, tileHeight } from '../../common/constants.js';
 import { Canvas } from './canvas.js';
 
 export class Sprite implements Drawable, Loadable {
@@ -36,8 +35,8 @@ export class Sprite implements Drawable, Loadable {
             this.y,
             this.width,
             this.height,
-            anchor.position.x * tileWidth,
-            anchor.position.y * tileHeight
+            anchor.position.x,
+            anchor.position.y
         );
     }
 }
