@@ -15,6 +15,10 @@ export class Vector2 {
         return this.x ** 2 + this.y ** 2;
     }
 
+    negated(): Vector2 {
+      return new Vector2(-this.x, -this.y);
+    }
+
     distanceTo(that: Vector2): number {
         return this.distanceToSquared(that) ** 0.5;
     }
