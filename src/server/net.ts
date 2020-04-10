@@ -74,9 +74,10 @@ class Client {
   }
   send(data: common.ServerMessage): void {
     const maxSendSize = 100000;
-    console.log('%s <- %s', this.remoteAddress, data.type);
     const bytes = JSON.stringify(data);
     if (bytes.length > maxSendSize) throw new Error('Need to split message.');
+    console.log(
+        '%s <- %s (%d bytes)', this.remoteAddress, data.type, bytes.length);
     this.socket.send(bytes);
   }
   // Handle an incoming message.
@@ -90,7 +91,9 @@ class Client {
       this.socket.close();
       return;
     }
-    console.log('%s -> %s', this.remoteAddress, message.type);
+    console.log(
+        '%s -> %s (%d bytes)', this.remoteAddress, message.type,
+        data.toString().length);
     switch (message.type) {
       case 'ClientUpdates':
         for (const id in message.updates) {
