@@ -1,4 +1,5 @@
 import * as common from '../common/net.js';
+import * as metrics from '../common/metrics.js';
 
 export type Handler<SnapshotType, UpdateType> =
     common.ClientHandler<SnapshotType, UpdateType>;
@@ -77,6 +78,7 @@ function send(message: common.ClientMessage): void {
   const bytes = JSON.stringify(message);
   if (bytes.length > maxSendSize) throw new Error('Need to split message.');
   console.log('-> %s (%d bytes)', message.type, bytes.length);
+  metrics.count('bytes-sent', bytes.length);
   socket.send(bytes);
 }
 
@@ -191,6 +193,7 @@ function receiveSubscriptionError(message: common.ServerSubscriptionError):
 
 function receive(event: MessageEvent): void {
   let message: common.ServerMessage = JSON.parse(event.data);
+  metrics.count('bytes-received', event.data.length);
   console.log('<- %s (%d bytes)', message.type, event.data.length);
   switch (message.type) {
     case 'ServerSnapshot':
