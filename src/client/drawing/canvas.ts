@@ -41,13 +41,18 @@ export class Canvas {
         scaleX = 1,
         scaleY = 1
     ) {
-        // centre images horizontally
+        // sprites are drawn from the bottom centre of their tile
+        // 0,0 is in the middle
+        // positive is up and right
+
+
+        // centre sprites horizontally
         const imgWidth = width * scaleX;
-        const imgPosX = (posX * tileWidth) - ((imgWidth - tileWidth) /2);
+        const imgPosX = (this._width / 2) + (posX * tileWidth) - ((imgWidth - tileWidth) /2);
 
         // draw from bottom
         const imgHeight = height * scaleY;
-        const imgPosY = this._height - (posY * tileWidth) - imgHeight;
+        const imgPosY = (this._height / 2) - (posY * tileWidth) - imgHeight;
 
         this.ctx.drawImage(
             img,
