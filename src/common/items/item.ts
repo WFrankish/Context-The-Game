@@ -14,5 +14,6 @@ export default interface Item {
   weight: number;
   size: Dimension;
   value: number;
+  imagePath: string;
   category: ItemCategory;
 }
