@@ -14,7 +14,8 @@ run: all
 ALL=  \
 	${TS_OUT}  \
 	${ASSET_OUT}  \
-	site/client/index.html
+	site/client/index.html  \
+	site/client/display_demo.html
 all: ${ALL}
 
 clean:
@@ -23,7 +24,7 @@ clean:
 site site/assets site/client site/common site/server &:
 	mkdir -p site/{assets,client,common,server}
 
-site/client/index.html: src/client/index.html | site/client
+site/client/%.html: src/client/%.html | site/client
 	cp $^ $@
 
 site/assets/%: assets/% | site/assets

@@ -107,6 +107,10 @@ async function handleRequest(request: http.IncomingMessage): Promise<Response> {
   const url = new URL(request.url!, 'http://localhost:8000');
   const path = url.pathname;
   if (path == '/') return await handleStatic('client/index.html');
+  // TODO: Remove this when we get our shit together.
+  if (path == '/display_demo.html') {
+    return await handleStatic('client/display_demo.html');
+  }
   if (path == '/favicon.ico') return await handleStatic('assets/favicon.ico');
   if (path.startsWith('/scripts/common/')) {
     // `/scripts/common/foo.js` -> `common/foo.js`
