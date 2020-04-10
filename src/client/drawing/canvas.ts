@@ -6,12 +6,25 @@ export class Canvas {
     private _width: number;
     private _height: number;
 
+    private _zoom: number;
+
     constructor(canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext('2d')!;
         this._width = canvas.width;
         this._height = canvas.height;
 
+        this._zoom = 2;
+
         window.onresize = () => this.resize();
+        this.resize();
+    }
+
+    get zoom(): number {
+        return this._zoom;
+    }
+
+    set zoom(value: number) {
+        this._zoom = value;
         this.resize();
     }
 
@@ -68,7 +81,9 @@ export class Canvas {
     }
 
     private resize() {
-        const { width, height } = this.ctx.canvas.getBoundingClientRect();
+        let { width, height } = this.ctx.canvas.getBoundingClientRect();
+        width /= this._zoom;
+        height /= this._zoom;
 
         this._width = width;
         this._height = height;
