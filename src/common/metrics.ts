@@ -1,14 +1,9 @@
+import {Milliseconds, Timestamp, time} from './time.js';
+
 const maxSamples = 10;
 const samplePeriod: Milliseconds = 100;
 const counters: Map<string, Counter> = new Map;
 let awaitingSample: Set<Counter> = new Set;
-
-export type Milliseconds = number;
-export type Timestamp = Milliseconds;
-
-function time(t: Timestamp): Promise<void> {
-  return new Promise((resolve, reject) => setTimeout(resolve, t - Date.now()));
-}
 
 class Sample {
   constructor(time: Timestamp, value: number) {

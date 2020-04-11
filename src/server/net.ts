@@ -3,6 +3,7 @@ import WebSocket from 'ws';
 
 import * as common from '../common/net.js';
 
+import {Milliseconds, time} from '../common/time.js';
 import {server} from './http.js';
 
 export type Handler<SnapshotType, UpdateType> =
@@ -174,10 +175,10 @@ class Client {
 }
 
 async function sendLoop() {
-  const sendInterval: common.Milliseconds = 50;
+  const sendInterval: Milliseconds = 50;
   let nextStart = Date.now();
   while (true) {
-    await common.time(nextStart);
+    await time(nextStart);
     nextStart = Date.now() + sendInterval;
     for (const client of clients) client.sendUpdates();
     for (const channel of channels.values()) channel.updates = [];

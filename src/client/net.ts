@@ -1,3 +1,4 @@
+import {Milliseconds, Timestamp, time} from '../common/time.js';
 import * as metrics from '../common/metrics.js';
 import * as common from '../common/net.js';
 
@@ -80,7 +81,7 @@ class ChannelState<SnapshotType, UpdateType> implements
   // Version number of the committed state.
   version = 0;
   // Creation time of the committed state, in server time.
-  creationTime: common.Timestamp = 0;
+  creationTime: Timestamp = 0;
   // Predicted state based on the consistent state and local changes.
   predictedState?: SnapshotType;
   // Local updates to the committed state which have already been sent.
@@ -108,11 +109,11 @@ function send(message: common.ClientMessage): void {
 }
 
 async function sendLoop() {
-  const sendInterval: common.Milliseconds = 1000;
+  const sendInterval: Milliseconds = 1000;
   const maxSendSize = 100000;
   let nextStart = Date.now();
   while (true) {
-    await common.time(nextStart);
+    await time(nextStart);
     nextStart = Date.now() + sendInterval;
     const message: common.ClientUpdates = {type: 'ClientUpdates', updates: {}};
     let hasUpdates = false;
