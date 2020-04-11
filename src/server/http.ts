@@ -1,11 +1,15 @@
 import * as fs from 'fs';
 import * as http from 'http';
+import * as net from 'net';
 import {contentType} from './content_types.js';
 import {HttpError} from './http_error.js';
 import {filePath} from './paths.js';
 
 export const server = http.createServer();
-server.listen(8000);
+server.listen(8000, () => {
+  const {address, port} = server.address() as net.AddressInfo;
+  console.log('Server running on [%s]:%s', address, port);
+});
 
 // Asynchronously load a file.
 function load(file: string): Promise<Buffer> {
