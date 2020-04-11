@@ -79,7 +79,7 @@ class Client {
   constructor(remoteAddress: string, socket: WebSocket) {
     this.remoteAddress = remoteAddress;
     this.socket = socket;
-    socket.on('message', data => this.message(data));
+    socket.on('message', (data: any) => this.message(data));
     socket.on('close', () => this.shutdown());
     socket.on('error', () => this.shutdown());
     this.subscriptions = new Map;
