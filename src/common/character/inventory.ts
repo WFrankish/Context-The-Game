@@ -92,6 +92,14 @@ export default class Inventory {
     return items;
   }
 
+  getEquippedWeapons(): Map<BodyPart, Weapon> {
+    return new Map<BodyPart, Weapon>(this._equippedWeapons);
+  }
+
+  getEquippedArmour(): Map<BodyPart, Armour> {
+    return new Map<BodyPart, Armour>(this._equippedArmour);
+  }
+
   /**
    * Tries to equip the item, returning false if item not stored and capacity reached,
    * equipped item cannot be unequipped.
