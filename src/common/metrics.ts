@@ -20,12 +20,8 @@ class Sample {
 }
 
 class Counter {
-  constructor() {
-    this.currentValue = 0;
-    this.samples = [];
-  }
-  currentValue: number;
-  samples: Sample[];
+  currentValue = 0;
+  samples: Sample[] = [];
 };
 
 async function sampleLoop() {

@@ -2,18 +2,16 @@ import {Image, Sprite} from './image.js';
 import {Loadable} from './loadable.js';
 
 export class SpriteSheet implements Loadable {
-  private _isLoaded: boolean;
+  private _isLoaded = false;
 
   readonly assets: string|string[];
 
   readonly loadPromise: Promise<void>;
 
-  readonly sprites: Sprite[];
+  readonly sprites: Sprite[] = [];
 
   constructor(img: Image, width: number, height: number) {
-    this._isLoaded = false;
     this.assets = img.assets;
-    this.sprites = [];
     this.loadPromise = img.loadPromise.then(() => {
       const data = img.getImage(0);
       for (let y = 0; y < data.height; y += height) {

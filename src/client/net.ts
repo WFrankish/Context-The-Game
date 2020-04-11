@@ -53,12 +53,6 @@ class ChannelState<SnapshotType, UpdateType> implements
   constructor(id: string, handler: Handler<SnapshotType, UpdateType>) {
     this.id = id;
     this.handler = handler;
-    this.version = 0;
-    this.creationTime = 0;
-    this.updates = [];
-    this.numSentUpdates = 0;
-    this.numLocalUpdates = 0;
-    this.initialized = false;
     this.initializationPromise = new Promise((resolve, reject) => {
       this.initDone = () => {
         this.initialized = true;
@@ -84,19 +78,19 @@ class ChannelState<SnapshotType, UpdateType> implements
   // Current state known to be consistent with the server.
   committedState?: SnapshotType;
   // Version number of the committed state.
-  version: number;
+  version = 0;
   // Creation time of the committed state, in server time.
-  creationTime: common.Timestamp;
+  creationTime: common.Timestamp = 0;
   // Predicted state based on the consistent state and local changes.
   predictedState?: SnapshotType;
   // Local updates to the committed state which have already been sent.
-  updates: UpdateType[];
+  updates: UpdateType[] = [];
   // Number of updates created locally which have been sent.
-  numSentUpdates: number;
+  numSentUpdates = 0;
   // Number of updates created locally in total.
-  numLocalUpdates: number;
+  numLocalUpdates = 0;
   // True if the channel has been initialized.
-  initialized: boolean;
+  initialized = false;
   // Initialization promise. Resolved once at least one snapshot has been
   // received. Rejected if the channel doesn't exist on the server.
   initializationPromise: Promise<void>;
