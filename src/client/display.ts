@@ -28,7 +28,7 @@ function computeScale(): {scale: number, offset: Vector2} {
     return {
       scale: canvas.width / width,
       offset: new Vector2(0, 0.5 * (canvas.height - actualHeight)),
-    }
+    };
   }
 }
 
