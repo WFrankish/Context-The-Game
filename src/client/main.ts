@@ -1,6 +1,4 @@
-import {Engine} from './engine.js';
-
-let engine: Engine;
+import * as engine from './engine.js';
 
 const kill =
     () => {
@@ -9,7 +7,6 @@ const kill =
 
 const main =
     () => {
-      engine = new Engine();
       engine.run();
     }
 

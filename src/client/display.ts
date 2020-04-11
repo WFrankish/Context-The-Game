@@ -4,8 +4,6 @@ import {Vector2} from '../common/vector2.js';
 const canvas = document.querySelector('canvas')!;
 const context = canvas.getContext('2d')!;
 
-console.log(canvas);
-
 export const width = 1280;
 export const height = 1024;
 let screenToCanvas = Transform.identity();
@@ -40,12 +38,18 @@ export function clear(): void {
 // Apply the suitable transform for drawing the user interface over the game
 // world. The callback will receive the context it needs to draw, and can assume
 // a resolution of (display.width, display.height) which will be scaled to fit.
-export function drawHud(callback: (context: CanvasRenderingContext2D) => void):
-    void {
-  const {scale, offset} = computeScale();
+export function draw(
+  worldCallback: (context: CanvasRenderingContext2D) => void,
+  hudCallback: (context: CanvasRenderingContext2D) => void
+): void {
+  const { scale, offset } = computeScale();
   context.translate(offset.x, offset.y);
   context.scale(scale, scale);
-  callback(context);
+  context.imageSmoothingEnabled = false;
+
+  worldCallback(context);
+
+  hudCallback(context);
 }
 
 export type MouseAction = 'up'|'down'|'move';

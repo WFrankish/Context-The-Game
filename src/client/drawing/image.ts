@@ -25,7 +25,7 @@ export class StaticImage implements Image {
     const img = document.createElement('img');
     this._isLoaded = false;
 
-    img.src = path;
+    img.src = "./assets/" + path;
     this.loadPromise = new Promise((resolve) => {
       img.onload = () => {
         this._isLoaded = true;
@@ -83,7 +83,7 @@ export class Sprite implements Image {
 
   getImage(ms: number): ImageData {
     return {
-      data: this.getImage(ms).data,
+      data: this.img.getImage(ms).data,
       startX: this.startX,
       startY: this.startY,
       width: this.width,
