@@ -1,8 +1,10 @@
 import * as display from './display.js';
+import { Seconds, Milliseconds, delay } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
 import { StaticImage, LoopingImage, Image } from './drawing/image.js';
 import { SpriteSheet } from './drawing/spritesheet.js';
 import { HudPiece, Anchor, Tile, Drawable } from './drawing/drawable.js';
+import { localPlayer } from './character.js';
 
 let previousFrameTimeMs = 0;
 
@@ -16,7 +18,7 @@ let temp3: Image;
 let temp4 = new StaticImage('arrow_left.png');
 temp2.loadPromise.then(() => (temp3 = new LoopingImage(1000, ...temp2.sprites)));
 
-export function run(): void {
+export async function run(): Promise<void> {
   if (isAlive) {
     console.log('engine is already running!');
   }
@@ -25,10 +27,11 @@ export function run(): void {
 
   window.requestAnimationFrame(render);
 
-  // TODO
-  // while(this.isAlive){
-  //     this.update();
-  // }
+  const deltaTime = 0.02;
+  while (true) {
+    await delay(1000 * deltaTime);
+    update(deltaTime);
+  }
 }
 
 export function kill(): void {
@@ -39,8 +42,8 @@ function init(): void {
   isAlive = true;
 }
 
-export function update(): void {
-  // TODO
+export function update(dt: Seconds): void {
+  localPlayer.update(dt);
 }
 
 function render(totalMilliseconds: number): void {
@@ -76,6 +79,7 @@ function render(totalMilliseconds: number): void {
         ];
         pieces.forEach((p) => p.draw(ctx, dt));
       }
+      localPlayer.draw(ctx);
     }
   );
   requestAnimationFrame(render);
