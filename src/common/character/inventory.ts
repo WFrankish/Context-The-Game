@@ -5,18 +5,8 @@ import Weapon, { isWeapon } from '../items/weapons/weapon';
 import BodyPart from './body_part';
 
 interface InventoryConstructorOptions {
-  baseVolume?: number;
-  baseCarryWeight?: number;
-}
-
-interface VolumeOptions {
-  baseVolume?: number;
-  bonusVolume?: number;
-}
-
-interface WeightOptions {
-  baseWeight?: number;
-  bonusWeight?: number;
+  volume?: number;
+  weight?: number;
 }
 
 export default class Inventory {
@@ -26,34 +16,30 @@ export default class Inventory {
   private _equippedArmour = new Set<Armour>();
   private _equippedArmourByPart = new Map<BodyPart, Armour>();
 
-  private _baseVolume = 0;
-  private _bonusVolume = 0;
-
   /**
    * Maximum volume which can be stored in the backpack. Equipped weapons and
    * armour do **not** count towards this limit
    */
+  private _baseVolume: number;
+  private _bonusVolumeFromSkill: number = 0;
+  private _bonusVolumeFromEquipment: number = 0;
   private _maxVolume: number;
-
   private _usedVolume = 0;
-
-  private _baseCarryWeight: number;
-  private _carryWeightBonus = 0;
 
   /**
    * Maximum weight which can be carried. Counts the backpack and all the
    * equipped weapons and armour
    */
+  private _baseWeight: number;
+  private _bonusWeightFromSkill: number = 0;
   private _maxWeight: number;
-
   private _usedWeight = 0;
 
-  constructor({ baseVolume = 50, baseCarryWeight = 100 }: InventoryConstructorOptions) {
-    this._baseVolume = baseVolume;
-    this._maxVolume = baseVolume;
-
-    this._baseCarryWeight = baseCarryWeight;
-    this._maxWeight = baseCarryWeight;
+  constructor({ volume = 50, weight = 100 }: InventoryConstructorOptions) {
+    this._baseVolume = volume;
+    this._maxVolume = volume;
+    this._baseWeight = weight;
+    this._maxWeight = weight;
   }
 
   get equippedArmour(): Set<Armour> {
@@ -85,37 +71,31 @@ export default class Inventory {
   }
 
   /**
-   * Tries to update the base and/or bonus volume limit. Fails if this would result in character being over-volume.
+   * Modifies the bonus to volume capacity provided by character skill. Will return false (and not modify bonus)
+   * if it would make the character over-volumed.
+   * @param amount Amount to modify volumeSkillBonus by
    */
-  setVolumeLimits({ baseVolume, bonusVolume }: VolumeOptions): boolean {
-    const nextBase = baseVolume === undefined ? this._baseVolume : baseVolume;
-    const nextBonus = bonusVolume === undefined ? this._bonusVolume : bonusVolume;
-
-    if (nextBase + nextBonus < this._usedVolume) {
+  addToVolumeSkillBonus(amount: number): boolean {
+    if (this._baseVolume + this._bonusVolumeFromEquipment + this._bonusVolumeFromSkill + amount < this._usedVolume) {
       return false;
     }
 
-    this._baseVolume = nextBase;
-    this._bonusVolume = nextBonus;
-    this._maxVolume = nextBase + nextBonus;
+    this._bonusVolumeFromSkill += amount;
 
     return true;
   }
 
   /**
-   * Tries to update the base and/or bonus weight limit. Fails if this would result in character being over-weight.
+   * Modifies the bonus to weight capacity provided by character skill. Will return false (and not modify bonus)
+   * if it would make the character over-weight.
+   * @param amount Amount to modify weightSkillBonus by
    */
-  setWeightLimits({ baseWeight, bonusWeight }: WeightOptions): boolean {
-    const nextBase = baseWeight === undefined ? this._baseCarryWeight : baseWeight;
-    const nextBonus = bonusWeight === undefined ? this._carryWeightBonus : bonusWeight;
-
-    if (nextBase + nextBonus < this._usedWeight) {
+  addToWeightSkillBonus(amount: number): boolean {
+    if (this._baseWeight + this._bonusWeightFromSkill + amount < this._usedWeight) {
       return false;
     }
 
-    this._baseCarryWeight = nextBase;
-    this._carryWeightBonus = nextBonus;
-    this._maxWeight = nextBase + nextBonus;
+    this._bonusWeightFromSkill += amount;
 
     return true;
   }
@@ -228,16 +208,26 @@ export default class Inventory {
 
     // Check if unequipping everything will put us over-volume, not counting this item if it is currently using volume
     let targetUsedVolume = this._usedVolume;
+    let targetMaxVolume = this._maxVolume;
 
     for (const equippedItem of currentlyEquipped) {
       targetUsedVolume += equippedItem.volume;
+
+      // If currently equipped item has a carryVolumeIncrease remove that amount from the maxVolume which will result from this change.
+      if (isArmour(equippedItem) && equippedItem.carryVolumeIncrease !== undefined) {
+        targetMaxVolume -= equippedItem.carryVolumeIncrease;
+      }
     }
 
     if (this._backpack.has(item)) {
       targetUsedVolume -= item.volume;
     }
 
-    if (targetUsedVolume > this._maxVolume) {
+    if (isArmour(item) && item.carryVolumeIncrease !== undefined) {
+      targetMaxVolume += item.carryVolumeIncrease;
+    }
+
+    if (targetUsedVolume > targetMaxVolume) {
       return false;
     }
 
@@ -248,6 +238,10 @@ export default class Inventory {
       }
       partSet.delete(equippedItem);
       this._backpack.add(equippedItem);
+
+      if (isArmour(equippedItem) && equippedItem.carryVolumeIncrease !== undefined) {
+        this._bonusVolumeFromEquipment -= equippedItem.carryVolumeIncrease;
+      }
     }
 
     // Set equipped item in all slots
@@ -257,8 +251,13 @@ export default class Inventory {
 
     partSet.add(item);
 
-    // Already calculated the target volume earlier; update the stored value
+    if (isArmour(item) && item.carryVolumeIncrease !== undefined) {
+      this._bonusVolumeFromEquipment += item.carryVolumeIncrease;
+    }
+
+    // Already calculated the target and max volumes earlier; update the stored value
     this._usedVolume = targetUsedVolume;
+    this._maxVolume = targetMaxVolume;
 
     if (this._backpack.has(item)) {
       // Was in the backpack; remove it
@@ -290,7 +289,14 @@ export default class Inventory {
       return true;
     }
 
-    if (this._usedVolume + item.volume > this._maxVolume) {
+    let targetUsedVolume = this._usedVolume + item.volume;
+    let targetMaxVolume = this._maxVolume;
+
+    if (isArmour(item) && item.carryVolumeIncrease !== undefined) {
+      targetMaxVolume -= item.carryVolumeIncrease;
+    }
+
+    if (targetUsedVolume > targetMaxVolume) {
       return false;
     }
 
@@ -301,6 +307,13 @@ export default class Inventory {
     partSet.delete(item);
 
     this._backpack.add(item);
+
+    this._usedVolume = targetUsedVolume;
+    this._maxVolume = targetMaxVolume;
+
+    if (isArmour(item) && item.carryVolumeIncrease !== undefined) {
+      targetMaxVolume -= item.carryVolumeIncrease;
+    }
 
     return true;
   }
