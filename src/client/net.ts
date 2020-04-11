@@ -134,7 +134,7 @@ function receiveSnapshot(message: common.ServerSnapshot): void {
   }
   try {
     channel.committedState = channel.handler.loadSnapshot(message.state);
-    channel.predictedState = channel.handler.loadSnapshot(message.state);
+    channel.predictedState = channel.handler.copyState(channel.committedState);
     channel.version = message.version;
     channel.initDone!();
     channel.handler.onChange(channel.predictedState);
