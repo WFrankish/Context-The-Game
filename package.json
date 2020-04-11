@@ -22,11 +22,11 @@
   "homepage": "https://github.com/WFrankish/Context-The-Game#readme",
   "devDependencies": {
     "@types/node": "^13.11.1",
+    "@types/ws": "^7.2.3",
     "clang-format": "^1.4.0"
   },
   "type": "module",
   "dependencies": {
-    "@types/ws": "^7.2.3",
     "ws": "^7.2.3"
   }
 }

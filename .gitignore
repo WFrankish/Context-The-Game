@@ -1,5 +1,6 @@
 .*
 !.gitignore
+!.prettierrc
 /site/**
 .maps/**
 /node_modules/**
