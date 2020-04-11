@@ -83,14 +83,14 @@ export class Character {
     const draw = (row: number, column: number) => {
       context.drawImage(Character.image, 32 * column, 32 * row, 32, 32, -0.5, -1, 1, 32/24);
     };
-    if (row < 4) {
+    if (row < 3) {
       draw(row, leftColumn);
       draw(row, runColumn);
       draw(row, rightColumn);
     } else {
-      draw(row, leftColumn);
-      draw(row, runColumn);
       draw(row, rightColumn);
+      draw(row, runColumn);
+      draw(row, leftColumn);
     }
     context.restore();
   }
