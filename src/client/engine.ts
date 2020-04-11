@@ -11,21 +11,22 @@ let previousFrameTimeMs = 0;
 let isAlive = false;
 
 let position: Vector2 | undefined;
+let walls: LoopingImage | undefined;
+let arrow: StaticImage | undefined;
 
-let temp = new StaticImage('walls.png');
-let temp2 = new SpriteSheet(temp, 32, 24);
-let temp3: Image;
-let temp4 = new StaticImage('arrow_left.png');
-temp2.loadPromise.then(() => (temp3 = new LoopingImage(1000, ...temp2.sprites)));
+async function init() {
+  if (isAlive) throw new Error('engine is already initialized!');
+  isAlive = true;
+  const wallSprites = new SpriteSheet(await StaticImage.open('walls.png'), 32, 24);
+  walls = new LoopingImage(1000, ...wallSprites.sprites);
+  arrow = await StaticImage.open('arrow_left.png');
+  isAlive = true;
+}
 
 export async function run(): Promise<void> {
-  if (isAlive) {
-    console.log('engine is already running!');
-  }
+  await init();
 
-  init();
-
-  window.requestAnimationFrame(render);
+  requestAnimationFrame(render);
 
   const deltaTime = 0.02;
   while (true) {
@@ -38,10 +39,6 @@ export function kill(): void {
   isAlive = false;
 }
 
-function init(): void {
-  isAlive = true;
-}
-
 export function update(dt: Seconds): void {
   localPlayer.update(dt);
 }
@@ -49,39 +46,33 @@ export function update(dt: Seconds): void {
 function render(totalMilliseconds: number): void {
   const dt = totalMilliseconds - previousFrameTimeMs;
 
-  display.draw(
-    (ctx) => {
-      if (temp3?.isLoaded) {
-        const pieces: Drawable[] = [
-          new Tile(temp3, new Vector2(0, 0)),
-          new Tile(temp3, new Vector2(1, 0)),
-          new Tile(temp3, new Vector2(2, 0)),
-          new Tile(temp3, new Vector2(0, 3)),
-          new Tile(temp3, new Vector2(1, 2)),
-          new Tile(temp3, new Vector2(5, 5)),
-          new Tile(temp3, new Vector2(6, 7)),
-          new Tile(temp3, new Vector2(-1, 6)),
-          new Tile(temp3, new Vector2(5, -1)),
-        ];
-        pieces.forEach((p) => p.draw(ctx, dt));
-      }
-      if (temp4.isLoaded) {
-        const pieces: Drawable[] = [
-          new HudPiece(temp4, new Vector2(0, 0), Anchor.TopLeft),
-          new HudPiece(temp4, new Vector2(200, 0), Anchor.Top),
-          new HudPiece(temp4, new Vector2(-1, 0), Anchor.TopRight),
-          new HudPiece(temp4, new Vector2(0, 200), Anchor.Left),
-          new HudPiece(temp4, new Vector2(200, 200), Anchor.Centre),
-          new HudPiece(temp4, new Vector2(-1, 200), Anchor.Right),
-          new HudPiece(temp4, new Vector2(0, -1), Anchor.BottomLeft),
-          new HudPiece(temp4, new Vector2(200, -1), Anchor.Bottom),
-          new HudPiece(temp4, new Vector2(-1, -1), Anchor.BottomRight),
-        ];
-        pieces.forEach((p) => p.draw(ctx, dt));
-      }
-      localPlayer.draw(ctx);
-    }
-  );
+  display.draw((context) => {
+    const tiles: Drawable[] = [
+      new Tile(walls!, new Vector2(0, 0)),
+      new Tile(walls!, new Vector2(1, 0)),
+      new Tile(walls!, new Vector2(2, 0)),
+      new Tile(walls!, new Vector2(0, 3)),
+      new Tile(walls!, new Vector2(1, 2)),
+      new Tile(walls!, new Vector2(5, 5)),
+      new Tile(walls!, new Vector2(6, 7)),
+      new Tile(walls!, new Vector2(-1, 6)),
+      new Tile(walls!, new Vector2(5, -1)),
+    ];
+    for (const tile of tiles) tile.draw(context, dt);
+    const hud: Drawable[] = [
+      new HudPiece(arrow!, new Vector2(0, 0), Anchor.TopLeft),
+      new HudPiece(arrow!, new Vector2(200, 0), Anchor.Top),
+      new HudPiece(arrow!, new Vector2(-1, 0), Anchor.TopRight),
+      new HudPiece(arrow!, new Vector2(0, 200), Anchor.Left),
+      new HudPiece(arrow!, new Vector2(200, 200), Anchor.Centre),
+      new HudPiece(arrow!, new Vector2(-1, 200), Anchor.Right),
+      new HudPiece(arrow!, new Vector2(0, -1), Anchor.BottomLeft),
+      new HudPiece(arrow!, new Vector2(200, -1), Anchor.Bottom),
+      new HudPiece(arrow!, new Vector2(-1, -1), Anchor.BottomRight),
+    ];
+    for (const item of hud) item.draw(context, dt);
+    localPlayer.draw(context);
+  });
   requestAnimationFrame(render);
 
   previousFrameTimeMs = totalMilliseconds;
