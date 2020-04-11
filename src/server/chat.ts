@@ -5,6 +5,6 @@ export class Handler extends common.Handler {
     super();
   }
   onChange(state: string[]): void {
-    console.log('%d messages.', state.length)
+    console.log('%d messages.', state.length);
   }
 }

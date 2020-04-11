@@ -1,4 +1,4 @@
-import {Vector2} from './vector2.js';
+import { Vector2 } from './vector2.js';
 
 /**
  * A thing that has physical position in the world

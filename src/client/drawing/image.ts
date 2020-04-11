@@ -1,4 +1,4 @@
-import {Loadable} from './loadable';
+import { Loadable } from './loadable';
 
 export interface ImageData {
   readonly data: HTMLImageElement;
@@ -24,7 +24,7 @@ export class StaticImage implements Image {
     this.assets = path;
     const img = document.createElement('img');
 
-    img.src = "./assets/" + path;
+    img.src = './assets/' + path;
     this.loadPromise = new Promise((resolve) => {
       img.onload = () => {
         this._isLoaded = true;
@@ -68,7 +68,7 @@ export class Sprite implements Image {
     this.height = height;
   }
 
-  get assets(): string|string[] {
+  get assets(): string | string[] {
     return this.img.assets;
   }
 
@@ -106,8 +106,7 @@ export class LoopingImage implements Image {
 
   constructor(frameLengthMs: number, ...images: Image[]) {
     if (frameLengthMs === 0 || images.length === 0) {
-      throw Error(
-          'cannot have animation at infinite speed or with no frames you muppet');
+      throw Error('cannot have animation at infinite speed or with no frames you muppet');
     }
     this.frameLengthMs = frameLengthMs;
     this.drawables = images;
@@ -121,10 +120,9 @@ export class LoopingImage implements Image {
       }
     }
 
-    this.loadPromise =
-        Promise.all(images.map((d) => d.loadPromise)).then(() => {
-          this._isLoaded = true;
-        });
+    this.loadPromise = Promise.all(images.map((d) => d.loadPromise)).then(() => {
+      this._isLoaded = true;
+    });
   }
 
   get isLoaded(): boolean {
@@ -134,8 +132,7 @@ export class LoopingImage implements Image {
   getImage(dt: number): ImageData {
     const frame = Math.trunc(this.currentTimeMs / this.frameLengthMs);
 
-    this.currentTimeMs = (this.currentTimeMs + dt) %
-        (this.frameLengthMs * this.drawables.length);
+    this.currentTimeMs = (this.currentTimeMs + dt) % (this.frameLengthMs * this.drawables.length);
 
     return this.drawables[frame].getImage(dt);
   }

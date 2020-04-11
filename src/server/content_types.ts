@@ -1,4 +1,4 @@
-import {HttpError} from './http_error.js';
+import { HttpError } from './http_error.js';
 
 // These are the content types which the server will return. If something is
 // absent from this list, the server will return an error instead of returning
@@ -15,7 +15,7 @@ const contentTypes = new Map([
 export function contentType(file: string): string {
   const dot = file.indexOf('.');
   if (dot == -1) {
-    throw new HttpError(403, 'Can\'t request files with no extension.');
+    throw new HttpError(403, "Can't request files with no extension.");
   }
   const extension = file.substr(dot + 1);
   if (!contentTypes.has(extension)) {

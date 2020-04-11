@@ -3,11 +3,10 @@ import WebSocket from 'ws';
 
 import * as common from '../common/net.js';
 
-import {Milliseconds, time} from '../common/time.js';
-import {server} from './http.js';
+import { Milliseconds, time } from '../common/time.js';
+import { server } from './http.js';
 
-export type Handler<SnapshotType, UpdateType> =
-    common.ServerHandler<SnapshotType, UpdateType>;
+export type Handler<SnapshotType, UpdateType> = common.ServerHandler<SnapshotType, UpdateType>;
 
 export interface Channel<SnapshotType, UpdateType> {
   readonly id: string;
@@ -20,18 +19,18 @@ export interface Channel<SnapshotType, UpdateType> {
 // Create a new channel with the given id and handler. Immediately returns the
 // associated channel. The state can be accessed immediately.
 export function createChannel<SnapshotType, UpdateType>(
-    id: string, handler: Handler<SnapshotType, UpdateType>):
-    Channel<SnapshotType, UpdateType> {
+  id: string,
+  handler: Handler<SnapshotType, UpdateType>
+): Channel<SnapshotType, UpdateType> {
   if (channels.has(id)) throw new Error('channel ' + id + ' already exists.');
-  const channel: ChannelState<SnapshotType, UpdateType> =
-      new ChannelState(id, handler);
+  const channel: ChannelState<SnapshotType, UpdateType> = new ChannelState(id, handler);
   channels.set(id, channel);
   return channel;
 }
 
-const channels: Map<string, ChannelState<any, any>> = new Map;
-const clients: Set<Client> = new Set;
-const webSocketServer = new WebSocket.Server({server});
+const channels: Map<string, ChannelState<any, any>> = new Map();
+const clients: Set<Client> = new Set();
+const webSocketServer = new WebSocket.Server({ server });
 
 class Subscription {
   constructor(channel: ChannelState<any, any>, client: Client) {
@@ -44,8 +43,7 @@ class Subscription {
   numLocalUpdates = 0;
 }
 
-class ChannelState<SnapshotType, UpdateType> implements
-    Channel<SnapshotType, UpdateType> {
+class ChannelState<SnapshotType, UpdateType> implements Channel<SnapshotType, UpdateType> {
   constructor(id: string, handler: Handler<SnapshotType, UpdateType>) {
     this.id = id;
     this.handler = handler;
@@ -62,7 +60,7 @@ class ChannelState<SnapshotType, UpdateType> implements
   }
   id: string;
   handler: Handler<SnapshotType, UpdateType>;
-  subscriptions: Set<Subscription> = new Set;
+  subscriptions: Set<Subscription> = new Set();
   // Buffered updates which the subscribers haven't received.
   updates: UpdateType[] = [];
   // Current version, including buffered updates.
@@ -70,7 +68,7 @@ class ChannelState<SnapshotType, UpdateType> implements
   // Version number of the current version.
   version = 0;
   // Creation time of the current version.
-  creationTime = new Date;
+  creationTime = new Date();
 }
 
 class Client {
@@ -85,8 +83,7 @@ class Client {
     const maxSendSize = 100000;
     const bytes = JSON.stringify(data);
     if (bytes.length > maxSendSize) throw new Error('Need to split message.');
-    console.log(
-        '%s <- %s (%d bytes)', this.remoteAddress, data.type, bytes.length);
+    console.log('%s <- %s (%d bytes)', this.remoteAddress, data.type, bytes.length);
     this.socket.send(bytes);
   }
   // Handle an incoming message.
@@ -95,14 +92,11 @@ class Client {
     try {
       message = JSON.parse(data.toString());
     } catch (error) {
-      console.log(
-          '%s: Bad message from client. Disconnecting.', this.remoteAddress);
+      console.log('%s: Bad message from client. Disconnecting.', this.remoteAddress);
       this.socket.close();
       return;
     }
-    console.log(
-        '%s -> %s (%d bytes)', this.remoteAddress, message.type,
-        data.toString().length);
+    console.log('%s -> %s (%d bytes)', this.remoteAddress, message.type, data.toString().length);
     switch (message.type) {
       case 'ClientUpdates':
         for (const id in message.updates) {
@@ -171,7 +165,7 @@ class Client {
   }
   remoteAddress: string;
   socket: WebSocket;
-  subscriptions: Map<string, Subscription> = new Map;
+  subscriptions: Map<string, Subscription> = new Map();
 }
 
 async function sendLoop() {

@@ -1,5 +1,5 @@
-import Armour, {isArmour} from '../items/armours/armour';
-import Item, {ItemCategory} from '../items/item';
+import Armour, { isArmour } from '../items/armours/armour';
+import Item, { ItemCategory } from '../items/item';
 import Weapon from '../items/weapons/weapon';
 
 import BodyPart from './body_part';
@@ -15,7 +15,6 @@ export default class Inventory {
   private _equippedWeaponsByPart = new Map<BodyPart, Weapon>();
   private _equippedArmour = new Set<Armour>();
   private _equippedArmourByPart = new Map<BodyPart, Armour>();
-
 
   private _baseCarryVolume = 0;
   private _carryVolumeBonus = 0;
@@ -39,10 +38,7 @@ export default class Inventory {
 
   private _usedWeight = 0;
 
-  constructor({
-    maxVolume = 50,
-    maxWeight = 100,
-  }: InventoryConstructorOptions) {
+  constructor({ maxVolume = 50, maxWeight = 100 }: InventoryConstructorOptions) {
     this._baseCarryVolume = maxVolume;
     this._maxVolume = maxVolume;
 
@@ -150,7 +146,7 @@ export default class Inventory {
    * removed
    * @param item Item to equip
    */
-  equipItem(item: Armour|Weapon, unequipExisting: boolean = true): boolean {
+  equipItem(item: Armour | Weapon, unequipExisting: boolean = true): boolean {
     if (!this._backpack.has(item)) {
       // Not in inventory atm, check the weight limit.
       if (this._usedWeight + item.weight > this._maxWeight) {
@@ -161,9 +157,8 @@ export default class Inventory {
     // Get all the equipped items in all the body parts this new item wants to
     // use
     const parts = this._getBodyParts(item);
-    const currentlyEquipped = isArmour(item) ? this._equippedArmourByPart :
-                                               this._equippedWeaponsByPart;
-    const equippedItems = new Set<Armour|Weapon>();
+    const currentlyEquipped = isArmour(item) ? this._equippedArmourByPart : this._equippedWeaponsByPart;
+    const equippedItems = new Set<Armour | Weapon>();
 
     for (const part of parts) {
       const equippedItem = currentlyEquipped.get(part);
@@ -213,17 +208,16 @@ export default class Inventory {
     return true;
   }
 
-  unequipItem(item: Armour|Weapon): void {
+  unequipItem(item: Armour | Weapon): void {
     const parts = this._getBodyParts(item);
-    const mapToRemoveFrom = isArmour(item) ? this._equippedArmourByPart :
-                                             this._equippedWeaponsByPart;
+    const mapToRemoveFrom = isArmour(item) ? this._equippedArmourByPart : this._equippedWeaponsByPart;
 
     for (const part of parts) {
       mapToRemoveFrom.delete(part);
     }
   }
 
-  private _getBodyParts(item: Armour|Weapon): Set<BodyPart> {
+  private _getBodyParts(item: Armour | Weapon): Set<BodyPart> {
     if (isArmour(item)) {
       return item.coverage;
     } else {

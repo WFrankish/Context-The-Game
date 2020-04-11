@@ -1,7 +1,6 @@
-import {Timestamp} from './time.js';
+import { Timestamp } from './time.js';
 
-export type JsonObject =
-    boolean|number|string|JsonObject[]|{[key: string]: JsonObject};
+export type JsonObject = boolean | number | string | JsonObject[] | { [key: string]: JsonObject };
 
 // The minimum interface that must be implemented on the client side.
 export interface ClientHandler<SnapshotType, UpdateType> {
@@ -54,15 +53,14 @@ export interface ServerHandler<SnapshotType, UpdateType> {
 // The combination of the client and server interfaces. If the object
 // representation is sufficiently simple, it may be simpler to only implement
 // this interface.
-export type Handler<SnapshotType, UpdateType> =
-    ClientHandler<SnapshotType, UpdateType>&
-    ServerHandler<SnapshotType, UpdateType>;
+export type Handler<SnapshotType, UpdateType> = ClientHandler<SnapshotType, UpdateType> &
+  ServerHandler<SnapshotType, UpdateType>;
 
 // client -> server: Local updates for all subscriptions.
 export interface ClientUpdates {
   type: 'ClientUpdates';
   // List of local updates for each channel.
-  updates: {[id: string]: JsonObject[]};
+  updates: { [id: string]: JsonObject[] };
 }
 
 // client -> server: Subscribe to a channel.
@@ -89,7 +87,7 @@ export interface ServerUpdates {
   // Server time (in milliseconds).
   time: Timestamp;
   // List of updates for each channel.
-  updates: {[id: string]: {numLocalUpdates: number, updates: JsonObject[]}};
+  updates: { [id: string]: { numLocalUpdates: number; updates: JsonObject[] } };
 }
 
 // server -> client: Error with a certain channel.
@@ -102,7 +100,6 @@ export interface ServerSubscriptionError {
 }
 
 // client -> server
-export type ClientMessage = ClientSubscribe|ClientUpdates;
+export type ClientMessage = ClientSubscribe | ClientUpdates;
 // server -> client
-export type ServerMessage =
-    ServerSnapshot|ServerUpdates|ServerSubscriptionError;
+export type ServerMessage = ServerSnapshot | ServerUpdates | ServerSubscriptionError;

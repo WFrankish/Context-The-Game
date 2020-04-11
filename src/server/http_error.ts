@@ -20,7 +20,7 @@ export class HttpError extends Error {
       case 500:
         return 'Internal Server Error';
       default:
-        switch (code - code % 100) {
+        switch (code - (code % 100)) {
           case 100:
             return 'Something Informational';
           case 200:
@@ -35,5 +35,5 @@ export class HttpError extends Error {
         return 'Something Bad';
     }
   }
-  code: number
+  code: number;
 }

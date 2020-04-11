@@ -1,9 +1,8 @@
-import {Milliseconds, Timestamp, time} from '../common/time.js';
+import { Milliseconds, Timestamp, time } from '../common/time.js';
 import * as metrics from '../common/metrics.js';
 import * as common from '../common/net.js';
 
-export type Handler<SnapshotType, UpdateType> =
-    common.ClientHandler<SnapshotType, UpdateType>;
+export type Handler<SnapshotType, UpdateType> = common.ClientHandler<SnapshotType, UpdateType>;
 
 export interface Channel<SnapshotType, UpdateType> {
   readonly id: string;
@@ -23,34 +22,31 @@ export async function start() {
 
 // Subscribe to a channel identified by `id`. Asynchronously returns the
 // associated channel once it has initialized with a state from the server.
-export async function subscribe<SnapshotType, UpdateType>(
-    id: string, handler: Handler<SnapshotType, UpdateType>) {
+export async function subscribe<SnapshotType, UpdateType>(id: string, handler: Handler<SnapshotType, UpdateType>) {
   if (channels.has(id)) {
     throw new Error(id + ' is already subscribed.');
   }
-  const channel: ChannelState<SnapshotType, UpdateType> =
-      new ChannelState(id, handler);
+  const channel: ChannelState<SnapshotType, UpdateType> = new ChannelState(id, handler);
   channels.set(id, channel);
-  const request: common.ClientSubscribe = {type: 'ClientSubscribe', id};
+  const request: common.ClientSubscribe = { type: 'ClientSubscribe', id };
   send(request);
   await channel.initializationPromise;
   return channel;
 }
 
-const channels: Map<string, ChannelState<any, any>> = new Map;
+const channels: Map<string, ChannelState<any, any>> = new Map();
 const socket = new WebSocket('ws://' + location.host + '/websocket');
-socket.onclose = event => {
+socket.onclose = (event) => {
   throw event;
 };
-socket.onerror = event => {
+socket.onerror = (event) => {
   throw event;
 };
 const startupPromise = new Promise((resolve, reject) => {
   socket.onopen = () => resolve();
 });
 
-class ChannelState<SnapshotType, UpdateType> implements
-    Channel<SnapshotType, UpdateType> {
+class ChannelState<SnapshotType, UpdateType> implements Channel<SnapshotType, UpdateType> {
   constructor(id: string, handler: Handler<SnapshotType, UpdateType>) {
     this.id = id;
     this.handler = handler;
@@ -115,7 +111,7 @@ async function sendLoop() {
   while (true) {
     await time(nextStart);
     nextStart = Date.now() + sendInterval;
-    const message: common.ClientUpdates = {type: 'ClientUpdates', updates: {}};
+    const message: common.ClientUpdates = { type: 'ClientUpdates', updates: {} };
     let hasUpdates = false;
     for (const channel of channels.values()) {
       const toSend = channel.numLocalUpdates - channel.numSentUpdates;
@@ -134,9 +130,7 @@ function receiveSnapshot(message: common.ServerSnapshot): void {
   if (!channels.has(id)) return;
   const channel = channels.get(id)!;
   if (channel.initialized) {
-    throw new Error(
-        'Received snapshot for channel ' + id +
-        ', which is already initialized.');
+    throw new Error('Received snapshot for channel ' + id + ', which is already initialized.');
   }
   try {
     channel.committedState = channel.handler.loadSnapshot(message.state);
@@ -156,10 +150,9 @@ function receiveUpdates(message: common.ServerUpdates): void {
     if (!channels.has(id)) continue;
     const channel = channels.get(id)!;
     if (!channel.initialized) {
-      throw new Error(
-          'Received updates for channel ' + id + ' before it was initialized.');
+      throw new Error('Received updates for channel ' + id + ' before it was initialized.');
     }
-    const {numLocalUpdates, updates} = message.updates[id];
+    const { numLocalUpdates, updates } = message.updates[id];
     // Apply updates to the committed state.
     for (const update of updates) {
       channel.handler.applyUpdate(channel.committedState, update);
@@ -183,15 +176,14 @@ function receiveUpdates(message: common.ServerUpdates): void {
   }
 }
 
-function receiveSubscriptionError(message: common.ServerSubscriptionError):
-    void {
+function receiveSubscriptionError(message: common.ServerSubscriptionError): void {
   const id = message.id;
   if (!channels.has(id)) return;
   const channel = channels.get(id)!;
   if (channel.initialized) {
     throw new Error(
-        'Received subscription error for channel ' + id +
-        ' after it was already successfully initialized.');
+      'Received subscription error for channel ' + id + ' after it was already successfully initialized.'
+    );
   }
   channel.initFailed!(message);
   channels.delete(id);

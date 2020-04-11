@@ -1,5 +1,5 @@
-import {Entity} from 'src/common/entity';
-import {Vector2} from 'src/common/vector2';
+import { Entity } from 'src/common/entity';
+import { Vector2 } from 'src/common/vector2';
 
 /**
  * An entity that is visible in the world

@@ -35,7 +35,7 @@ export class Vector2 {
     return this.x === that.x && this.y === that.y;
   }
 
-  add(that: number|Vector2): Vector2 {
+  add(that: number | Vector2): Vector2 {
     return Vector2.add(this, that);
   }
 
@@ -43,7 +43,7 @@ export class Vector2 {
     return vectorMath(a, b, (x, y) => x + y);
   };
 
-  subtract(that: number|Vector2): Vector2 {
+  subtract(that: number | Vector2): Vector2 {
     return Vector2.subtract(this, that);
   }
 
@@ -51,7 +51,7 @@ export class Vector2 {
     return vectorMath(a, b, (x, y) => x - y);
   };
 
-  multiply(that: number|Vector2): Vector2 {
+  multiply(that: number | Vector2): Vector2 {
     return Vector2.multiply(this, that);
   }
 
@@ -59,7 +59,7 @@ export class Vector2 {
     return vectorMath(a, b, (x, y) => x * y);
   };
 
-  divide(that: number|Vector2): Vector2 {
+  divide(that: number | Vector2): Vector2 {
     return Vector2.divide(this, that);
   }
 
@@ -72,8 +72,7 @@ export class Vector2 {
   }
 }
 
-type VectorMath = ((a: Vector2, b: Vector2|number) => Vector2)&
-    ((a: Vector2|number, b: Vector2) => Vector2);
+type VectorMath = ((a: Vector2, b: Vector2 | number) => Vector2) & ((a: Vector2 | number, b: Vector2) => Vector2);
 
 const vectorMath = (a: any, b: any, op: (x: number, y: number) => number) => {
   if (typeof a === 'number') {

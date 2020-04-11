@@ -1,8 +1,8 @@
-import * as display from "./display.js";
-import { Vector2 } from "../common/vector2.js";
-import { StaticImage, LoopingImage, Image } from "./drawing/image.js";
-import { SpriteSheet } from "./drawing/spritesheet.js";
-import { HudPiece, Anchor, Tile, Drawable } from "./drawing/drawable.js";
+import * as display from './display.js';
+import { Vector2 } from '../common/vector2.js';
+import { StaticImage, LoopingImage, Image } from './drawing/image.js';
+import { SpriteSheet } from './drawing/spritesheet.js';
+import { HudPiece, Anchor, Tile, Drawable } from './drawing/drawable.js';
 
 let previousFrameTimeMs = 0;
 
@@ -10,17 +10,15 @@ let isAlive = false;
 
 let position: Vector2 | undefined;
 
-let temp = new StaticImage("walls.png");
+let temp = new StaticImage('walls.png');
 let temp2 = new SpriteSheet(temp, 32, 24);
 let temp3: Image;
-let temp4 = new StaticImage("arrow_left.png");
-temp2.loadPromise.then(
-  () => (temp3 = new LoopingImage(1000, ...temp2.sprites))
-);
+let temp4 = new StaticImage('arrow_left.png');
+temp2.loadPromise.then(() => (temp3 = new LoopingImage(1000, ...temp2.sprites)));
 
 export function run(): void {
   if (isAlive) {
-    console.log("engine is already running!");
+    console.log('engine is already running!');
   }
 
   init();
