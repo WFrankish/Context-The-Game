@@ -30,32 +30,32 @@ function computeScale(): { scale: number; offset: Vector2 } {
 }
 
 function clampScale(val: number): number {
-  let pow = Math.log2(val);
-  pow = Math.floor(pow);
-  console.log(val, pow, 2 ** pow);
-  return 2 ** pow;
-}
-
-export function clear(): void {
-  context.setTransform(1, 0, 0, 1, 0, 0);
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  if(val >= 1){
+    return Math.floor(val);
+  } else {
+    return 1 / Math.ceil(1/val);
+  }
 }
 
 // Apply the suitable transform for drawing the user interface over the game
 // world. The callback will receive the context it needs to draw, and can assume
 // a resolution of (display.width, display.height) which will be scaled to fit.
 export function draw(
-  worldCallback: (context: CanvasRenderingContext2D) => void,
-  hudCallback: (context: CanvasRenderingContext2D) => void
+  callback: (context: CanvasRenderingContext2D) => void
 ): void {
+  context.setTransform(1, 0, 0, 1, 0, 0);
+  context.fillStyle = "black";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
   const { scale, offset } = computeScale();
   context.translate(offset.x, offset.y);
   context.scale(scale, scale);
   context.imageSmoothingEnabled = false;
 
-  worldCallback(context);
+  context.fillStyle = "white";
+  context.fillRect(0, 0, width, height);
 
-  hudCallback(context);
+  callback(context);
 }
 
 export type MouseAction = 'up' | 'down' | 'move';

@@ -46,7 +46,6 @@ export function update(): void {
 function render(totalMilliseconds: number): void {
   const dt = totalMilliseconds - previousFrameTimeMs;
 
-  display.clear();
   display.draw(
     (ctx) => {
       if (temp3?.isLoaded) {
@@ -63,8 +62,6 @@ function render(totalMilliseconds: number): void {
         ];
         pieces.forEach((p) => p.draw(ctx, dt));
       }
-    },
-    (ctx) => {
       if (temp4.isLoaded) {
         const pieces: Drawable[] = [
           new HudPiece(temp4, new Vector2(0, 0), Anchor.TopLeft),
