@@ -95,16 +95,19 @@ canvas.addEventListener('mouseup', (event) => {
   const position = screenToCanvas.apply(new Vector2(event.x, event.y));
   const button = mouseButton(event.button);
   if (button == 'none') return;
-  for (const handler of mouseMoveHandlers) {
+  for (const handler of mouseUpHandlers) {
     const mouseEvent: MouseButtonEvent = { position, button };
     handler(mouseEvent);
   }
 });
 canvas.addEventListener('mousedown', (event) => {
-  const mouseEvent: MouseEvent = {
-    position: screenToCanvas.apply(new Vector2(event.x, event.y)),
-  };
-  for (const handler of mouseMoveHandlers) handler(mouseEvent);
+  const position = screenToCanvas.apply(new Vector2(event.x, event.y));
+  const button = mouseButton(event.button);
+  if (button == 'none') return;
+  for (const handler of mouseDownHandlers) {
+    const mouseEvent: MouseButtonEvent = { position, button };
+    handler(mouseEvent);
+  }
 });
 
 // Make the canvas expand to fill the screen.
