@@ -1,5 +1,5 @@
-import * as common from '../common/net.js';
 import * as metrics from '../common/metrics.js';
+import * as common from '../common/net.js';
 
 export type Handler<SnapshotType, UpdateType> =
     common.ClientHandler<SnapshotType, UpdateType>;
@@ -38,8 +38,12 @@ export async function subscribe<SnapshotType, UpdateType>(
 
 const channels: Map<string, ChannelState<any, any>> = new Map;
 const socket = new WebSocket('ws://' + location.host + '/websocket');
-socket.onclose = event => { throw event; };
-socket.onerror = event => { throw event; };
+socket.onclose = event => {
+  throw event;
+};
+socket.onerror = event => {
+  throw event;
+};
 const startupPromise = new Promise((resolve, reject) => {
   socket.onopen = () => resolve();
 });
@@ -56,7 +60,10 @@ class ChannelState<SnapshotType, UpdateType> implements
     this.numLocalUpdates = 0;
     this.initialized = false;
     this.initializationPromise = new Promise((resolve, reject) => {
-      this.initDone = () => { this.initialized = true; resolve(); };
+      this.initDone = () => {
+        this.initialized = true;
+        resolve();
+      };
       this.initFailed = reject;
     });
   }

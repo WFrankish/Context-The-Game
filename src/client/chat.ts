@@ -1,5 +1,6 @@
-import * as net from './net.js';
 import * as common from '../common/chat.js';
+
+import * as net from './net.js';
 
 export class Handler extends common.Handler {
   constructor(username: string, view: HTMLElement, input: HTMLInputElement) {

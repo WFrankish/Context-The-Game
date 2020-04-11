@@ -1,5 +1,5 @@
-import {Vector2} from '../common/vector2.js';
 import {Transform} from '../common/transform.js';
+import {Vector2} from '../common/vector2.js';
 
 const canvas = document.querySelector('canvas')!;
 const context = canvas.getContext('2d')!;
@@ -40,16 +40,16 @@ export function clear(): void {
 // Apply the suitable transform for drawing the user interface over the game
 // world. The callback will receive the context it needs to draw, and can assume
 // a resolution of (display.width, display.height) which will be scaled to fit.
-export function drawHud(
-    callback: (context: CanvasRenderingContext2D) => void): void {
+export function drawHud(callback: (context: CanvasRenderingContext2D) => void):
+    void {
   const {scale, offset} = computeScale();
   context.translate(offset.x, offset.y);
   context.scale(scale, scale);
   callback(context);
 }
 
-export type MouseAction = 'up' | 'down' | 'move';
-export type MouseButton = 'left' | 'right';
+export type MouseAction = 'up'|'down'|'move';
+export type MouseButton = 'left'|'right';
 export interface MouseEvent {
   // Position of the mouse cursor in virtual coordinates.
   position: Vector2;
@@ -77,11 +77,14 @@ canvas.addEventListener('mousemove', event => {
   };
   for (const handler of mouseMoveHandlers) handler(mouseEvent);
 });
-function mouseButton(id: number): MouseButton | 'none' {
+function mouseButton(id: number): MouseButton|'none' {
   switch (id) {
-    case 0: return 'left';
-    case 1: return 'right';
-    default: return 'none';
+    case 0:
+      return 'left';
+    case 1:
+      return 'right';
+    default:
+      return 'none';
   }
 }
 canvas.addEventListener('mouseup', event => {
