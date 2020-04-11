@@ -33,27 +33,17 @@ const clients: Set<Client> = new Set;
 const webSocketServer = new WebSocket.Server({server});
 
 class Subscription {
-  constructor(channel: ChannelState<any, any>, client: Client) {
-    this.channel = channel;
-    this.client = client;
+  constructor(readonly channel: ChannelState<any, any>, readonly client: Client) {
     // Number of updates received from the client.
     this.numLocalUpdates = 0;
   }
-  channel: ChannelState<any, any>;
-  client: Client;
   numLocalUpdates: number;
 }
 
 class ChannelState<SnapshotType, UpdateType> implements
     Channel<SnapshotType, UpdateType> {
-  constructor(id: string, handler: Handler<SnapshotType, UpdateType>) {
-    this.id = id;
-    this.handler = handler;
-    this.subscriptions = new Set;
-    this.updates = [];
+  constructor(readonly id: string, readonly handler: Handler<SnapshotType, UpdateType>) {
     this.currentState = handler.defaultState();
-    this.version = 0;
-    this.creationTime = new Date;
   }
   update(update: UpdateType): void {
     this.updates.push(update);
@@ -64,27 +54,22 @@ class ChannelState<SnapshotType, UpdateType> implements
   state(): SnapshotType {
     return this.currentState;
   }
-  id: string;
-  handler: Handler<SnapshotType, UpdateType>;
-  subscriptions: Set<Subscription>;
+  subscriptions: Set<Subscription> = new Set();
   // Buffered updates which the subscribers haven't received.
-  updates: UpdateType[];
+  updates: UpdateType[] = [];
   // Current version, including buffered updates.
   currentState: SnapshotType;
   // Version number of the current version.
-  version: number;
+  version: number = 0;
   // Creation time of the current version.
-  creationTime: Date;
+  creationTime: Date = new Date();
 }
 
 class Client {
-  constructor(remoteAddress: string, socket: WebSocket) {
-    this.remoteAddress = remoteAddress;
-    this.socket = socket;
+  constructor(readonly remoteAddress: string, readonly socket: WebSocket) {
     socket.on('message', (data: any) => this.message(data));
     socket.on('close', () => this.shutdown());
     socket.on('error', () => this.shutdown());
-    this.subscriptions = new Map;
   }
   send(data: common.ServerMessage): void {
     const maxSendSize = 100000;
@@ -174,9 +159,7 @@ class Client {
     }
     clients.delete(this);
   }
-  remoteAddress: string;
-  socket: WebSocket;
-  subscriptions: Map<string, Subscription>;
+  subscriptions: Map<string, Subscription> = new Map<string, Subscription>();
 }
 
 async function sendLoop() {
