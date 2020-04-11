@@ -1,31 +1,31 @@
-import { Loadable } from './loadable.js';
-import { Sprite, Image } from './image.js';
+import {Image, Sprite} from './image.js';
+import {Loadable} from './loadable.js';
 
 export class SpriteSheet implements Loadable {
-    private _isLoaded: boolean;
+  private _isLoaded: boolean;
 
-    readonly assets: string | string[];
+  readonly assets: string|string[];
 
-    readonly loadPromise: Promise<void>;
+  readonly loadPromise: Promise<void>;
 
-    readonly sprites: Sprite[];
+  readonly sprites: Sprite[];
 
-    constructor(img: Image, width: number, height: number) {
-        this._isLoaded = false;
-        this.assets = img.assets;
-        this.sprites = [];
-        this.loadPromise = img.loadPromise.then(() => {
-            const data = img.getImage(0);
-            for (let y = 0; y < data.height; y += height) {
-                for (let x = 0; x < data.width; x += width) {
-                    this.sprites.push(new Sprite(img, x, y, width, height));
-                }
-            }
+  constructor(img: Image, width: number, height: number) {
+    this._isLoaded = false;
+    this.assets = img.assets;
+    this.sprites = [];
+    this.loadPromise = img.loadPromise.then(() => {
+      const data = img.getImage(0);
+      for (let y = 0; y < data.height; y += height) {
+        for (let x = 0; x < data.width; x += width) {
+          this.sprites.push(new Sprite(img, x, y, width, height));
+        }
+      }
 
-            this._isLoaded = true;
-        });
-    }
-    get isLoaded(): boolean {
-        return this._isLoaded;
-    }
+      this._isLoaded = true;
+    });
+  }
+  get isLoaded(): boolean {
+    return this._isLoaded;
+  }
 }
