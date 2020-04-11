@@ -1,6 +1,6 @@
 import Armour, { isArmour } from '../items/armours/armour';
 import Item, { ItemCategory } from '../items/item';
-import Weapon from '../items/weapons/weapon';
+import Weapon, { isWeapon } from '../items/weapons/weapon';
 
 import BodyPart from './body_part';
 
@@ -118,7 +118,7 @@ export default class Inventory {
   /**
    * Returns all the stored items
    */
-  getAll(): Set<Item> {
+  getAllStored(): Set<Item> {
     return new Set<Item>(this._backpack);
   }
 
@@ -126,7 +126,7 @@ export default class Inventory {
    * Loads all the items of the given category
    * @param category Category to find
    */
-  getAllOfCategory(category: ItemCategory): Set<Item> {
+  getAllStoredOfCategory(category: ItemCategory): Set<Item> {
     const items = new Set<Item>();
 
     for (const item of this._backpack) {
@@ -142,86 +142,130 @@ export default class Inventory {
    * Tries to equip the item. Equipped items take no volume; this can cause
    * equip to fail for these reasons:
    *   - Item not in inventory, would go over max weight
+   *   - Already equipment in slot and unequipExisting is false
    *   - Item in inventory, would go over max volume if currently equipped items
    * removed
    * @param item Item to equip
    */
   equipItem(item: Armour | Weapon, unequipExisting: boolean = true): boolean {
+    if (isArmour(item)) {
+      return this._equip<Armour>(item, this._equippedArmourByPart, this._equippedArmour);
+    } else {
+      return this._equip<Weapon>(item, this._equippedWeaponsByPart, this._equippedWeapons);
+    }
+  }
+
+  private _equip<T extends Item>(item: T, partMap: Map<BodyPart, T>, partSet: Set<T>): boolean {
+    // Already equipped
+    if (partSet.has(item)) {
+      return true;
+    }
+
+    const bodyParts = this._getBodyParts(item);
+
+    const currentlyEquipped = new Set<T>();
+
+    for (const part of bodyParts) {
+      const equipment = partMap.get(part);
+
+      if (equipment) {
+        currentlyEquipped.add(equipment);
+      }
+    }
+
+    // Check if holding this item would put us over-weight
     if (!this._backpack.has(item)) {
-      // Not in inventory atm, check the weight limit.
       if (this._usedWeight + item.weight > this._maxWeight) {
         return false;
       }
     }
 
-    // Get all the equipped items in all the body parts this new item wants to
-    // use
-    const parts = this._getBodyParts(item);
-    const currentlyEquipped = isArmour(item) ? this._equippedArmourByPart : this._equippedWeaponsByPart;
-    const equippedItems = new Set<Armour | Weapon>();
+    // Check if unequipping everything will put us over-volume, not counting this item if it is currently using volume
+    let targetUsedVolume = this._usedVolume;
 
-    for (const part of parts) {
-      const equippedItem = currentlyEquipped.get(part);
-      if (equippedItem) {
-        equippedItems.add(equippedItem);
-      }
-    }
-
-    // Check that we won't go over the maxVolume when putting our old
-    // armour/weapons away (remembering that the new armour/weapon won't count
-    // towards the volume limit)
-    let targetVolume = this._usedVolume;
-
-    for (const item of equippedItems) {
-      targetVolume += item.volume;
+    for (const equippedItem of currentlyEquipped) {
+      targetUsedVolume += equippedItem.volume;
     }
 
     if (this._backpack.has(item)) {
-      targetVolume -= item.volume;
+      targetUsedVolume -= item.volume;
     }
 
-    if (targetVolume > this._maxVolume) {
+    if (targetUsedVolume > this._maxVolume) {
       return false;
     }
 
-    // Put all currently equipped items which need to be removed into the
-    // backpack
-    for (const item of equippedItems) {
-      this._backpack.add(item);
+    // Move all equipped items into backpack
+    for (const equippedItem of currentlyEquipped) {
+      for (const part of this._getBodyParts(equippedItem)) {
+        partMap.delete(part);
+      }
+      partSet.delete(equippedItem);
+      this._backpack.add(equippedItem);
     }
 
-    // Put this item in all the correct places (which will remove the old items
-    // from the equipped slots)
-    if (isArmour(item)) {
-      for (const part of parts) {
-        this._equippedArmourByPart.set(part, item);
-      }
+    // Set equipped item in all slots
+    for (const part of bodyParts) {
+      partMap.set(part, item);
+    }
+
+    partSet.add(item);
+
+    // Already calculated the target volume earlier; update the stored value
+    this._usedVolume = targetUsedVolume;
+
+    if (this._backpack.has(item)) {
+      // Was in the backpack; remove it
+      this._backpack.delete(item);
     } else {
-      for (const part of parts) {
-        this._equippedWeaponsByPart.set(part, item);
-      }
+      // Was not in the backpack; update the used weight
+      this._usedWeight += item.weight;
     }
-
-    // Don't store the newly-equipped item in the backpack; we're using it!
-    this._backpack.delete(item);
 
     return true;
   }
 
-  unequipItem(item: Armour | Weapon): void {
-    const parts = this._getBodyParts(item);
-    const mapToRemoveFrom = isArmour(item) ? this._equippedArmourByPart : this._equippedWeaponsByPart;
-
-    for (const part of parts) {
-      mapToRemoveFrom.delete(part);
+  /**
+   * Tried to unequip the item. This will fail if there is not enough volume storage
+   * to hold onto the item after removal.
+   * @param item Item to unequip
+   */
+  unequipItem(item: Armour | Weapon): boolean {
+    if (isArmour(item)) {
+      return this._unequip<Armour>(item, this._equippedArmourByPart, this._equippedArmour);
+    } else {
+      return this._unequip<Weapon>(item, this._equippedWeaponsByPart, this._equippedWeapons);
     }
   }
 
-  private _getBodyParts(item: Armour | Weapon): Set<BodyPart> {
+  private _unequip<T extends Item>(item: T, partMap: Map<BodyPart, T>, partSet: Set<T>): boolean {
+    if (!partSet.has(item)) {
+      // It's not equipped; do nothing.
+      return true;
+    }
+
+    if (this._usedVolume + item.volume > this._maxVolume) {
+      return false;
+    }
+
+    for (const part of this._getBodyParts(item)) {
+      partMap.delete(part);
+    }
+
+    partSet.delete(item);
+
+    this._backpack.add(item);
+
+    return true;
+  }
+
+  private _getBodyParts(item: Item): Set<BodyPart> {
     if (isArmour(item)) {
       return item.coverage;
-    } else {
+    } else if (isWeapon(item)) {
       return item.equippedIn;
+    } else {
+      return new Set<BodyPart>();
     }
   }
 }
