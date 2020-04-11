@@ -4,14 +4,6 @@ import * as metrics from '../common/metrics.js';
 export type Handler<SnapshotType, UpdateType> =
     common.ClientHandler<SnapshotType, UpdateType>;
 
-const channels: Map<string, ChannelState<any, any>> = new Map;
-const socket = new WebSocket('ws://' + location.host + '/websocket');
-socket.onclose = event => { throw event; };
-socket.onerror = event => { throw event; };
-const startupPromise = new Promise((resolve, reject) => {
-  socket.onopen = () => resolve();
-});
-
 export interface Channel<SnapshotType, UpdateType> {
   readonly id: string;
   // Apply a new update originating from the client.
@@ -19,6 +11,38 @@ export interface Channel<SnapshotType, UpdateType> {
   // Access the current state.
   state(): SnapshotType;
 }
+
+// Wait for the network connection to establish. This should be called exactly
+// once, and should return before any other use of the network library is made.
+export async function start() {
+  await startupPromise;
+  console.log('Connected.');
+  sendLoop();
+}
+
+// Subscribe to a channel identified by `id`. Asynchronously returns the
+// associated channel once it has initialized with a state from the server.
+export async function subscribe<SnapshotType, UpdateType>(
+    id: string, handler: Handler<SnapshotType, UpdateType>) {
+  if (channels.has(id)) {
+    throw new Error(id + ' is already subscribed.');
+  }
+  const channel: ChannelState<SnapshotType, UpdateType> =
+      new ChannelState(id, handler);
+  channels.set(id, channel);
+  const request: common.ClientSubscribe = {type: 'ClientSubscribe', id};
+  send(request);
+  await channel.initializationPromise;
+  return channel;
+}
+
+const channels: Map<string, ChannelState<any, any>> = new Map;
+const socket = new WebSocket('ws://' + location.host + '/websocket');
+socket.onclose = event => { throw event; };
+socket.onerror = event => { throw event; };
+const startupPromise = new Promise((resolve, reject) => {
+  socket.onopen = () => resolve();
+});
 
 class ChannelState<SnapshotType, UpdateType> implements
     Channel<SnapshotType, UpdateType> {
@@ -82,20 +106,6 @@ function send(message: common.ClientMessage): void {
   socket.send(bytes);
 }
 
-export async function subscribe<SnapshotType, UpdateType>(
-    id: string, handler: Handler<SnapshotType, UpdateType>) {
-  if (channels.has(id)) {
-    throw new Error(id + ' is already subscribed.');
-  }
-  const channel: ChannelState<SnapshotType, UpdateType> =
-      new ChannelState(id, handler);
-  channels.set(id, channel);
-  const request: common.ClientSubscribe = {type: 'ClientSubscribe', id};
-  send(request);
-  await channel.initializationPromise;
-  return channel;
-}
-
 async function sendLoop() {
   const sendInterval: common.Milliseconds = 1000;
   const maxSendSize = 100000;
@@ -115,12 +125,6 @@ async function sendLoop() {
     if (!hasUpdates) continue;
     send(message);
   }
-}
-
-export async function start() {
-  await startupPromise;
-  console.log('Connected.');
-  sendLoop();
 }
 
 function receiveSnapshot(message: common.ServerSnapshot): void {

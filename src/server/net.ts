@@ -6,6 +6,26 @@ import * as common from '../common/net.js';
 export type Handler<SnapshotType, UpdateType> =
     common.ServerHandler<SnapshotType, UpdateType>;
 
+export interface Channel<SnapshotType, UpdateType> {
+  readonly id: string;
+  // Apply a new update originating from the server.
+  update(update: UpdateType): void;
+  // Access the current state.
+  state(): SnapshotType;
+}
+
+// Create a new channel with the given id and handler. Immediately returns the
+// associated channel. The state can be accessed immediately.
+export function createChannel<SnapshotType, UpdateType>(
+    id: string, handler: Handler<SnapshotType, UpdateType>):
+    Channel<SnapshotType, UpdateType> {
+  if (channels.has(id)) throw new Error('channel ' + id + ' already exists.');
+  const channel: ChannelState<SnapshotType, UpdateType> =
+      new ChannelState(id, handler);
+  channels.set(id, channel);
+  return channel;
+}
+
 const channels: Map<string, ChannelState<any, any>> = new Map;
 const clients: Set<Client> = new Set;
 const webSocketServer = new WebSocket.Server({server});
@@ -22,14 +42,6 @@ class Subscription {
   numLocalUpdates: number;
 }
 
-export interface Channel<SnapshotType, UpdateType> {
-  readonly id: string;
-  // Apply a new update originating from the server.
-  update(update: UpdateType): void;
-  // Access the current state.
-  state(): SnapshotType;
-}
-
 class ChannelState<SnapshotType, UpdateType> implements
     Channel<SnapshotType, UpdateType> {
   constructor(id: string, handler: Handler<SnapshotType, UpdateType>) {
@@ -37,7 +49,7 @@ class ChannelState<SnapshotType, UpdateType> implements
     this.handler = handler;
     this.subscriptions = new Set;
     this.updates = [];
-    this.currentState = handler.copyState(handler.defaultState());
+    this.currentState = handler.defaultState();
     this.version = 0;
     this.creationTime = new Date;
   }
@@ -181,13 +193,3 @@ function handleClient(socket: WebSocket, request: http.IncomingMessage): void {
   clients.add(new Client(request.connection.remoteAddress!, socket));
 }
 webSocketServer.on('connection', handleClient);
-
-export function createChannel<SnapshotType, UpdateType>(
-    id: string, handler: common.ServerHandler<SnapshotType, UpdateType>):
-    Channel<SnapshotType, UpdateType> {
-  if (channels.has(id)) throw new Error('channel ' + id + ' already exists.');
-  const channel: ChannelState<SnapshotType, UpdateType> =
-      new ChannelState(id, handler);
-  channels.set(id, channel);
-  return channel;
-}
