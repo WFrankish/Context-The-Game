@@ -4,8 +4,8 @@ import { Vector2 } from '../common/vector2.js';
 const canvas = document.querySelector('canvas')!;
 const context = canvas.getContext('2d')!;
 
-export const width = 1176;
-export const height = 944;
+export const width = 640;
+export const height = 480;
 let screenToCanvas = Transform.identity();
 export const camera = {
   position: new Vector2(0, 0),
@@ -30,17 +30,15 @@ function computeScale(): { scale: number; offset: Vector2 } {
 }
 
 function roundScale(val: number): number {
-  return 1 <= val && val <= 1.5 ? 1 : val;
+  return 1 <= val && val <= 2.5 ? Math.floor(val) : val;
 }
 
 // Apply the suitable transform for drawing the user interface over the game
 // world. The callback will receive the context it needs to draw, and can assume
 // a resolution of (display.width, display.height) which will be scaled to fit.
-export function draw(
-  callback: (context: CanvasRenderingContext2D) => void
-): void {
+export function draw(callback: (context: CanvasRenderingContext2D) => void): void {
   context.setTransform(1, 0, 0, 1, 0, 0);
-  context.fillStyle = "black";
+  context.fillStyle = 'black';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const { scale, offset } = computeScale();
@@ -48,7 +46,7 @@ export function draw(
   context.scale(scale, scale);
   context.imageSmoothingEnabled = false;
 
-  context.fillStyle = "white";
+  context.fillStyle = 'white';
   context.fillRect(0, 0, width, height);
 
   callback(context);
