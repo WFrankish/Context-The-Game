@@ -9,8 +9,7 @@ const kill =
 
 const main =
     () => {
-      const canvas = document.getElementsByTagName('canvas')[0];
-      engine = new Engine(canvas);
+      engine = new Engine();
       engine.run();
     }
 

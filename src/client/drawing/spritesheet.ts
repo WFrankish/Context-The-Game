@@ -1,25 +1,23 @@
-import { Image } from './image.js';
-import { Sprite } from './sprite.js';
 import { Loadable } from './loadable.js';
+import { Sprite, Image } from './image.js';
 
 export class SpriteSheet implements Loadable {
     private _isLoaded: boolean;
 
-    readonly url: string;
+    readonly assets: string | string[];
 
     readonly loadPromise: Promise<void>;
 
     readonly sprites: Sprite[];
 
-    constructor(url: string, width: number, height: number) {
-        this.url = url;
-        this.sprites = [];
-
+    constructor(img: Image, width: number, height: number) {
         this._isLoaded = false;
-        const img = new Image(url);
+        this.assets = img.assets;
+        this.sprites = [];
         this.loadPromise = img.loadPromise.then(() => {
-            for (let y = 0; y < img.data.height; y += height) {
-                for (let x = 0; x < img.data.width; x += width) {
+            const data = img.getImage(0);
+            for (let y = 0; y < data.height; y += height) {
+                for (let x = 0; x < data.width; x += width) {
                     this.sprites.push(new Sprite(img, x, y, width, height));
                 }
             }

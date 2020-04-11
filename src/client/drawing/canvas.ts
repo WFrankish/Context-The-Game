@@ -1,6 +1,6 @@
 import { tileWidth } from '../../common/constants.js';
 
-export class Canvas {
+class Canvas {
     private readonly ctx: CanvasRenderingContext2D;
 
     private _width: number;
