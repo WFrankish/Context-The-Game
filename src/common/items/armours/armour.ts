@@ -12,4 +12,5 @@ export default interface Armour extends Item {
   coverage: Set<BodyPart>;
   physicalArmour: number;
   magicalArmour: number;
+  carryVolumeIncrease?: number;
 }

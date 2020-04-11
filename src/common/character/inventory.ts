@@ -11,8 +11,14 @@ interface InventoryConstructorOptions {
 
 export default class Inventory {
   private _backpack = new Set<Item>();
-  private _equippedWeapons = new Map<BodyPart, Weapon>();
-  private _equippedArmour = new Map<BodyPart, Armour>();
+  private _equippedWeapons = new Set<Weapon>();
+  private _equippedWeaponsByPart = new Map<BodyPart, Weapon>();
+  private _equippedArmour = new Set<Armour>();
+  private _equippedArmourByPart = new Map<BodyPart, Armour>();
+
+
+  private _baseCarryVolume: number;
+  private _carryVolumeBonus: number;
 
   /**
    * Maximum volume which can be stored in the backpack. Equipped weapons and
@@ -20,76 +26,85 @@ export default class Inventory {
    */
   private _maxVolume: number;
 
+  private _usedVolume: number;
+
+  private _baseCarryWeight: number;
+  private _carryWeightBonus: number;
+
   /**
    * Maximum weight which can be carried. Counts the backpack and all the
    * equipped weapons and armour
    */
   private _maxWeight: number;
 
+  private _usedWeight: number;
+
   constructor({
     maxVolume = 50,
     maxWeight = 100,
   }: InventoryConstructorOptions) {
+    this._baseCarryVolume = maxVolume;
+    this._carryVolumeBonus = 0;
     this._maxVolume = maxVolume;
+    this._usedVolume = 0;
+
+    this._baseCarryWeight = maxWeight;
+    this._carryWeightBonus = 0;
     this._maxWeight = maxWeight;
+    this._usedWeight = 0;
+  }
+
+  get equippedArmour(): Set<Armour> {
+    return new Set<Armour>(this._equippedArmour);
+  }
+
+  get equippedArmourByPart(): Map<BodyPart, Armour> {
+    return new Map<BodyPart, Armour>(this._equippedArmourByPart);
+  }
+
+  get equippedWeapons(): Set<Weapon> {
+    return new Set<Weapon>(this._equippedWeapons);
+  }
+
+  get equippedWeaponsByPart(): Map<BodyPart, Weapon> {
+    return new Map<BodyPart, Weapon>(this._equippedWeaponsByPart);
   }
 
   get usedVolume(): number {
-    let volume = 0;
-
-    for (const item of this._backpack) {
-      volume += item.volume;
-    }
-
-    return volume;
+    return this._usedVolume;
   }
 
   get usedWeight(): number {
-    let weight = 0;
+    return this._usedWeight;
+  }
 
-    for (const item of this._backpack) {
-      weight += item.weight;
-    }
-
-    // Weapons and armour may be in multiple slots; only count their weight once.
-    const seenWeapons = new Set<Weapon>();
-    
-    for (const weapon of this._equippedWeapons.values()) {
-      if (!seenWeapons.has(weapon)) {
-        weight += weapon.weight;
-        seenWeapons.add(weapon);
-      }
-    }
-
-    const seenArmour = new Set<Armour>();
-
-    for (const armour of this._equippedArmour.values()) {
-      if (!seenArmour.has(armour)) {
-        weight += armour.weight;
-        seenArmour.add(armour);
-      }
-    }
-
-    return weight;
+  get maxWeight(): number {
+    return this._maxWeight;
   }
 
   /**
    * Tries to store the given item, checking volume and weight constraints.
-   * Returns false if limit reached, true if successfully added
+   * Returns false if limit reached, item already in backpack, item is equipped.
+   * Returns true if successfully added
    * @param item Item to store
    */
   store(item: Item): boolean {
-    if (this.usedVolume + item.volume > this._maxVolume) {
+    if (this._usedVolume + item.volume > this._maxVolume) {
       return false;
     }
 
-    if (this.usedWeight + item.weight > this._maxWeight) {
+    if (this._usedWeight + item.weight > this._maxWeight) {
       return false;
     }
 
-    this._backpack.add(item);
+    if (!this._backpack.has(item)) {
+      this._usedVolume += item.volume;
+      this._usedWeight += item.weight;
+      this._backpack.add(item);
+      return true;
+    }
 
-    return true;
+    return false;
   }
 
   /**
@@ -98,7 +113,14 @@ export default class Inventory {
    * @param item Item to remove
    */
   remove(item: Item): boolean {
-    return this._backpack.delete(item);
+    const removed = this._backpack.delete(item);
+
+    if (removed) {
+      this._usedVolume -= item.volume;
+      this._usedWeight -= item.weight;
+    }
+
+    return removed;
   }
 
   /**
@@ -124,14 +146,6 @@ export default class Inventory {
     return items;
   }
 
-  getEquippedWeapons(): Map<BodyPart, Weapon> {
-    return new Map<BodyPart, Weapon>(this._equippedWeapons);
-  }
-
-  getEquippedArmour(): Map<BodyPart, Armour> {
-    return new Map<BodyPart, Armour>(this._equippedArmour);
-  }
-
   /**
    * Tries to equip the item. Equipped items take no volume; this can cause
    * equip to fail for these reasons:
@@ -143,7 +157,7 @@ export default class Inventory {
   equipItem(item: Armour|Weapon, unequipExisting: boolean = true): boolean {
     if (!this._backpack.has(item)) {
       // Not in inventory atm, check the weight limit.
-      if (this.usedWeight + item.weight > this._maxWeight) {
+      if (this._usedWeight + item.weight > this._maxWeight) {
         return false;
       }
     }
@@ -151,8 +165,8 @@ export default class Inventory {
     // Get all the equipped items in all the body parts this new item wants to
     // use
     const parts = this._getBodyParts(item);
-    const currentlyEquipped =
-        isArmour(item) ? this._equippedArmour : this._equippedWeapons;
+    const currentlyEquipped = isArmour(item) ? this._equippedArmourByPart :
+                                               this._equippedWeaponsByPart;
     const equippedItems = new Set<Armour|Weapon>();
 
     for (const part of parts) {
@@ -165,7 +179,7 @@ export default class Inventory {
     // Check that we won't go over the maxVolume when putting our old
     // armour/weapons away (remembering that the new armour/weapon won't count
     // towards the volume limit)
-    let targetVolume = this.usedVolume;
+    let targetVolume = this._usedVolume;
 
     for (const item of equippedItems) {
       targetVolume += item.volume;
@@ -189,11 +203,11 @@ export default class Inventory {
     // from the equipped slots)
     if (isArmour(item)) {
       for (const part of parts) {
-        this._equippedArmour.set(part, item);
+        this._equippedArmourByPart.set(part, item);
       }
     } else {
       for (const part of parts) {
-        this._equippedWeapons.set(part, item);
+        this._equippedWeaponsByPart.set(part, item);
       }
     }
 
@@ -205,8 +219,8 @@ export default class Inventory {
 
   unequipItem(item: Armour|Weapon): void {
     const parts = this._getBodyParts(item);
-    const mapToRemoveFrom =
-        isArmour(item) ? this._equippedArmour : this._equippedWeapons;
+    const mapToRemoveFrom = isArmour(item) ? this._equippedArmourByPart :
+                                             this._equippedWeaponsByPart;
 
     for (const part of parts) {
       mapToRemoveFrom.delete(part);
