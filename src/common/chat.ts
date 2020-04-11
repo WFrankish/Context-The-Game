@@ -8,10 +8,10 @@ export class Handler implements net.Handler<string[], string> {
     return state.slice();
   }
   loadSnapshot(data: net.JsonObject): string[] {
-    return (data as string[]).slice();
+    return data as string[];
   }
   encodeSnapshot(state: string[]): net.JsonObject {
-    return state.slice();
+    return state;
   }
   applyUpdate(state: string[], update: string): void {
     state.push(update);
