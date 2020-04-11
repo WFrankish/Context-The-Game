@@ -1,10 +1,10 @@
-import {Image, Sprite} from './image.js';
-import {Loadable} from './loadable.js';
+import { Image, Sprite } from './image.js';
+import { Loadable } from './loadable.js';
 
 export class SpriteSheet implements Loadable {
   private _isLoaded = false;
 
-  readonly assets: string|string[];
+  readonly assets: string | string[];
 
   readonly loadPromise: Promise<void>;
 

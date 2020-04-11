@@ -1,7 +1,7 @@
-import { Image } from "./image.js";
-import { Vector2 } from "../../common/vector2.js";
-import * as display from "../display.js";
-import { tileWidth, tileHeight } from "../../common/constants.js";
+import { Image } from './image.js';
+import { Vector2 } from '../../common/vector2.js';
+import * as display from '../display.js';
+import { tileWidth, tileHeight } from '../../common/constants.js';
 
 export interface Drawable {
   draw(ctx: CanvasRenderingContext2D, dt: number): void;
@@ -25,29 +25,15 @@ export class Tile implements Drawable {
     // positive is up and right
 
     // centre sprites horizontally
-    x = (x * tileWidth) - (img.width - tileWidth) / 2;
+    x = x * tileWidth - (img.width - tileWidth) / 2;
 
     // draw from bottom
-    y = display.height - (y * tileHeight) - img.height;
+    y = display.height - y * tileHeight - img.height;
 
-    const offscreen =
-      y + img.height <= 0 ||
-      y >= display.height ||
-      x + img.width <= 0 ||
-      x >= display.width;
+    const offscreen = y + img.height <= 0 || y >= display.height || x + img.width <= 0 || x >= display.width;
 
     if (!offscreen) {
-      ctx.drawImage(
-        img.data,
-        img.startX,
-        img.startY,
-        img.width,
-        img.height,
-        x,
-        y,
-        img.width,
-        img.height
-      );
+      ctx.drawImage(img.data, img.startX, img.startY, img.width, img.height, x, y, img.width, img.height);
     }
   }
 }
@@ -89,7 +75,7 @@ export class HudPiece implements Drawable {
       case Anchor.Top:
       case Anchor.Centre:
       case Anchor.Bottom:
-        x =  x - Math.trunc(img.width / 2);
+        x = x - Math.trunc(img.width / 2);
         break;
       case Anchor.TopRight:
       case Anchor.Right:
@@ -104,7 +90,7 @@ export class HudPiece implements Drawable {
       case Anchor.Left:
       case Anchor.Centre:
       case Anchor.Right:
-        y = y - Math.trunc(img.height/2);
+        y = y - Math.trunc(img.height / 2);
         break;
       case Anchor.BottomLeft:
       case Anchor.Bottom:
@@ -113,24 +99,10 @@ export class HudPiece implements Drawable {
         break;
     }
 
-    const offscreen =
-      y + img.height <= 0 ||
-      y >= display.height ||
-      x + img.width <= 0 ||
-      x >= display.width;
+    const offscreen = y + img.height <= 0 || y >= display.height || x + img.width <= 0 || x >= display.width;
 
     if (!offscreen) {
-      ctx.drawImage(
-        img.data,
-        img.startX,
-        img.startY,
-        img.width,
-        img.height,
-        x,
-        y,
-        img.width,
-        img.height
-      );
+      ctx.drawImage(img.data, img.startX, img.startY, img.width, img.height, x, y, img.width, img.height);
     }
   }
 }

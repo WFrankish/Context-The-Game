@@ -1,4 +1,4 @@
-import {HttpError} from './http_error.js';
+import { HttpError } from './http_error.js';
 
 // Assets which match specific paths are rewritten before the path prefix
 // whitelist is applied.
