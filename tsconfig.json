@@ -9,7 +9,8 @@
             "*": ["node_modules/*"]
         },
         "outDir": "site",
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "sourceRoot": "/"
     },
     "include": ["src/**/*"]
 }

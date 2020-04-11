@@ -6,6 +6,7 @@ import {HttpError} from './http_error.js';
 const contentTypes = new Map([
   ["js", "text/javascript"],
   ["js.map", "application/octet-stream"],
+  ["ts", "application/x-typescript"],
   ["html", "text/html"],
   ["ico", "image/x-icon"],
   ["png", "image/png"],

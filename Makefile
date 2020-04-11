@@ -1,9 +1,18 @@
+# Enumerate all directories.
+DIRS_OUT=site  \
+				 $(patsubst src/%, site/%, $(shell find src/* -type d))  \
+				 $(patsubst %, site/%, $(shell find assets -type d))
+
 # Enumerate all typescript sources.
 TS_IN=$(shell find src -name '*.ts')
 TS_OUT=${TS_IN:src/%.ts=site/%.js}
+TS_COPY=${TS_IN:src/%.ts=site/%.ts}
 
 ASSET_IN=$(shell find assets)
 ASSET_OUT=${ASSET_IN:%=site/%}
+
+PAGES_IN=$(shell find src -name '*.html')
+PAGES_OUT=${PAGES_IN:src/%.html=site/%.html}
 
 .PHONY: all clean default run
 default: all
@@ -13,24 +22,26 @@ run: all
 
 ALL=  \
 	${TS_OUT}  \
+	${TS_COPY}  \
 	${ASSET_OUT}  \
-	site/client/index.html  \
-	site/client/display_demo.html  \
-	site/client/chat.html
+	${DIRS_OUT}  \
+	${PAGES_OUT}
 all: ${ALL}
 
 clean:
-	rm -r site
+	rm -rf site
 
-site site/assets site/client site/common site/server &:
-	mkdir -p site/{assets,client,common,server}
+${DIRS_OUT} &:
+	mkdir -p ${DIRS_OUT}
 
-site/client/%.html: src/client/%.html | site/client
+site/%.ts: src/%.ts | site
 	cp $^ $@
 
-site/assets/%: assets/% | site/assets
-	mkdir -p site/assets
+site/%.html: src/%.html | site
 	cp $^ $@
 
-${TS_OUT} &: ${TS_IN} | site/client site/common site/server
+site/assets/%: assets/% | site
+	cp $^ $@
+
+${TS_OUT} &: ${TS_IN} | site
 	tsc --incremental | src/format_errors.sh
