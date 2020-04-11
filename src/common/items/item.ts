@@ -8,7 +8,7 @@ export default interface Item {
   category: ItemCategory;
   name: string;
   weight: number;
-  size: number;
+  volume: number;
   value: number;
   imagePath: string;
 }
