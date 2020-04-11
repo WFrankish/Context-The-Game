@@ -37,7 +37,7 @@ class ChannelState<SnapshotType, UpdateType> implements
     this.handler = handler;
     this.subscriptions = new Set;
     this.updates = [];
-    this.currentState = handler.copyState(handler.defaultState);
+    this.currentState = handler.copyState(handler.defaultState());
     this.version = 0;
     this.creationTime = new Date;
   }

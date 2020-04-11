@@ -1,7 +1,7 @@
 import * as net from './net.js';
 
 export class Handler implements net.Handler<string[], string> {
-  get defaultState() {
+  defaultState() {
     return [];
   }
   copyState(state: string[]): string[] {

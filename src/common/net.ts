@@ -72,7 +72,7 @@ export interface ClientHandler<SnapshotType, UpdateType> {
 
 export interface ServerHandler<SnapshotType, UpdateType> {
   // Default state used when creating new instances of the snapshot type.
-  defaultState: SnapshotType;
+  defaultState(): SnapshotType;
   // Copy a snapshot state into a new state object.
   copyState(state: SnapshotType): SnapshotType;
   // Encode a snapshot state into the network format.
