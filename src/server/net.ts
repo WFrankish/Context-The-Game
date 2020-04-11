@@ -1,7 +1,9 @@
 import * as http from 'http';
-import {server} from './http.js';
 import WebSocket from 'ws';
+
 import * as common from '../common/net.js';
+
+import {server} from './http.js';
 
 export type Handler<SnapshotType, UpdateType> =
     common.ServerHandler<SnapshotType, UpdateType>;

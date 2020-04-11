@@ -1,7 +1,7 @@
 export enum ItemCategory {
-  Weapon = "Weapon",
-  Armour = "Armour",
-  Consumable = "Consumable",
+  Weapon = 'Weapon',
+  Armour = 'Armour',
+  Consumable = 'Consumable',
 }
 
 export default interface Item {

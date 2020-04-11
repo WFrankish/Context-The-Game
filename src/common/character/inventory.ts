@@ -1,7 +1,8 @@
-import Item, { ItemCategory } from "../items/item";
-import Armour, { isArmour } from "../items/armours/armour";
-import Weapon, { isWeapon } from "../items/weapons/weapon";
-import BodyPart from "./body_part";
+import Armour, {isArmour} from '../items/armours/armour';
+import Item, {ItemCategory} from '../items/item';
+import Weapon, {isWeapon} from '../items/weapons/weapon';
+
+import BodyPart from './body_part';
 
 interface InventoryConstructorOptions {
   sizeCapacity?: number;
@@ -44,7 +45,8 @@ export default class Inventory {
   }
 
   /**
-   * Tries to store the given item, checking size and weight constraints. Returns false if limit reached, true if successfully added
+   * Tries to store the given item, checking size and weight constraints.
+   * Returns false if limit reached, true if successfully added
    * @param item Item to store
    */
   store(item: Item): boolean {
@@ -62,7 +64,8 @@ export default class Inventory {
   }
 
   /**
-   * Tries to remove the given item, returns true if successful or false if item doesn't exist
+   * Tries to remove the given item, returns true if successful or false if item
+   * doesn't exist
    * @param item Item to remove
    */
   remove(item: Item): boolean {
@@ -101,11 +104,11 @@ export default class Inventory {
   }
 
   /**
-   * Tries to equip the item, returning false if item not stored and capacity reached,
-   * equipped item cannot be unequipped.
+   * Tries to equip the item, returning false if item not stored and capacity
+   * reached, equipped item cannot be unequipped.
    * @param item Item to equip
    */
-  equipItem(item: Armour | Weapon, unequipExisting: boolean = true): boolean {
+  equipItem(item: Armour|Weapon, unequipExisting: boolean = true): boolean {
     if (!this._contents.has(item)) {
       if (!this.store(item)) {
         return false;
@@ -113,9 +116,8 @@ export default class Inventory {
     }
 
     const parts = this._getBodyParts(item);
-    const currentlyEquipped = isArmour(item)
-      ? this._equippedArmour
-      : this._equippedWeapons;
+    const currentlyEquipped =
+        isArmour(item) ? this._equippedArmour : this._equippedWeapons;
 
     for (const part of parts) {
       if (currentlyEquipped.has(part)) {
@@ -140,18 +142,17 @@ export default class Inventory {
     return true;
   }
 
-  unequipItem(item: Armour | Weapon): void {
+  unequipItem(item: Armour|Weapon): void {
     const parts = this._getBodyParts(item);
-    const mapToRemoveFrom = isArmour(item)
-      ? this._equippedArmour
-      : this._equippedWeapons;
+    const mapToRemoveFrom =
+        isArmour(item) ? this._equippedArmour : this._equippedWeapons;
 
     for (const part of parts) {
       mapToRemoveFrom.delete(part);
     }
   }
 
-  private _getBodyParts(item: Armour | Weapon): Set<BodyPart> {
+  private _getBodyParts(item: Armour|Weapon): Set<BodyPart> {
     if (isArmour(item)) {
       return item.coverage;
     } else {

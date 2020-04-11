@@ -4,12 +4,12 @@ import {HttpError} from './http_error.js';
 // absent from this list, the server will return an error instead of returning
 // the resource.
 const contentTypes = new Map([
-  ["js", "text/javascript"],
-  ["js.map", "application/octet-stream"],
-  ["ts", "application/x-typescript"],
-  ["html", "text/html"],
-  ["ico", "image/x-icon"],
-  ["png", "image/png"],
+  ['js', 'text/javascript'],
+  ['js.map', 'application/octet-stream'],
+  ['ts', 'application/x-typescript'],
+  ['html', 'text/html'],
+  ['ico', 'image/x-icon'],
+  ['png', 'image/png'],
 ]);
 
 export function contentType(file: string): string {

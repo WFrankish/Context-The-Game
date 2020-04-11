@@ -1,4 +1,4 @@
-import Item, { ItemCategory } from "../item";
+import Item, {ItemCategory} from '../item';
 
 export function isConsumable(item: Item): item is Consumable {
   return item.category === ItemCategory.Consumable;
