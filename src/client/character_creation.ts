@@ -4,7 +4,7 @@ import { HudPiece, Anchor, Tile, Drawable } from './drawing/drawable.js';
 import { StaticImage, LoopingImage, Image } from './drawing/image.js';
 
 let position: Vector2 | null = null;
-let curr = 0;
+let curr = 2;
 let img = new Image();
 let presets: Array<string>;
 presets = [
