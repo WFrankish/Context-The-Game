@@ -5,8 +5,18 @@ import Weapon, { isWeapon } from '../items/weapons/weapon';
 import BodyPart from './body_part';
 
 interface InventoryConstructorOptions {
-  maxVolume?: number;
-  maxWeight?: number;
+  baseVolume?: number;
+  baseCarryWeight?: number;
+}
+
+interface VolumeOptions {
+  baseVolume?: number;
+  bonusVolume?: number;
+}
+
+interface WeightOptions {
+  baseWeight?: number;
+  bonusWeight?: number;
 }
 
 export default class Inventory {
@@ -16,8 +26,8 @@ export default class Inventory {
   private _equippedArmour = new Set<Armour>();
   private _equippedArmourByPart = new Map<BodyPart, Armour>();
 
-  private _baseCarryVolume = 0;
-  private _carryVolumeBonus = 0;
+  private _baseVolume = 0;
+  private _bonusVolume = 0;
 
   /**
    * Maximum volume which can be stored in the backpack. Equipped weapons and
@@ -38,12 +48,12 @@ export default class Inventory {
 
   private _usedWeight = 0;
 
-  constructor({ maxVolume = 50, maxWeight = 100 }: InventoryConstructorOptions) {
-    this._baseCarryVolume = maxVolume;
-    this._maxVolume = maxVolume;
+  constructor({ baseVolume = 50, baseCarryWeight = 100 }: InventoryConstructorOptions) {
+    this._baseVolume = baseVolume;
+    this._maxVolume = baseVolume;
 
-    this._baseCarryWeight = maxWeight;
-    this._maxWeight = maxWeight;
+    this._baseCarryWeight = baseCarryWeight;
+    this._maxWeight = baseCarryWeight;
   }
 
   get equippedArmour(): Set<Armour> {
@@ -72,6 +82,42 @@ export default class Inventory {
 
   get maxWeight(): number {
     return this._maxWeight;
+  }
+
+  /**
+   * Tries to update the base and/or bonus volume limit. Fails if this would result in character being over-volume.
+   */
+  setVolumeLimits({ baseVolume, bonusVolume }: VolumeOptions): boolean {
+    const nextBase = baseVolume === undefined ? this._baseVolume : baseVolume;
+    const nextBonus = bonusVolume === undefined ? this._bonusVolume : bonusVolume;
+
+    if (nextBase + nextBonus < this._usedVolume) {
+      return false;
+    }
+
+    this._baseVolume = nextBase;
+    this._bonusVolume = nextBonus;
+    this._maxVolume = nextBase + nextBonus;
+
+    return true;
+  }
+
+  /**
+   * Tries to update the base and/or bonus weight limit. Fails if this would result in character being over-weight.
+   */
+  setWeightLimits({ baseWeight, bonusWeight }: WeightOptions): boolean {
+    const nextBase = baseWeight === undefined ? this._baseCarryWeight : baseWeight;
+    const nextBonus = bonusWeight === undefined ? this._carryWeightBonus : bonusWeight;
+
+    if (nextBase + nextBonus < this._usedWeight) {
+      return false;
+    }
+
+    this._baseCarryWeight = nextBase;
+    this._carryWeightBonus = nextBonus;
+    this._maxWeight = nextBase + nextBonus;
+
+    return true;
   }
 
   /**
