@@ -17,9 +17,9 @@ function computeScale(): { scale: number; offset: Vector2 } {
   const actualAspect = canvas.width / canvas.height;
   let scale: number;
   if (aspect <= actualAspect) {
-    scale = clampScale(canvas.height / height);
+    scale = roundScale(canvas.height / height);
   } else {
-    scale = clampScale(canvas.width / width);
+    scale = roundScale(canvas.width / width);
   }
   const actualWidth = scale * width;
   const actualHeight = scale * height;
@@ -29,12 +29,8 @@ function computeScale(): { scale: number; offset: Vector2 } {
   };
 }
 
-function clampScale(val: number): number {
-  if(val >= 1){
-    return Math.floor(val);
-  } else {
-    return 1 / Math.ceil(1/val);
-  }
+function roundScale(val: number): number {
+  return 1 <= val && val <= 1.5 ? 1 : val;
 }
 
 // Apply the suitable transform for drawing the user interface over the game
