@@ -1,9 +1,12 @@
 import {Loadable} from './loadable';
 
-export type ImageData = {
-  readonly data: HTMLImageElement; readonly startX: number; readonly startY: number; readonly width: number; readonly height:
-                                                                                                                          number;
-};
+export interface ImageData {
+  readonly data: HTMLImageElement;
+  readonly startX: number;
+  readonly startY: number;
+  readonly width: number;
+  readonly height: number;
+}
 
 export interface Image extends Loadable {
   getImage(dt: number): ImageData;
