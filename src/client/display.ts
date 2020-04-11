@@ -4,8 +4,8 @@ import {Vector2} from '../common/vector2.js';
 const canvas = document.querySelector('canvas')!;
 const context = canvas.getContext('2d')!;
 
-export const width = 1280;
-export const height = 1024;
+export const width = 1176;
+export const height = 944;
 let screenToCanvas = Transform.identity();
 export const camera = {
   position: new Vector2(0, 0),
@@ -15,19 +15,25 @@ export const camera = {
 function computeScale(): {scale: number, offset: Vector2} {
   const aspect = width / height;
   const actualAspect = canvas.width / canvas.height;
+  let scale: number;
   if (aspect <= actualAspect) {
-    const actualWidth = canvas.height * aspect;
-    return {
-      scale: canvas.height / height,
-      offset: new Vector2(0.5 * (canvas.width - actualWidth), 0),
-    };
+    scale = clampScale(canvas.height / height);
   } else {
-    const actualHeight = canvas.width / aspect;
-    return {
-      scale: canvas.width / width,
-      offset: new Vector2(0, 0.5 * (canvas.height - actualHeight)),
-    };
+    scale = clampScale(canvas.width / width);
   }
+  const actualWidth = scale * width;
+  const actualHeight =  scale * height;
+  return {
+    scale,
+    offset: new Vector2(0.5 * (canvas.width - actualWidth), 0.5 * (canvas.height - actualHeight))
+  };
+}
+
+function clampScale(val: number): number {
+  let pow = Math.log2(val);
+  pow = Math.floor(pow);
+  console.log(val, pow, 2 ** pow);
+  return 2 ** pow;
 }
 
 export function clear(): void {
