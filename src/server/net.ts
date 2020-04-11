@@ -3,6 +3,7 @@ import WebSocket from 'ws';
 
 import * as common from '../common/net.js';
 
+import {Milliseconds, time} from '../common/time.js';
 import {server} from './http.js';
 
 export type Handler<SnapshotType, UpdateType> =
@@ -36,12 +37,11 @@ class Subscription {
   constructor(channel: ChannelState<any, any>, client: Client) {
     this.channel = channel;
     this.client = client;
-    // Number of updates received from the client.
-    this.numLocalUpdates = 0;
   }
   channel: ChannelState<any, any>;
   client: Client;
-  numLocalUpdates: number;
+  // Number of updates received from the client.
+  numLocalUpdates = 0;
 }
 
 class ChannelState<SnapshotType, UpdateType> implements
@@ -49,11 +49,7 @@ class ChannelState<SnapshotType, UpdateType> implements
   constructor(id: string, handler: Handler<SnapshotType, UpdateType>) {
     this.id = id;
     this.handler = handler;
-    this.subscriptions = new Set;
-    this.updates = [];
     this.currentState = handler.defaultState();
-    this.version = 0;
-    this.creationTime = new Date;
   }
   update(update: UpdateType): void {
     this.updates.push(update);
@@ -66,15 +62,15 @@ class ChannelState<SnapshotType, UpdateType> implements
   }
   id: string;
   handler: Handler<SnapshotType, UpdateType>;
-  subscriptions: Set<Subscription>;
+  subscriptions: Set<Subscription> = new Set;
   // Buffered updates which the subscribers haven't received.
-  updates: UpdateType[];
+  updates: UpdateType[] = [];
   // Current version, including buffered updates.
   currentState: SnapshotType;
   // Version number of the current version.
-  version: number;
+  version = 0;
   // Creation time of the current version.
-  creationTime: Date;
+  creationTime = new Date;
 }
 
 class Client {
@@ -84,7 +80,6 @@ class Client {
     socket.on('message', (data: any) => this.message(data));
     socket.on('close', () => this.shutdown());
     socket.on('error', () => this.shutdown());
-    this.subscriptions = new Map;
   }
   send(data: common.ServerMessage): void {
     const maxSendSize = 100000;
@@ -176,14 +171,14 @@ class Client {
   }
   remoteAddress: string;
   socket: WebSocket;
-  subscriptions: Map<string, Subscription>;
+  subscriptions: Map<string, Subscription> = new Map;
 }
 
 async function sendLoop() {
-  const sendInterval: common.Milliseconds = 50;
+  const sendInterval: Milliseconds = 50;
   let nextStart = Date.now();
   while (true) {
-    await common.time(nextStart);
+    await time(nextStart);
     nextStart = Date.now() + sendInterval;
     for (const client of clients) client.sendUpdates();
     for (const channel of channels.values()) channel.updates = [];

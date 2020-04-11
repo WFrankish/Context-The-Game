@@ -66,6 +66,10 @@ export class Vector2 {
   static divide: VectorMath = (a: any, b: any) => {
     return vectorMath(a, b, (x, y) => x / y);
   };
+
+  normalized(): Vector2 {
+    return this.divide(this.length);
+  }
 }
 
 type VectorMath = ((a: Vector2, b: Vector2|number) => Vector2)&

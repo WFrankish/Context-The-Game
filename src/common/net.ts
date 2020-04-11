@@ -1,3 +1,5 @@
+import {Timestamp} from './time.js';
+
 export type JsonObject =
     boolean|number|string|JsonObject[]|{[key: string]: JsonObject};
 
@@ -55,13 +57,6 @@ export interface ServerHandler<SnapshotType, UpdateType> {
 export type Handler<SnapshotType, UpdateType> =
     ClientHandler<SnapshotType, UpdateType>&
     ServerHandler<SnapshotType, UpdateType>;
-
-export type Milliseconds = number;
-export type Timestamp = Milliseconds;
-
-export function time(t: Timestamp) {
-  return new Promise((resolve, reject) => setTimeout(resolve, t - Date.now()));
-}
 
 // client -> server: Local updates for all subscriptions.
 export interface ClientUpdates {

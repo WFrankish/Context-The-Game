@@ -13,7 +13,7 @@ export interface Image extends Loadable {
 }
 
 export class StaticImage implements Image {
-  private _isLoaded: boolean;
+  private _isLoaded = false;
 
   private imageData?: ImageData;
 
@@ -23,7 +23,6 @@ export class StaticImage implements Image {
   constructor(path: string) {
     this.assets = path;
     const img = document.createElement('img');
-    this._isLoaded = false;
 
     img.src = "./assets/" + path;
     this.loadPromise = new Promise((resolve) => {
@@ -93,13 +92,13 @@ export class Sprite implements Image {
 }
 
 export class LoopingImage implements Image {
-  private _isLoaded: boolean;
+  private _isLoaded: boolean = false;
 
   private readonly drawables: Image[];
 
   private readonly frameLengthMs: number;
 
-  private currentTimeMs: number;
+  private currentTimeMs = 0;
 
   readonly assets: string[];
 
@@ -112,8 +111,6 @@ export class LoopingImage implements Image {
     }
     this.frameLengthMs = frameLengthMs;
     this.drawables = images;
-    this._isLoaded = false;
-    this.currentTimeMs = 0;
 
     this.assets = [];
     for (let drawable of images) {

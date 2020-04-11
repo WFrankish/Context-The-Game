@@ -17,8 +17,8 @@ export default class Inventory {
   private _equippedArmourByPart = new Map<BodyPart, Armour>();
 
 
-  private _baseCarryVolume: number;
-  private _carryVolumeBonus: number;
+  private _baseCarryVolume = 0;
+  private _carryVolumeBonus = 0;
 
   /**
    * Maximum volume which can be stored in the backpack. Equipped weapons and
@@ -26,10 +26,10 @@ export default class Inventory {
    */
   private _maxVolume: number;
 
-  private _usedVolume: number;
+  private _usedVolume = 0;
 
   private _baseCarryWeight: number;
-  private _carryWeightBonus: number;
+  private _carryWeightBonus = 0;
 
   /**
    * Maximum weight which can be carried. Counts the backpack and all the
@@ -37,21 +37,17 @@ export default class Inventory {
    */
   private _maxWeight: number;
 
-  private _usedWeight: number;
+  private _usedWeight = 0;
 
   constructor({
     maxVolume = 50,
     maxWeight = 100,
   }: InventoryConstructorOptions) {
     this._baseCarryVolume = maxVolume;
-    this._carryVolumeBonus = 0;
     this._maxVolume = maxVolume;
-    this._usedVolume = 0;
 
     this._baseCarryWeight = maxWeight;
-    this._carryWeightBonus = 0;
     this._maxWeight = maxWeight;
-    this._usedWeight = 0;
   }
 
   get equippedArmour(): Set<Armour> {
