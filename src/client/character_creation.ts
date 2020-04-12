@@ -13,8 +13,35 @@ presets = [
   '../assets/gandalf_the_girthy_red.png',
   '../assets/gandalf_the_girthy_purple.png',
 ];
-window.requestAnimationFrame(creationInit);
-function creationInit(totalMilliseconds: number): void {
+
+function init(): void {
+  display.onMouseMove((event) => {
+    position = event.position;
+    
+    console.log(`position: ${position?.x} ${position?.y}`);
+  });
+  display.onMouseUp((event) => {
+    console.log(`Mouse up position: ${position?.x} ${position?.y}`);
+    if (isLeftArrowClicked()) {
+      curr = (curr + 4 - 1) % 4;
+      // display.draw((context) => {
+      //   drawPreset(context);
+      // });
+      requestAnimationFrame(render);
+    } else if (isRightArrowClicked()) {
+        curr = (curr + 1) % 4;
+        // display.draw((context) => {
+        //     drawPreset(context)
+        // })
+        requestAnimationFrame(render);
+    }
+  });
+}
+
+init(); 
+window.requestAnimationFrame(render);
+
+function render(totalMilliseconds: number): void {
   display.draw((context) => {
     context.imageSmoothingEnabled = false;
     drawPreset(context);
@@ -29,27 +56,7 @@ function creationInit(totalMilliseconds: number): void {
       context.drawImage(arrowRight, 128, 256, 128, 64);
     };
   });
-  display.onMouseMove((event) => {
-    position = event.position;
-    
-    console.log(`position: ${position?.x} ${position?.y}`);
-  });
-  display.onMouseUp((event) => {
-    console.log(`Mouse up position: ${position?.x} ${position?.y}`);
-    if (isLeftArrowClicked()) {
-      curr = (curr + 4 - 1) % 4;
-      // display.draw((context) => {
-      //   drawPreset(context);
-      // });
-      requestAnimationFrame(creationInit);
-    } else if (isRightArrowClicked()) {
-        curr = (curr + 1) % 4;
-        // display.draw((context) => {
-        //     drawPreset(context)
-        // })
-        requestAnimationFrame(creationInit);
-    }
-  });
+
 }
 
 function isLeftArrowClicked(): boolean {
