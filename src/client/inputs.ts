@@ -1,15 +1,26 @@
-
-type Input = 'up' | 'down' | 'left' | 'right' | 'primary' | 'secondary' | 'camUp' | 'camDown' | 'camLeft' | 'camRight';
+type Input =
+  | 'up'
+  | 'down'
+  | 'left'
+  | 'right'
+  | 'primary'
+  | 'secondary'
+  | 'camUp'
+  | 'camDown'
+  | 'camLeft'
+  | 'camRight'
+  | 'inventory';
 
 type IInputs = {
   [key in Input]: number;
-}
+};
 
 export class Inputs implements IInputs {
   up = 0;
   down = 0;
   left = 0;
   right = 0;
+  inventory = 0;
   primary = 0;
   secondary = 0;
   camUp = 0;
@@ -27,6 +38,7 @@ const keyBindings: Map<string, Input> = new Map([
   ['ArrowLeft', 'camLeft'],
   ['ArrowDown', 'camDown'],
   ['ArrowRight', 'camRight'],
+  ['KeyI', 'inventory'],
 ]);
 const mouseBindings: Map<number, Input> = new Map([
   [0, 'primary'],
