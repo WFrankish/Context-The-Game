@@ -37,17 +37,16 @@ function creationInit(totalMilliseconds: number): void {
   display.onMouseUp((event) => {
     console.log(`Mouse up position: ${position?.x} ${position?.y}`);
     if (isLeftArrowClicked()) {
-      curr = (curr - 1) % 4;
+      curr = (curr + 4 - 1) % 4;
       display.draw((context) => {
         drawPreset(context);
       });
+    } else if (isRightArrowClicked()) {
+        curr = (curr + 1) % 4;
+        display.draw((context) => {
+            drawPreset(context)
+        })
     }
-    // if (isLeftArrowClicked()) {
-    //     curr = (curr - 1) % 4;
-    //     display.draw((context) => {
-    //         drawPreset(context)
-    //     })
-    // }
   });
 }
 
@@ -60,6 +59,18 @@ function isLeftArrowClicked(): boolean {
     return false;
   }
   if (position.y < arrowLeftBounds[2] || position.y > arrowLeftBounds[3]) {
+    return false;
+  }
+  return true;
+}
+function isRightArrowClicked(): boolean {
+  console.log("Right arrow clicked");
+  let arrowRightBounds: Array<number> = [128, 256, 256, 320];
+  if (position == null) return false;
+  if (position.x < arrowRightBounds[0] || position.x > arrowRightBounds[1]) {
+    return false;
+  }
+  if (position.y < arrowRightBounds[2] || position.y > arrowRightBounds[3]) {
     return false;
   }
   return true;
