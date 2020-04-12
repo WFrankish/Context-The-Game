@@ -57,18 +57,13 @@ function render(totalMilliseconds: number): void {
       zone!.draw(context, dt);
     },
     (context) => {
-      const hud: Drawable[] = [
-      // new HudPiece(arrow!, new Vector2(0, 0), Anchor.TopLeft),
-      // new HudPiece(arrow!, new Vector2(200, 0), Anchor.Top),
-      // new HudPiece(arrow!, new Vector2(-1, 0), Anchor.TopRight),
-      // new HudPiece(arrow!, new Vector2(0, 200), Anchor.Left),
-      // new HudPiece(arrow!, new Vector2(200, 200), Anchor.Centre),
-      // new HudPiece(arrow!, new Vector2(-1, 200), Anchor.Right),
-      // new HudPiece(arrow!, new Vector2(0, -1), Anchor.BottomLeft),
-      // new HudPiece(arrow!, new Vector2(200, -1), Anchor.Bottom),
-      // new HudPiece(arrow!, new Vector2(-1, -1), Anchor.BottomRight),
-      new HudText(localPlayer.hudText, 24, new Vector2(0, 0), Anchor.TopLeft),
-      ];
+      const hud: Drawable[] = [new HudText(localPlayer.hudText, 24, new Vector2(0, 0), Anchor.TopLeft)];
+
+      const drawInventory = true;
+
+      if (drawInventory) {
+      }
+
       for (const item of hud) item.draw(context, dt);
     }
   );

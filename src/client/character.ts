@@ -1,7 +1,7 @@
 import { Seconds } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
 import { clamp } from '../common/utils.js';
-import { inputs, Inputs } from "./inputs.js";
+import { inputs, Inputs } from './inputs.js';
 import Inventory from '../common/character/inventory.js';
 import { Updatable } from './updatable.js';
 import { Drawable } from './drawing/drawable.js';
