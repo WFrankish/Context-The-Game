@@ -42,22 +42,47 @@ export class Wall extends Obstacle {
     const bottom = neighbours.down == '#';
     const right = neighbours.right == '#';
 
-    // WIP
+    const topLeft = x - 1 < 0 || y - 1 < 0 || lines[y - 1][x-1] === '#';;
+    const topRight =  x + 1 >= lines[y].length || y - 1 < 0 || lines[y - 1][x+1] === '#';;
+    const bottomLeft =  x - 1 < 0 || y + 1 >= lines.length || lines[y + 1][x-1] === '#';;
+    const bottomRight = x + 1 >= lines[y].length || y + 1 >= lines.length || lines[y + 1][x+1] === '#';;
+
+    // This isn't complete
     if (!top || !bottom) {
-      // do not need to care about corners
       if (!top) {
         // need tall bits for top
         const sprites = await Wall.tallWalls;
         if (bottom && left && right) {
-          image = sprites[2];
+          if(topLeft && topRight){
+            image = await Wall.tallWalls.then((s) => s.sprites[18]);
+          }
+          else if(!topLeft && topRight){
+            image = await Wall.tallWalls.then((s) => s.sprites[17]);
+          }
+          else if(topLeft && !topRight){
+            image = await Wall.tallWalls.then((s) => s.sprites[16]);
+          }
+          else {
+            image = await Wall.tallWalls.then((s) => s.sprites[10]);
+          }
         } else if (!bottom && left && right) {
           image = sprites[6];
         } else if (bottom && !left && right) {
-          image = sprites[1];
+          if(bottomRight){
+            image = await Wall.tallWalls.then((s) => s.sprites[1]);
+          }
+          else {
+            image = await Wall.tallWalls.then((s) => s.sprites[11]);
+          }
         } else if (!bottom && !left && right) {
           image = sprites[5];
         } else if (bottom && left && !right) {
-          image = sprites[3];
+          if(bottomLeft){
+            image = await Wall.tallWalls.then((s) => s.sprites[3]);
+          }
+          else {
+            image = await Wall.tallWalls.then((s) => s.sprites[12]);
+          }
         } else if (!bottom && left && !right) {
           image = sprites[7];
         } else if (bottom && !left && !right) {
@@ -82,20 +107,25 @@ export class Wall extends Obstacle {
       // top && bottom
       const sprites = await Wall.walls;
       if (left && right) {
-        image = sprites[16];
+        image = await Wall.walls.then((s) => s.sprites[0]);
       } else if (!left && right) {
-        image = sprites[17];
+        image = await Wall.walls.then((s) => s.sprites[5]);
       } else if (left && !right) {
-        image = sprites[19];
+        image = await Wall.walls.then((s) => s.sprites[4]);
       } else {
-        image = sprites[21];
+        if(bottomLeft && bottomRight){
+          image = await Wall.walls.then((s) => s.sprites[18]);
       }
-
-      const topLeft = false;
-      const topRight = false;
-      const bottomLeft = false;
-      const bottomRight = false;
-      image = (await Wall.walls)[0];
+        else if (!bottomLeft && bottomRight){
+          image = await Wall.walls.then((s) => s.sprites[25]);
+    }
+        else if (bottomLeft && !bottomRight){
+          image = await Wall.walls.then((s) => s.sprites[24]);
+        }
+        else {
+          image = await Wall.walls.then((s) => s.sprites[5]);
+        }
+      }
     }
 
     return new Wall(image, position);
