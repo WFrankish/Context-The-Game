@@ -1,21 +1,6 @@
-type Input =
-  | 'up'
-  | 'down'
-  | 'left'
-  | 'right'
-  | 'primary'
-  | 'secondary'
-  | 'camUp'
-  | 'camDown'
-  | 'camLeft'
-  | 'camRight'
-  | 'inventory';
+type Input = keyof Inputs
 
-type IInputs = {
-  [key in Input]: number;
-};
-
-export class Inputs implements IInputs {
+export class Inputs {
   up = 0;
   down = 0;
   left = 0;
