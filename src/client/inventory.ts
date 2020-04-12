@@ -30,7 +30,9 @@ export function shouldShowInventory(): boolean {
 export function drawInventory(context: CanvasRenderingContext2D, dt: number): void {
   const oldFillStyle = context.fillStyle;
 
-  context.fillStyle = 'white';
+  context.fillStyle = '#633c12dd';
+  context.fillRect(0, 0, display.width, display.height);
+  context.fillStyle = '#ffffff';
   new HudText('INVENTORY', 36, new Vector2(display.width / 2, 10), Anchor.Top).draw(context, dt);
 
   context.fillStyle = oldFillStyle;
