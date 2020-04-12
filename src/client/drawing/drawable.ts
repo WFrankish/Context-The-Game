@@ -18,10 +18,14 @@ export class Tile implements Drawable {
     this.position = position;
   }
 
+  update(dt: Seconds) {
+    this.img.update(dt);
+  }
+
   draw(ctx: CanvasRenderingContext2D, dt: Seconds) {
     let { x, y } = this.position;
 
-    const img = this.img.getImage(dt);
+    const img = this.img.get();
     // sprites are drawn from the bottom centre of their tile
     // positive is down and right
 
@@ -66,7 +70,7 @@ export class HudPiece implements Drawable {
     x = x >= 0 ? x : display.width + x;
     y = y >= 0 ? y : display.height + y;
 
-    const img = this.img.getImage(dt);
+    const img = this.img.get();
 
     switch (this.anchor) {
       case Anchor.Top:

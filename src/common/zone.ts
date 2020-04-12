@@ -6,6 +6,7 @@ export class Obstacle {
   constructor(position: Vector2) {
     this.position = position;
   }
+  update(dt: Seconds): void {}
   onInteract(character: Character): void {}
   position: Vector2;
   radius = 0.4;
@@ -110,6 +111,8 @@ export abstract class Zone {
     this.obstacles = obstacles;
   }
   update(dt: Seconds): void {
+    const obstacles = [...this.obstacles.values()];
+    for (const obstacle of obstacles) obstacle.update(dt);
     // The slop factor is for stability. By only applying a fractional correction rather than a full one, we'll get
     // better convergence in the event of multiple contradictory collisions.
     const slop = 0.5;

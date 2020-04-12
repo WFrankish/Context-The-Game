@@ -9,7 +9,8 @@ export interface ImageData {
 }
 
 export interface Image {
-  getImage(dt: Seconds): ImageData;
+  update(dt: Seconds): void;
+  get(): ImageData;
 }
 
 // Asynchronously load an image.
@@ -40,7 +41,9 @@ export class StaticImage implements Image {
     };
   }
 
-  getImage(): ImageData {
+  update(dt: Seconds): void {}
+
+  get(): ImageData {
     return this.imageData;
   }
 
@@ -62,9 +65,11 @@ export class Sprite implements Image {
     this.height = height;
   }
 
-  getImage(dt: Seconds): ImageData {
+  update(dt: Seconds): void {}
+
+  get(): ImageData {
     return {
-      data: this.image.getImage(dt).data,
+      data: this.image.get().data,
       startX: this.startX,
       startY: this.startY,
       width: this.width,
@@ -88,11 +93,12 @@ export class LoopingImage implements Image {
     this.drawables = images;
   }
 
-  getImage(dt: Seconds): ImageData {
-    const frame = Math.trunc(this.currentTime / this.frameLength);
-
+  update(dt: Seconds): void {
     this.currentTime = (this.currentTime + dt) % (this.frameLength * this.drawables.length);
+  }
 
-    return this.drawables[frame].getImage(dt);
+  get(): ImageData {
+    const frame = Math.trunc(this.currentTime / this.frameLength);
+    return this.drawables[frame].get();
   }
 }

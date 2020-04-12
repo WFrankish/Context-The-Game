@@ -19,8 +19,11 @@ export class Obstacle extends common.Obstacle {
     this.image = image;
   }
   onInteract(character: Character): void {}
+  update(dt: Seconds): void {
+    this.image.update(dt);
+  }
   draw(context: CanvasRenderingContext2D): void {
-    const image = this.image.getImage(0);
+    const image = this.image.get();
     const height = 32/24 * image.height / image.width;
     context.drawImage(image.data, image.startX, image.startY, image.width, image.height, this.position.x - 0.5,
                       this.position.y + 0.5 - height, 1, height);
@@ -197,7 +200,7 @@ export class Zone extends common.Zone {
 
     // Create a pattern for the tiles on the floor. Since integer coordinates are at the centre of tiles, we temporarily
     // offset the transform when filling so that the pattern aligns with the grid.
-    context.fillStyle = context.createPattern(this.floorImage.getImage(0).data, 'repeat')!;
+    context.fillStyle = context.createPattern(this.floorImage.get().data, 'repeat')!;
     context.beginPath();
     context.translate(-16, -12);
     for (const cell of this.floor) {
