@@ -70,6 +70,15 @@ export class Vector2 {
   normalized(): Vector2 {
     return this.divide(this.length);
   }
+
+  toString() {
+    return this.x + ',' + this.y;
+  }
+
+  static fromString(s: string): Vector2 {
+    const [x, y]: number[] = s.split(',').map(x => +x);
+    return new Vector2(x, y);
+  }
 }
 
 type VectorMath = ((a: Vector2, b: Vector2 | number) => Vector2) & ((a: Vector2 | number, b: Vector2) => Vector2);

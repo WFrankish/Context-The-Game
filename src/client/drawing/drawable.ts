@@ -99,3 +99,57 @@ export class HudPiece implements Drawable {
     ctx.drawImage(img.data, img.startX, img.startY, img.width, img.height, x, y, img.width, img.height);
   }
 }
+
+export class HudText implements Drawable {
+  text: string;
+  fontSize: number;
+  position: Vector2;
+  anchor: Anchor;
+
+  constructor(text: string, fontSize: number, position: Vector2, anchor = Anchor.TopLeft) {
+    this.text = text;
+    this.fontSize = fontSize;
+    this.position = position;
+    this.anchor = anchor;
+  }
+
+  draw(ctx: CanvasRenderingContext2D, dt: number) {
+    // allow wrapping - e.g. -1 indicates 1 from right or top
+    let { x, y } = this.position;
+    x = x >= 0 ? x : display.width + x;
+    y = y >= 0 ? y : display.height + y;
+
+    ctx.font = `${this.fontSize}px serif`;
+    const text = ctx.measureText(this.text);
+
+    switch (this.anchor) {
+      case Anchor.Top:
+      case Anchor.Centre:
+      case Anchor.Bottom:
+        x -= Math.trunc(text.width / 2);
+        break;
+      case Anchor.TopRight:
+      case Anchor.Right:
+      case Anchor.BottomRight:
+        x -= text.width;
+        break;
+      default:
+        break;
+    }
+
+    switch (this.anchor) {
+      case Anchor.Left:
+      case Anchor.Centre:
+      case Anchor.Right:
+        y -= Math.trunc(this.fontSize / 2);
+        break;
+      case Anchor.TopLeft:
+      case Anchor.Top:
+      case Anchor.TopRight:
+        y += this.fontSize;
+        break;
+    }
+
+    ctx.fillText(this.text, x, y);
+  }
+}

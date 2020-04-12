@@ -1,6 +1,6 @@
-import BodyPart from 'src/common/character/body_part';
+import BodyPart from '../../character/body_part.js';
 
-import Item, { ItemCategory } from '../item';
+import Item, { ItemCategory } from '../item.js';
 
 export function isWeapon(item: Item): item is Weapon {
   return item.category === ItemCategory.Weapon;
