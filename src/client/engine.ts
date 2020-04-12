@@ -18,16 +18,11 @@ let zone: Zone | undefined;
 async function init() {
   if (isAlive) throw new Error('engine is already initialized!');
   isAlive = true;
-  const [floor, obstacle] = await Promise.all(['floor.png', 'obstacle.png'].map(open));
+  const obstacle = await open('obstacle.png');
   arrow = await StaticImage.open('arrow_left.png');
-  zone = new Zone(floor);
+  zone = await Zone.open('example');
+  localPlayer.position = [...zone.portals.values()][0].position;
   zone.characters.add(localPlayer);
-  zone.obstacles = new Set([
-    [-5, 0],
-    [5, 0],
-    [0, -3],
-    [0, 3],
-  ].map(p => new Obstacle(new Vector2(p[0], p[1]), obstacle)));
 }
 
 export async function run(): Promise<void> {
