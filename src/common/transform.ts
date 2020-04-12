@@ -6,6 +6,7 @@ export class Transform {
     this.b = b;
     this.c = c;
   }
+  // Identity transformation: unit scale, no rotation, no translation.
   static identity(): Transform {
     return new Transform(new Vector2(1, 0), new Vector2(0, 1), new Vector2(0, 0));
   }
@@ -34,6 +35,7 @@ export class Transform {
     const tc = ta.multiply(-this.c.x).add(tb.multiply(-this.c.y));
     return new Transform(ta, tb, tc);
   }
+  // Apply the transformation to a vector.
   apply(v: Vector2): Vector2 {
     return this.applyDirection(v).add(this.c);
   }
