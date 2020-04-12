@@ -71,8 +71,6 @@ export class Character {
   }
   draw(context: CanvasRenderingContext2D) {
     context.save();
-    context.translate(0.5 * display.width, 0.5 * display.height);
-    context.scale(32, 24);
     context.translate(this.position.x, this.position.y);
     context.imageSmoothingEnabled = false;
     const row = 1 + (this.direction as number);
@@ -81,7 +79,12 @@ export class Character {
     const rightColumn = this.rightArmPhase == 0 ? 8 : this.rightArmPhase < 1 ? 9 : 10;
     // Draw things in a different order based on what direction the character is facing.
     const draw = (row: number, column: number) => {
-      context.drawImage(Character.image, 32 * column, 32 * row, 32, 32, -0.5, -1, 1, 32/24);
+      // The character's feet are not right at the bottom of the image, they are slightly further up.
+      const feetOffset = 4;
+      // We have to scale the image to counteract the non-square grid transform.
+      const height = 32 / 24;
+      const offset = (32 - feetOffset) / 24;
+      context.drawImage(Character.image, 32 * column, 32 * row, 32, 32, -0.5, -offset, 1, height);
     };
     if (row < 3) {
       draw(row, leftColumn);
@@ -104,5 +107,5 @@ export class Character {
 }
 Character.image.src = 'assets/character.png';
 
-export const localPlayer = new Character;
+export const localPlayer = new Character();
 localPlayer.inputs = inputs;

@@ -1,26 +1,33 @@
 import * as display from './display.js';
 import { Seconds, Milliseconds, delay } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
-import { StaticImage, LoopingImage, Image } from './drawing/image.js';
+import { open, StaticImage, LoopingImage, Image } from './drawing/image.js';
 import { SpriteSheet } from './drawing/spritesheet.js';
 import { HudPiece, Anchor, Tile, Drawable } from './drawing/drawable.js';
 import { localPlayer } from './character.js';
+import { Obstacle, Zone } from './zone.js';
 
 let previousFrameTimeMs = 0;
 
 let isAlive = false;
 
 let position: Vector2 | undefined;
-let walls: LoopingImage | undefined;
 let arrow: StaticImage | undefined;
+let zone: Zone | undefined;
 
 async function init() {
   if (isAlive) throw new Error('engine is already initialized!');
   isAlive = true;
-  const wallSprites = new SpriteSheet(await StaticImage.open('walls.png'), 32, 24);
-  walls = new LoopingImage(1000, ...wallSprites.sprites);
+  const [floor, obstacle] = await Promise.all(['floor.png', 'obstacle.png'].map(open));
   arrow = await StaticImage.open('arrow_left.png');
-  isAlive = true;
+  zone = new Zone(floor);
+  zone.characters.add(localPlayer);
+  zone.obstacles = new Set([
+    [-5, 0],
+    [5, 0],
+    [0, -3],
+    [0, 3],
+  ].map(p => new Obstacle(new Vector2(p[0], p[1]), obstacle)));
 }
 
 export async function run(): Promise<void> {
@@ -40,25 +47,14 @@ export function kill(): void {
 }
 
 export function update(dt: Seconds): void {
-  localPlayer.update(dt);
+  zone!.update(dt);
 }
 
 function render(totalMilliseconds: number): void {
   const dt = totalMilliseconds - previousFrameTimeMs;
 
   display.draw((context) => {
-    const tiles: Drawable[] = [
-      new Tile(walls!, new Vector2(0, 0)),
-      new Tile(walls!, new Vector2(1, 0)),
-      new Tile(walls!, new Vector2(2, 0)),
-      new Tile(walls!, new Vector2(0, 3)),
-      new Tile(walls!, new Vector2(1, 2)),
-      new Tile(walls!, new Vector2(5, 5)),
-      new Tile(walls!, new Vector2(6, 7)),
-      new Tile(walls!, new Vector2(-1, 6)),
-      new Tile(walls!, new Vector2(5, -1)),
-    ];
-    for (const tile of tiles) tile.draw(context, dt);
+    zone!.draw(context);
     const hud: Drawable[] = [
       new HudPiece(arrow!, new Vector2(0, 0), Anchor.TopLeft),
       new HudPiece(arrow!, new Vector2(200, 0), Anchor.Top),
@@ -71,7 +67,6 @@ function render(totalMilliseconds: number): void {
       new HudPiece(arrow!, new Vector2(-1, -1), Anchor.BottomRight),
     ];
     for (const item of hud) item.draw(context, dt);
-    localPlayer.draw(context);
   });
   requestAnimationFrame(render);
 
