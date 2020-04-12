@@ -20,7 +20,6 @@ let camera: CameraControl | undefined;
 async function init() {
   if (isAlive) throw new Error('engine is already initialized!');
   isAlive = true;
-  const obstacle = await open('obstacle.png');
   arrow = await StaticImage.open('arrow_left.png');
   camera = new CameraControl();
   zone = await Zone.open('example');

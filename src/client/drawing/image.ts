@@ -13,7 +13,7 @@ export interface Image {
 }
 
 // Asynchronously load an image.
-export function open(path: string): Promise<HTMLImageElement> {
+function open(path: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.src = '/assets/' + path;

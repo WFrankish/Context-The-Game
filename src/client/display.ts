@@ -12,7 +12,7 @@ export function draw(
   hudCallback: (context: CanvasRenderingContext2D) => void
 ): void {
   context.setTransform(1, 0, 0, 1, 0, 0);
-  context.fillStyle = 'black';
+  context.fillStyle = 'grey';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const { scale, offset } = computeScale();
@@ -20,7 +20,7 @@ export function draw(
   context.scale(scale, scale);
   context.imageSmoothingEnabled = false;
 
-  context.fillStyle = 'white';
+  context.fillStyle = 'black';
   context.fillRect(0, 0, width, height);
 
   context.translate(-camera.position.x, -camera.position.y);

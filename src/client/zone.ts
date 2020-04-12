@@ -3,45 +3,33 @@ import { Vector2 } from '../common/vector2.js';
 import { Seconds } from '../common/time.js';
 import { Character, localPlayer } from './character.js';
 import { Updatable } from './updatable.js';
-import { Drawable } from './drawing/drawable.js';
-import { open } from './drawing/image.js';
+import { Drawable, Tile } from './drawing/drawable.js';
+import { StaticImage, Sprite, Image } from './drawing/image.js';
+import { SpriteSheet } from './drawing/spritesheet.js';
 
 interface DrawableEntity extends Drawable {
   position: Vector2;
 }
 
 // TODO: Use one of the entity types to replace this.
-export class Obstacle {
-  constructor(image: HTMLImageElement, position = new Vector2(0, 0)) {
-    if (!image.complete) throw new Error('Image is not loaded.');
-    this.position = position;
-    this.image = image;
-    // Height as a factor of the width, adjusted by 32/24 to account for the grid transform.
-    this.height = ((32 / 24) * image.height) / image.width;
-  }
-  draw(context: CanvasRenderingContext2D): void {
-    const offset = context.drawImage(
-      this.image,
-      this.position.x - 0.5,
-      this.position.y + 0.5 - this.height,
-      1,
-      this.height
-    );
-  }
+export class Obstacle extends Tile {
   onInteract(character: Character): void {}
-  position: Vector2;
-  // TODO: Make this work using the spritesheet stuff.
-  image: HTMLImageElement;
-  height: number;
   radius = 0.4;
 }
 
 export class Wall extends Obstacle {
-  static async create(position = new Vector2(0, 0)) {
-    const image = await open('placeholder_wall.png');
+  static walls = StaticImage.open('walls.png').then((i) => new SpriteSheet(i, 32, 24));
+  static tallWalls = StaticImage.open('tallwalls.png').then((i) => new SpriteSheet(i, 32, 48));
+
+  static async create(position = new Vector2(0, 0), lines: string[], x: number, y: number) {
+    let image: Sprite;
+
+    // TODO
+    image = await Wall.walls.then(s => s.sprites[1]);
+
     return new Wall(image, position);
   }
-  private constructor(image: HTMLImageElement, position: Vector2) {
+  private constructor(image: Image, position: Vector2) {
     super(image, position);
     this.radius = 0.5;
   }
@@ -49,10 +37,10 @@ export class Wall extends Obstacle {
 
 export class Portal extends Obstacle {
   static async create(name: string, position: Vector2, destination: PortalDestination) {
-    const image = await open('portal.png');
+    const image = await StaticImage.open('portal.png');
     return new Portal(name, image, position, destination);
   }
-  private constructor(name: string, image: HTMLImageElement, position: Vector2, destination: PortalDestination) {
+  private constructor(name: string, image: Image, position: Vector2, destination: PortalDestination) {
     super(image, position);
     this.name = name;
     this.destination = destination;
@@ -123,7 +111,7 @@ type ObstacleData = PlainObstacleData | PortalData;
 async function loadObstacle(name: string, position: Vector2, data: ObstacleData) {
   switch (data.type) {
     case 'Obstacle': {
-      const image = await open(data.image);
+      const image = await StaticImage.open(data.image);
       const result = new Obstacle(image, position);
       if (data.radius != undefined) result.radius = data.radius;
       return result;
@@ -137,7 +125,7 @@ async function loadObstacle(name: string, position: Vector2, data: ObstacleData)
 const characterRadius = 0.3;
 export class Zone implements Updatable, Drawable {
   static async open(id: string): Promise<Zone> {
-    const floorImage = open('floor.png');
+    const floorImage = StaticImage.open('floor.png');
     // TODO: Load the zone from the server rather than from the example.
     const sections = example.split('\n\n');
     if (sections.length != 2) throw new Error('Invalid map.');
@@ -161,7 +149,7 @@ export class Zone implements Updatable, Drawable {
             break;
           case '#':
             // TODO: Use adjacent cells to determine which wall tile to use.
-            placedObstacles.set(position.toString(), Wall.create(position));
+            placedObstacles.set(position.toString(), Wall.create(position, lines, x, y));
             break;
           default:
             floor.add(position.toString());
@@ -183,8 +171,7 @@ export class Zone implements Updatable, Drawable {
     }
     return new Zone(await floorImage, floor, obstacles);
   }
-  private constructor(floorImage: HTMLImageElement, floor: Set<string>, obstacles: Map<string, Obstacle>) {
-    if (!floorImage.complete) throw new Error('floor image is not loaded.');
+  private constructor(floorImage: Image, floor: Set<string>, obstacles: Map<string, Obstacle>) {
     this.floorImage = floorImage;
     this.floor = floor;
     this.obstacles = obstacles;
@@ -194,6 +181,8 @@ export class Zone implements Updatable, Drawable {
         .map((x) => x as Portal)
         .map((x) => [x.name, x])
     );
+
+    display.camera.position = new Vector2(-0.5 * display.width, 0.5 * display.height);
   }
   update(dt: Seconds): void {
     const characters = [...this.characters];
@@ -246,38 +235,46 @@ export class Zone implements Updatable, Drawable {
     }
   }
   draw(context: CanvasRenderingContext2D, dt: Seconds): void {
-    // TODO: Support a camera. This has to be done inside Zone if we want to be able to selectively skip drawing
-    // objects that are off the edges.
-
     // Draw the floor. This is canvas hackery. Follow carefully.
     context.save();
     context.save();
-    context.fillStyle = '#000';
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-    context.restore();
-    // Apply the virtual pixels -> world transform.
-    context.translate(0.5 * display.width, 0.5 * display.height);
+
+    // yeah I don't know why this works
+    context.translate(0, display.height);
+
     // Create a pattern for the tiles on the floor. Since integer coordinates are at the centre of tiles, we temporarily
     // offset the transform when filling so that the pattern aligns with the grid.
-    context.fillStyle = context.createPattern(this.floorImage, 'repeat')!;
-    context.translate(-16, -12);
+    context.fillStyle = context.createPattern(this.floorImage.getImage(dt).data, 'repeat')!;
     context.beginPath();
     for (const cell of this.floor) {
       const position = Vector2.fromString(cell);
       context.rect(32 * position.x, 24 * position.y, 32, 24);
     }
     context.fill();
+
+    context.restore();
+
+    // Draw obstacles.
+    const objects: DrawableEntity[] = [...this.obstacles.values()];
+    objects.sort((a, b) => b.position.y - a.position.y);
+    for (const object of objects) object.draw(context, dt);
+
+    context.save();
+
     context.translate(16, 12);
+    context.translate(0, display.height);
+
     context.scale(32, 24);
     // Draw obstacles.
-    const objects: DrawableEntity[] = [...this.obstacles.values(), ...this.characters];
-    objects.sort((a, b) => a.position.y - b.position.y);
-    console.log(objects.map((x) => x.constructor.name).join(', '));
-    for (const object of objects) object.draw(context, dt);
+    const characters: DrawableEntity[] = [...this.characters];
+    characters.sort((a, b) => b.position.y - a.position.y);
+    for (const object of characters) object.draw(context, dt);
+
+    context.restore();
+
     context.restore();
   }
-  private floorImage: HTMLImageElement;
+  private floorImage: Image;
   private floor: Set<string>;
   // Map from stringified position to obstacle.
   private obstacles: Map<string, Obstacle>;
