@@ -7,10 +7,6 @@ const context = canvas.getContext('2d')!;
 export const width = 640;
 export const height = 480;
 let screenToCanvas = Transform.identity();
-export const camera = {
-  position: new Vector2(0, 0),
-  scale: 100,
-};
 
 function computeScale(): { scale: number; offset: Vector2 } {
   const aspect = width / height;
