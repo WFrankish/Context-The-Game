@@ -2,6 +2,7 @@ import { Seconds } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
 import { clamp } from '../common/utils.js';
 import { inputs, Inputs } from "./inputs.js";
+import Inventory from '../common/character/inventory.js';
 
 enum Direction {
   RIGHT = 0,
@@ -54,6 +55,11 @@ export class Character {
     }
     context.restore();
   }
+
+  get hudText(): string {
+    return `${this.inventory.usedWeight}/${this.inventory.maxWeight} | ${this.inventory.usedVolume}/${this.inventory.maxVolume}`;
+  }
+
   position = new Vector2(0, 0);
   inputs = new Inputs();
   direction = Direction.DOWN;
@@ -61,6 +67,7 @@ export class Character {
   leftArmPhase = 0;
   rightArmPhase = 0;
   moveSpeed = 3;
+  inventory = new Inventory();
 }
 Character.image.src = 'assets/character.png';
 

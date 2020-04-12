@@ -1,6 +1,6 @@
-import Armour, { isArmour } from '../items/armours/armour';
-import Item, { ItemCategory } from '../items/item';
-import Weapon, { isWeapon } from '../items/weapons/weapon';
+import Armour, { isArmour } from '../items/armours/armour.js';
+import Item, { ItemCategory } from '../items/item.js';
+import Weapon, { isWeapon } from '../items/weapons/weapon.js';
 
 import BodyPart from './body_part';
 
@@ -35,7 +35,7 @@ export default class Inventory {
   private _maxWeight: number;
   private _usedWeight = 0;
 
-  constructor({ volume = 50, weight = 100 }: InventoryConstructorOptions) {
+  constructor({ volume = 50, weight = 100 }: InventoryConstructorOptions = {}) {
     this._baseVolume = volume;
     this._maxVolume = volume;
     this._baseWeight = weight;
@@ -60,6 +60,10 @@ export default class Inventory {
 
   get usedVolume(): number {
     return this._usedVolume;
+  }
+
+  get maxVolume(): number {
+    return this._maxVolume;
   }
 
   get usedWeight(): number {
