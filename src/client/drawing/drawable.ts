@@ -23,13 +23,13 @@ export class Tile implements Drawable {
 
     const img = this.img.getImage(dt);
     // sprites are drawn from the bottom centre of their tile
-    // positive is up and right
+    // positive is down and right
 
     // centre sprites horizontally
     x = x * tileWidth - (img.width - tileWidth) / 2;
 
-    // draw from bottom
-    y = display.height - y * tileHeight - img.height;
+    // draw from top
+    y = y * tileHeight - img.height;
 
     ctx.drawImage(img.data, img.startX, img.startY, img.width, img.height, x, y, img.width, img.height);
   }

@@ -24,8 +24,63 @@ export class Wall extends Obstacle {
   static async create(position = new Vector2(0, 0), lines: string[], x: number, y: number) {
     let image: Sprite;
 
-    // TODO
-    image = await Wall.walls.then(s => s.sprites[1]);
+    const top = y - 1 < 0 || lines[y - 1][x] === '#';
+    const bottom = y + 1 >= lines.length || lines[y + 1][x] === '#';
+    const left = x - 1 < 0 || lines[y][x - 1] === '#';
+    const right = x + 1 >= lines[y].length || lines[y][x + 1] === '#';
+
+    // WIP
+    if (!top || !bottom) {
+      // do not need to care about corners
+      if (!top) {
+        // need tall bits for top
+        if (bottom && left && right) {
+          image = await Wall.tallWalls.then((s) => s.sprites[2]);
+        } else if (!bottom && left && right) {
+          image = await Wall.tallWalls.then((s) => s.sprites[6]);
+        } else if (bottom && !left && right) {
+          image = await Wall.tallWalls.then((s) => s.sprites[1]);
+        } else if (!bottom && !left && right) {
+          image = await Wall.tallWalls.then((s) => s.sprites[5]);
+        } else if (bottom && left && !right) {
+          image = await Wall.tallWalls.then((s) => s.sprites[3]);
+        } else if (!bottom && left && !right) {
+          image = await Wall.tallWalls.then((s) => s.sprites[7]);
+        } else if (bottom && !left && !right) {
+          image = await Wall.tallWalls.then((s) => s.sprites[0]);
+        } else {
+          image = await Wall.tallWalls.then((s) => s.sprites[4]);
+        }
+      } else {
+        // top, !bottom
+        if (left && right) {
+          image = await Wall.walls.then((s) => s.sprites[2]);
+        } else if (!left && right) {
+          image = await Wall.walls.then((s) => s.sprites[3]);
+        } else if (left && !right) {
+          image = await Wall.walls.then((s) => s.sprites[6]);
+        } else {
+          image = await Wall.walls.then((s) => s.sprites[7]);
+        }
+      }
+    } else {
+      // top && bottom
+      if (left && right) {
+        image = await Wall.walls.then((s) => s.sprites[16]);
+      } else if (!left && right) {
+        image = await Wall.walls.then((s) => s.sprites[17]);
+      } else if (left && !right) {
+        image = await Wall.walls.then((s) => s.sprites[19]);
+      } else {
+        image = await Wall.walls.then((s) => s.sprites[21]);
+      }
+
+      const topLeft = false;
+      const topRight = false;
+      const bottomLeft = false;
+      const bottomRight = false;
+      image = await Wall.walls.then((s) => s.sprites[0]);
+    }
 
     return new Wall(image, position);
   }
@@ -182,7 +237,7 @@ export class Zone implements Updatable, Drawable {
         .map((x) => [x.name, x])
     );
 
-    display.camera.position = new Vector2(-0.5 * display.width, 0.5 * display.height);
+    display.camera.position = new Vector2(-0.5 * display.width, -0.5 * display.height);
   }
   update(dt: Seconds): void {
     const characters = [...this.characters];
@@ -240,7 +295,7 @@ export class Zone implements Updatable, Drawable {
     context.save();
 
     // yeah I don't know why this works
-    context.translate(0, display.height);
+    context.translate(0, -24);
 
     // Create a pattern for the tiles on the floor. Since integer coordinates are at the centre of tiles, we temporarily
     // offset the transform when filling so that the pattern aligns with the grid.
@@ -256,18 +311,17 @@ export class Zone implements Updatable, Drawable {
 
     // Draw obstacles.
     const objects: DrawableEntity[] = [...this.obstacles.values()];
-    objects.sort((a, b) => b.position.y - a.position.y);
+    objects.sort((a, b) => a.position.y - b.position.y);
     for (const object of objects) object.draw(context, dt);
 
     context.save();
 
     context.translate(16, 12);
-    context.translate(0, display.height);
 
     context.scale(32, 24);
     // Draw obstacles.
     const characters: DrawableEntity[] = [...this.characters];
-    characters.sort((a, b) => b.position.y - a.position.y);
+    characters.sort((a, b) => a.position.y - b.position.y);
     for (const object of characters) object.draw(context, dt);
 
     context.restore();
