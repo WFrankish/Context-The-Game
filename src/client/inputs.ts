@@ -1,20 +1,8 @@
-type Input = keyof Inputs
+import * as common from '../common/inputs.js';
+export { Input, Inputs } from '../common/inputs.js';
 
-export class Inputs {
-  up = 0;
-  down = 0;
-  left = 0;
-  right = 0;
-  inventory = 0;
-  primary = 0;
-  secondary = 0;
-  camUp = 0;
-  camDown = 0;
-  camLeft = 0;
-  camRight = 0;
-}
-export const inputs = new Inputs();
-const keyBindings: Map<string, Input> = new Map([
+export const inputs = new common.Inputs();
+const keyBindings: Map<string, common.Input> = new Map([
   ['KeyW', 'up'],
   ['KeyA', 'left'],
   ['KeyS', 'down'],
@@ -25,7 +13,7 @@ const keyBindings: Map<string, Input> = new Map([
   ['ArrowRight', 'camRight'],
   ['KeyI', 'inventory'],
 ]);
-const mouseBindings: Map<number, Input> = new Map([
+const mouseBindings: Map<number, common.Input> = new Map([
   [0, 'primary'],
   [2, 'secondary'],
 ]);

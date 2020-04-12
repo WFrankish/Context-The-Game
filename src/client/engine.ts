@@ -1,7 +1,7 @@
 import * as display from './display.js';
 import { Seconds, delay } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
-import { open, StaticImage, LoopingImage, Image } from './drawing/image.js';
+import { StaticImage, LoopingImage, Image } from './drawing/image.js';
 import { SpriteSheet } from './drawing/spritesheet.js';
 import { HudPiece, Anchor, Tile, Drawable, HudText } from './drawing/drawable.js';
 import { localPlayer } from './character.js';
@@ -54,7 +54,7 @@ function render(totalMilliseconds: number): void {
 
   display.draw(
     (context) => {
-      zone!.draw(context, dt);
+      zone!.draw(context);
     },
     (context) => {
       const hud: Drawable[] = [
