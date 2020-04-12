@@ -1,4 +1,4 @@
-type Input = keyof Inputs
+type Input = keyof Inputs;
 
 export class Inputs {
   up = 0;
@@ -19,11 +19,11 @@ const keyBindings: Map<string, Input> = new Map([
   ['KeyA', 'left'],
   ['KeyS', 'down'],
   ['KeyD', 'right'],
+  ['KeyI', 'inventory'],
   ['ArrowUp', 'camUp'],
   ['ArrowLeft', 'camLeft'],
   ['ArrowDown', 'camDown'],
   ['ArrowRight', 'camRight'],
-  ['KeyI', 'inventory'],
 ]);
 const mouseBindings: Map<number, Input> = new Map([
   [0, 'primary'],

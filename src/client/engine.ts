@@ -7,6 +7,7 @@ import { HudPiece, Anchor, Tile, Drawable, HudText } from './drawing/drawable.js
 import { localPlayer } from './character.js';
 import { Obstacle, Zone } from './zone.js';
 import { CameraControl } from './camera_control.js';
+import { shouldShowInventory, drawInventory } from './inventory.js';
 
 let previousFrameTime: Seconds = 0;
 
@@ -57,14 +58,13 @@ function render(totalMilliseconds: number): void {
       zone!.draw(context, dt);
     },
     (context) => {
-      const hud: Drawable[] = [new HudText(localPlayer.hudText, 24, new Vector2(0, 0), Anchor.TopLeft)];
+      if (shouldShowInventory()) {
+        drawInventory(context, dt);
+      } else {
+        const hud: Drawable[] = [new HudText(localPlayer.hudText, 24, new Vector2(0, 0), Anchor.TopLeft)];
 
-      const drawInventory = true;
-
-      if (drawInventory) {
+        for (const item of hud) item.draw(context, dt);
       }
-
-      for (const item of hud) item.draw(context, dt);
     }
   );
   requestAnimationFrame(render);
