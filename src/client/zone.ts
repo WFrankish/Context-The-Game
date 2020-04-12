@@ -23,9 +23,18 @@ export class Obstacle extends common.Obstacle {
   }
   draw(context: CanvasRenderingContext2D): void {
     const image = this.image.get();
-    const height = 32/24 * image.height / image.width;
-    context.drawImage(image.data, image.startX, image.startY, image.width, image.height, this.position.x - 0.5,
-                      this.position.y + 0.5 - height, 1, height);
+    const height = ((32 / 24) * image.height) / image.width;
+    context.drawImage(
+      image.data,
+      image.startX,
+      image.startY,
+      image.width,
+      image.height,
+      this.position.x - 0.5,
+      this.position.y + 0.5 - height,
+      1,
+      height
+    );
   }
   readonly image: Image;
 }
@@ -37,55 +46,49 @@ export class Wall extends Obstacle {
   static async create(position: Vector2, neighbours: common.Neighbours): Promise<Wall> {
     let image: Sprite;
 
-    const top = neighbours.up == '#';
-    const left = neighbours.left == '#';
-    const bottom = neighbours.down == '#';
-    const right = neighbours.right == '#';
-
-    const topLeft = x - 1 < 0 || y - 1 < 0 || lines[y - 1][x-1] === '#';;
-    const topRight =  x + 1 >= lines[y].length || y - 1 < 0 || lines[y - 1][x+1] === '#';;
-    const bottomLeft =  x - 1 < 0 || y + 1 >= lines.length || lines[y + 1][x-1] === '#';;
-    const bottomRight = x + 1 >= lines[y].length || y + 1 >= lines.length || lines[y + 1][x+1] === '#';;
+    const up = neighbours.up === "#";
+    const left = neighbours.left === "#";
+    const down = neighbours.down === "#";
+    const right = neighbours.right === "#";
+    const upLeft = neighbours.upLeft === "#";
+    const upRight = neighbours.upRight === "#";
+    const downLeft = neighbours.downLeft === "#";
+    const downRight = neighbours.downRight === "#";
 
     // This isn't complete
-    if (!top || !bottom) {
-      if (!top) {
+    if (!up || !down) {
+      if (!up) {
         // need tall bits for top
         const sprites = await Wall.tallWalls;
-        if (bottom && left && right) {
-          if(topLeft && topRight){
-            image = await Wall.tallWalls.then((s) => s.sprites[18]);
+        if (down && left && right) {
+          if (upLeft && upRight) {
+            image = sprites[18];
+          } else if (!upLeft && upRight) {
+            image = sprites[17];
+          } else if (upLeft && !upRight) {
+            image = sprites[16];
+          } else {
+            image = sprites[10];
           }
-          else if(!topLeft && topRight){
-            image = await Wall.tallWalls.then((s) => s.sprites[17]);
-          }
-          else if(topLeft && !topRight){
-            image = await Wall.tallWalls.then((s) => s.sprites[16]);
-          }
-          else {
-            image = await Wall.tallWalls.then((s) => s.sprites[10]);
-          }
-        } else if (!bottom && left && right) {
+        } else if (!down && left && right) {
           image = sprites[6];
-        } else if (bottom && !left && right) {
-          if(bottomRight){
-            image = await Wall.tallWalls.then((s) => s.sprites[1]);
+        } else if (down && !left && right) {
+          if (downRight) {
+            image = sprites[1];
+          } else {
+            image = sprites[11];
           }
-          else {
-            image = await Wall.tallWalls.then((s) => s.sprites[11]);
-          }
-        } else if (!bottom && !left && right) {
+        } else if (!down && !left && right) {
           image = sprites[5];
-        } else if (bottom && left && !right) {
-          if(bottomLeft){
-            image = await Wall.tallWalls.then((s) => s.sprites[3]);
+        } else if (down && left && !right) {
+          if (downLeft) {
+            image = sprites[3];
+          } else {
+            image = sprites[12];
           }
-          else {
-            image = await Wall.tallWalls.then((s) => s.sprites[12]);
-          }
-        } else if (!bottom && left && !right) {
+        } else if (!down && left && !right) {
           image = sprites[7];
-        } else if (bottom && !left && !right) {
+        } else if (down && !left && !right) {
           image = sprites[0];
         } else {
           image = sprites[4];
@@ -107,23 +110,20 @@ export class Wall extends Obstacle {
       // top && bottom
       const sprites = await Wall.walls;
       if (left && right) {
-        image = await Wall.walls.then((s) => s.sprites[0]);
+        image = sprites[0];
       } else if (!left && right) {
-        image = await Wall.walls.then((s) => s.sprites[5]);
+        image = sprites[5];
       } else if (left && !right) {
-        image = await Wall.walls.then((s) => s.sprites[4]);
+        image = sprites[4];
       } else {
-        if(bottomLeft && bottomRight){
-          image = await Wall.walls.then((s) => s.sprites[18]);
-      }
-        else if (!bottomLeft && bottomRight){
-          image = await Wall.walls.then((s) => s.sprites[25]);
-    }
-        else if (bottomLeft && !bottomRight){
-          image = await Wall.walls.then((s) => s.sprites[24]);
-        }
-        else {
-          image = await Wall.walls.then((s) => s.sprites[5]);
+        if (downLeft && downRight) {
+          image = sprites[18];
+        } else if (!downLeft && downRight) {
+          image = sprites[25];
+        } else if (downLeft && !downRight) {
+          image = sprites[24];
+        } else {
+          image = sprites[5];
         }
       }
     }
@@ -210,7 +210,7 @@ const characterRadius = 0.3;
 export class Zone extends common.Zone {
   static async open(id: string): Promise<Zone> {
     const floorImage = openStatic('floor.png');
-    const {floor, obstacles} = await common.load(example, Wall.create, loadObstacle);
+    const { floor, obstacles } = await common.load(example, Wall.create, loadObstacle);
     return new Zone(await floorImage, floor, obstacles as Map<string, Obstacle>);
   }
   private constructor(floorImage: Image, floor: Set<string>, obstacles: Map<string, Obstacle>) {

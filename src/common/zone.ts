@@ -43,10 +43,14 @@ export interface PortalData {
 export type ObstacleData = PlainObstacleData | PortalData;
 
 export interface Neighbours {
-  up: string
-  left: string
-  down: string
-  right: string
+  up: string;
+  left: string;
+  down: string;
+  right: string;
+  upLeft: string;
+  downLeft: string;
+  upRight: string;
+  downRight: string;
 }
 
 export type LoadWall = (position: Vector2, neighbours: Neighbours) => Promise<Obstacle>;
@@ -75,12 +79,16 @@ export async function load(data: string, loadWall: LoadWall, loadObstacle: LoadO
           floor.add(position.toString());
           break;
         case '#':
-          // TODO: Use adjacent cells to determine which wall tile to use.
-          const neighbours = {
-            up: lines[y - 1][x] || '~',
-            left: lines[y][x - 1] || '~',
-            down: lines[y + 1][x] || '~',
-            right: lines[y][x + 1] || '~',
+          const edge = '~';
+          const neighbours: Neighbours = {
+            up: lines[y - 1][x] || edge,
+            left: lines[y][x - 1] || edge,
+            down: lines[y + 1][x] || edge,
+            right: lines[y][x + 1] || edge,
+            upLeft: lines[y - 1][x - 1] || edge,
+            upRight: lines[y - 1][x + 1] || edge,
+            downLeft: lines[y + 1][x - 1] || edge,
+            downRight: lines[y + 1][x + 1] || edge,
           };
           placedObstacles.set(position.toString(), loadWall(position, neighbours));
           break;
@@ -102,7 +110,7 @@ export async function load(data: string, loadWall: LoadWall, loadObstacle: LoadO
   for (const [key, obstaclePromise] of placedObstacles) {
     obstacles.set(key, await obstaclePromise);
   }
-  return {floor, obstacles};
+  return { floor, obstacles };
 }
 
 export abstract class Zone {
