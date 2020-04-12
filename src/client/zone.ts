@@ -316,7 +316,7 @@ export class Zone implements Updatable, Drawable {
 
     context.save();
 
-    context.translate(16, 12);
+    context.translate(16, -12);
 
     context.scale(32, 24);
     // Draw obstacles.
