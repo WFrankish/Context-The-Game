@@ -38,14 +38,16 @@ function creationInit(totalMilliseconds: number): void {
     console.log(`Mouse up position: ${position?.x} ${position?.y}`);
     if (isLeftArrowClicked()) {
       curr = (curr + 4 - 1) % 4;
-      display.draw((context) => {
-        drawPreset(context);
-      });
+      // display.draw((context) => {
+      //   drawPreset(context);
+      // });
+      requestAnimationFrame(creationInit);
     } else if (isRightArrowClicked()) {
         curr = (curr + 1) % 4;
-        display.draw((context) => {
-            drawPreset(context)
-        })
+        // display.draw((context) => {
+        //     drawPreset(context)
+        // })
+        requestAnimationFrame(creationInit);
     }
   });
 }
