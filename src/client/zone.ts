@@ -25,12 +25,14 @@ export class Obstacle {
   // TODO: Make this work using the spritesheet stuff.
   image: HTMLImageElement;
   height: number;
+  radius = 0.4;
 }
 
 // The slop factor is for stability. By only applying a fractional correction rather than a full one, we'll get
 // better convergence in the event of multiple contradictory collisions.
 const slop = 0.5;
 
+const characterRadius = 0.3;
 export class Zone {
   constructor(floor: HTMLImageElement) {
     if (!floor.complete) throw new Error('floor image is not loaded.');
@@ -46,8 +48,8 @@ export class Zone {
         const b = characters[j];
         const offset = b.position.subtract(a.position);
         const distance = offset.length;
-        if (distance > 1) continue;
-        const correction = offset.multiply(0.5 * slop * (1 - distance) / distance);
+        if (distance > 2 * characterRadius) continue;
+        const correction = offset.multiply(0.5 * slop * (2 * characterRadius - distance) / distance);
         a.position = a.position.subtract(correction);
         b.position = b.position.add(correction);
       }
@@ -71,11 +73,12 @@ export class Zone {
           if (!obstacle) continue;
           // Check for overlap with the obstacle by computing overlap in each axis.
           const offset = obstacle.position.subtract(character.position);
+          const minDistance = characterRadius + obstacle.radius;
           const axes: [number, Vector2][] = [
-            [0.7 - offset.x, new Vector2(1, 0)],
-            [0.7 + offset.x, new Vector2(-1, 0)],
-            [0.7 - offset.y, new Vector2(0, 1)],
-            [0.7 + offset.y, new Vector2(0, -1)],
+            [minDistance - offset.x, new Vector2(1, 0)],
+            [minDistance + offset.x, new Vector2(-1, 0)],
+            [minDistance - offset.y, new Vector2(0, 1)],
+            [minDistance + offset.y, new Vector2(0, -1)],
           ];
           if (axes.some(x => x[0] <= 0)) continue;
           let minOverlap = Infinity;
