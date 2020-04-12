@@ -27,8 +27,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@types/ws": "^7.2.3",
-    "prettier": "^2.0.4",
     "ws": "^7.2.3"
   }
 }
