@@ -2,6 +2,8 @@ import { Seconds } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
 import { clamp } from '../common/utils.js';
 import { inputs, Inputs } from "./inputs.js";
+import { Updatable } from './updatable.js';
+import { Drawable } from './drawing/drawable.js';
 
 enum Direction {
   RIGHT = 0,
@@ -10,7 +12,7 @@ enum Direction {
   DOWN = 3,
 }
 
-export class Character {
+export class Character implements Updatable, Drawable {
   static image = new Image();
   update(dt: Seconds) {
     let move = new Vector2(inputs.right - inputs.left, inputs.down - inputs.up);

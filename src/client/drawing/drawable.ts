@@ -2,9 +2,10 @@ import { Image } from './image.js';
 import { Vector2 } from '../../common/vector2.js';
 import * as display from '../display.js';
 import { tileWidth, tileHeight } from '../../common/constants.js';
+import { Seconds } from 'src/common/time.js';
 
 export interface Drawable {
-  draw(ctx: CanvasRenderingContext2D, dt: number): void;
+  draw(ctx: CanvasRenderingContext2D, dt: Seconds): void;
 }
 
 export class Tile implements Drawable {
@@ -17,7 +18,7 @@ export class Tile implements Drawable {
     this.position = position;
   }
 
-  draw(ctx: CanvasRenderingContext2D, dt: number) {
+  draw(ctx: CanvasRenderingContext2D, dt: Seconds) {
     let { x, y } = this.position;
 
     const img = this.img.getImage(dt);
@@ -59,7 +60,7 @@ export class HudPiece implements Drawable {
     this.anchor = anchor;
   }
 
-  draw(ctx: CanvasRenderingContext2D, dt: number) {
+  draw(ctx: CanvasRenderingContext2D, dt: Seconds) {
     // allow wrapping - e.g. -1 indicates 1 from right or top
     let { x, y } = this.position;
     x = x >= 0 ? x : display.width + x;

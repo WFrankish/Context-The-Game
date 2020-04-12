@@ -7,7 +7,10 @@ export const height = 480;
 // Apply the suitable transform for drawing the user interface over the game
 // world. The callback will receive the context it needs to draw, and can assume
 // a resolution of (display.width, display.height) which will be scaled to fit.
-export function draw(callback: (context: CanvasRenderingContext2D) => void): void {
+export function draw(
+  worldCallback: (context: CanvasRenderingContext2D) => void,
+  hudCallback: (context: CanvasRenderingContext2D) => void
+): void {
   context.setTransform(1, 0, 0, 1, 0, 0);
   context.fillStyle = 'black';
   context.fillRect(0, 0, canvas.width, canvas.height);
@@ -20,8 +23,19 @@ export function draw(callback: (context: CanvasRenderingContext2D) => void): voi
   context.fillStyle = 'white';
   context.fillRect(0, 0, width, height);
 
-  callback(context);
+  context.translate(-camera.position.x, -camera.position.y);
+
+  worldCallback(context);
+
+  context.translate(camera.position.x, camera.position.y);
+
+  hudCallback(context);
 }
+
+export const camera = {
+  position: new Vector2(0, 0),
+  scale: 100,
+};
 
 // Mouse events for the canvas, translated into the same coordinate space as the transform used by draw().
 export type MouseAction = 'up' | 'down' | 'move';

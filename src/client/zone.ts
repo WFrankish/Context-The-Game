@@ -1,11 +1,12 @@
 import * as display from './display.js';
 import { Vector2 } from '../common/vector2.js';
 import { Seconds } from '../common/time.js';
-import { Character, localPlayer } from './character.js';
+import { Character } from './character.js';
+import { Updatable } from './updatable.js';
+import { Drawable } from './drawing/drawable.js';
 
-interface Drawable {
+interface DrawableEntity extends Drawable {
   position: Vector2;
-  draw(context: CanvasRenderingContext2D): void;
 }
 
 // TODO: Use one of the entity types to replace this.
@@ -31,7 +32,7 @@ export class Obstacle {
 // better convergence in the event of multiple contradictory collisions.
 const slop = 0.5;
 
-export class Zone {
+export class Zone implements Updatable, Drawable {
   constructor(floor: HTMLImageElement) {
     if (!floor.complete) throw new Error('floor image is not loaded.');
     this.floor = floor;
@@ -93,7 +94,7 @@ export class Zone {
       }
     }
   }
-  draw(context: CanvasRenderingContext2D): void {
+  draw(context: CanvasRenderingContext2D, dt: Seconds): void {
     // TODO: Support a camera. This has to be done inside Zone if we want to be able to selectively skip drawing
     // objects that are off the edges.
 
@@ -116,10 +117,10 @@ export class Zone {
     context.translate(-16, -12);
     context.scale(32, 24);
     // Draw obstacles.
-    const objects: Drawable[] = [...this.obstacles, ...this.characters];
+    const objects: DrawableEntity[] = [...this.obstacles, ...this.characters];
     objects.sort((a, b) => a.position.y - b.position.y);
     console.log(objects.map(x => x.constructor.name).join(', '));
-    for (const object of objects) object.draw(context);
+    for (const object of objects) object.draw(context, dt);
     context.restore();
   }
   floor: HTMLImageElement;

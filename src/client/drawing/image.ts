@@ -1,3 +1,5 @@
+import { Seconds } from "src/common/time";
+
 export interface ImageData {
   readonly data: HTMLImageElement;
   readonly startX: number;
@@ -7,7 +9,7 @@ export interface ImageData {
 }
 
 export interface Image {
-  getImage(dt: number): ImageData;
+  getImage(dt: Seconds): ImageData;
 }
 
 // Asynchronously load an image.
@@ -60,9 +62,9 @@ export class Sprite implements Image {
     this.height = height;
   }
 
-  getImage(ms: number): ImageData {
+  getImage(dt: Seconds): ImageData {
     return {
-      data: this.image.getImage(ms).data,
+      data: this.image.getImage(dt).data,
       startX: this.startX,
       startY: this.startY,
       width: this.width,
@@ -74,22 +76,22 @@ export class Sprite implements Image {
 export class LoopingImage implements Image {
   private readonly drawables: Image[];
 
-  private readonly frameLengthMs: number;
+  private readonly frameLength: Seconds;
 
-  private currentTimeMs = 0;
+  private currentTime: Seconds = 0;
 
-  constructor(frameLengthMs: number, ...images: Image[]) {
-    if (frameLengthMs === 0 || images.length === 0) {
+  constructor(frameLength: Seconds, ...images: Image[]) {
+    if (frameLength === 0 || images.length === 0) {
       throw Error('cannot have animation at infinite speed or with no frames you muppet');
     }
-    this.frameLengthMs = frameLengthMs;
+    this.frameLength = frameLength;
     this.drawables = images;
   }
 
-  getImage(dt: number): ImageData {
-    const frame = Math.trunc(this.currentTimeMs / this.frameLengthMs);
+  getImage(dt: Seconds): ImageData {
+    const frame = Math.trunc(this.currentTime / this.frameLength);
 
-    this.currentTimeMs = (this.currentTimeMs + dt) % (this.frameLengthMs * this.drawables.length);
+    this.currentTime = (this.currentTime + dt) % (this.frameLength * this.drawables.length);
 
     return this.drawables[frame].getImage(dt);
   }
