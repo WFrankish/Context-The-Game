@@ -23,14 +23,6 @@ async function init() {
   zone = await Zone.open('example');
   localPlayer.position = [...zone.portals.values()][0].position;
   zone.characters.add(localPlayer);
-  zone.obstacles = new Set(
-    [
-      [-5, 0],
-      [5, 0],
-      [0, -3],
-      [0, 3],
-    ].map((p) => new Obstacle(new Vector2(p[0], p[1]), obstacle))
-  );
 }
 
 export async function run(): Promise<void> {
