@@ -1,50 +1,8 @@
 import { Seconds } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
 import { clamp } from '../common/utils.js';
-
-import * as display from './display.js';
-
-type Input = 'up' | 'down' | 'left' | 'right' | 'primary' | 'secondary';
-class Inputs {
-  up = 0;
-  down = 0;
-  left = 0;
-  right = 0;
-  primary = 0;
-  secondary = 0;
-}
-const inputs = new Inputs();
-const keyBindings: Map<string, Input> = new Map([
-  ['KeyW', 'up'],
-  ['KeyA', 'left'],
-  ['KeyS', 'down'],
-  ['KeyD', 'right'],
-]);
-const mouseBindings: Map<number, Input> = new Map([
-  [0, 'primary'],
-  [2, 'secondary'],
-]);
-addEventListener('keydown', (event: KeyboardEvent) => {
-  if (!keyBindings.has(event.code)) return;
-  const action = keyBindings.get(event.code)!;
-  inputs[action] = 1;
-});
-addEventListener('keyup', (event: KeyboardEvent) => {
-  if (!keyBindings.has(event.code)) return;
-  const action = keyBindings.get(event.code)!;
-  inputs[action] = 0;
-});
-addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
-addEventListener('mousedown', (event: MouseEvent) => {
-  if (!mouseBindings.has(event.button)) return;
-  const action = mouseBindings.get(event.button)!;
-  inputs[action] = 1;
-});
-addEventListener('mouseup', (event: MouseEvent) => {
-  if (!mouseBindings.has(event.button)) return;
-  const action = mouseBindings.get(event.button)!;
-  inputs[action] = 0;
-});
+import { inputs, Inputs } from "./inputs.js";
+import Inventory from '../common/character/inventory.js';
 
 enum Direction {
   RIGHT = 0,
@@ -71,8 +29,6 @@ export class Character {
   }
   draw(context: CanvasRenderingContext2D) {
     context.save();
-    context.translate(0.5 * display.width, 0.5 * display.height);
-    context.scale(32, 24);
     context.translate(this.position.x, this.position.y);
     context.imageSmoothingEnabled = false;
     const row = 1 + (this.direction as number);
@@ -81,7 +37,12 @@ export class Character {
     const rightColumn = this.rightArmPhase == 0 ? 8 : this.rightArmPhase < 1 ? 9 : 10;
     // Draw things in a different order based on what direction the character is facing.
     const draw = (row: number, column: number) => {
-      context.drawImage(Character.image, 32 * column, 32 * row, 32, 32, -0.5, -1, 1, 32/24);
+      // The character's feet are not right at the bottom of the image, they are slightly further up.
+      const feetOffset = 4;
+      // We have to scale the image to counteract the non-square grid transform.
+      const height = 32 / 24;
+      const offset = (32 - feetOffset) / 24;
+      context.drawImage(Character.image, 32 * column, 32 * row, 32, 32, -0.5, -offset, 1, height);
     };
     if (row < 3) {
       draw(row, leftColumn);
@@ -94,6 +55,11 @@ export class Character {
     }
     context.restore();
   }
+
+  get hudText(): string {
+    return `${this.inventory.usedWeight}/${this.inventory.maxWeight} | ${this.inventory.usedVolume}/${this.inventory.maxVolume}`;
+  }
+
   position = new Vector2(0, 0);
   inputs = new Inputs();
   direction = Direction.DOWN;
@@ -101,8 +67,9 @@ export class Character {
   leftArmPhase = 0;
   rightArmPhase = 0;
   moveSpeed = 3;
+  inventory = new Inventory();
 }
 Character.image.src = 'assets/character.png';
 
-export const localPlayer = new Character;
+export const localPlayer = new Character();
 localPlayer.inputs = inputs;
