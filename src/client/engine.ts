@@ -1,8 +1,7 @@
 import * as display from './display.js';
 import { Seconds, delay } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
-import { StaticImage, LoopingImage, Image } from './drawing/image.js';
-import { SpriteSheet } from './drawing/spritesheet.js';
+import { Sprite, LoopingImage, Image, openStatic } from './drawing/image.js';
 import { HudPiece, Anchor, Tile, Drawable, HudText } from './drawing/drawable.js';
 import { localPlayer } from './character.js';
 import { Obstacle, Zone } from './zone.js';
@@ -13,14 +12,14 @@ let previousFrameTime: Seconds = 0;
 let isAlive = false;
 
 let position: Vector2 | undefined;
-let arrow: StaticImage | undefined;
+let arrow: Sprite | undefined;
 let zone: Zone | undefined;
 let camera: CameraControl | undefined;
 
 async function init() {
   if (isAlive) throw new Error('engine is already initialized!');
   isAlive = true;
-  arrow = await StaticImage.open('arrow_left.png');
+  arrow = await openStatic('arrow_left.png');
   camera = new CameraControl();
   zone = await Zone.open('example');
   localPlayer.position = [...zone.portals.values()][0].position;

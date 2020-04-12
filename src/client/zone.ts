@@ -4,8 +4,7 @@ import { Seconds } from '../common/time.js';
 import { Character, localPlayer } from './character.js';
 import { Updatable } from './updatable.js';
 import { Tile } from './drawing/drawable.js';
-import { StaticImage, Sprite, Image } from './drawing/image.js';
-import { SpriteSheet } from './drawing/spritesheet.js';
+import { Sprite, Image, openStatic, openSprites } from './drawing/image.js';
 import * as common from '../common/zone.js';
 
 interface Drawable {
@@ -32,8 +31,8 @@ export class Obstacle extends common.Obstacle {
 }
 
 export class Wall extends Obstacle {
-  static walls = StaticImage.open('walls.png').then((i) => new SpriteSheet(i, 32, 24));
-  static tallWalls = StaticImage.open('tallwalls.png').then((i) => new SpriteSheet(i, 32, 48));
+  static walls = openSprites('walls.png', 32, 24);
+  static tallWalls = openSprites('tallwalls.png', 32, 48);
 
   static async create(position: Vector2, neighbours: common.Neighbours): Promise<Wall> {
     let image: Sprite;
@@ -48,55 +47,55 @@ export class Wall extends Obstacle {
       // do not need to care about corners
       if (!top) {
         // need tall bits for top
-        const walls = await Wall.tallWalls;
+        const sprites = await Wall.tallWalls;
         if (bottom && left && right) {
-          image = walls.sprites[2];
+          image = sprites[2];
         } else if (!bottom && left && right) {
-          image = walls.sprites[6];
+          image = sprites[6];
         } else if (bottom && !left && right) {
-          image = walls.sprites[1];
+          image = sprites[1];
         } else if (!bottom && !left && right) {
-          image = walls.sprites[5];
+          image = sprites[5];
         } else if (bottom && left && !right) {
-          image = walls.sprites[3];
+          image = sprites[3];
         } else if (!bottom && left && !right) {
-          image = walls.sprites[7];
+          image = sprites[7];
         } else if (bottom && !left && !right) {
-          image = walls.sprites[0];
+          image = sprites[0];
         } else {
-          image = walls.sprites[4];
+          image = sprites[4];
         }
       } else {
         // top, !bottom
-        const walls = await Wall.walls;
+        const sprites = await Wall.walls;
         if (left && right) {
-          image = walls.sprites[2];
+          image = sprites[2];
         } else if (!left && right) {
-          image = walls.sprites[3];
+          image = sprites[3];
         } else if (left && !right) {
-          image = walls.sprites[6];
+          image = sprites[6];
         } else {
-          image = walls.sprites[7];
+          image = sprites[7];
         }
       }
     } else {
       // top && bottom
-      const walls = await Wall.walls;
+      const sprites = await Wall.walls;
       if (left && right) {
-        image = walls.sprites[16];
+        image = sprites[16];
       } else if (!left && right) {
-        image = walls.sprites[17];
+        image = sprites[17];
       } else if (left && !right) {
-        image = walls.sprites[19];
+        image = sprites[19];
       } else {
-        image = walls.sprites[21];
+        image = sprites[21];
       }
 
       const topLeft = false;
       const topRight = false;
       const bottomLeft = false;
       const bottomRight = false;
-      image = (await Wall.walls).sprites[0];
+      image = (await Wall.walls)[0];
     }
 
     return new Wall(image, position);
@@ -109,7 +108,7 @@ export class Wall extends Obstacle {
 
 export class Portal extends Obstacle {
   static async create(name: string, position: Vector2, destination: common.PortalDestination) {
-    const image = await StaticImage.open('portal.png');
+    const image = await openStatic('portal.png');
     return new Portal(name, image, position, destination);
   }
   private constructor(name: string, image: Image, position: Vector2, destination: common.PortalDestination) {
@@ -166,7 +165,7 @@ const example = `
 async function loadObstacle(name: string, position: Vector2, data: common.ObstacleData): Promise<Obstacle> {
   switch (data.type) {
     case 'Obstacle': {
-      const image = await StaticImage.open(data.image);
+      const image = await openStatic(data.image);
       const result = new Obstacle(image, position);
       if (data.radius != undefined) result.radius = data.radius;
       return result;
@@ -180,7 +179,7 @@ async function loadObstacle(name: string, position: Vector2, data: common.Obstac
 const characterRadius = 0.3;
 export class Zone extends common.Zone {
   static async open(id: string): Promise<Zone> {
-    const floorImage = StaticImage.open('floor.png');
+    const floorImage = openStatic('floor.png');
     const {floor, obstacles} = await common.load(example, Wall.create, loadObstacle);
     return new Zone(await floorImage, floor, obstacles as Map<string, Obstacle>);
   }
