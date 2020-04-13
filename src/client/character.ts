@@ -16,13 +16,17 @@ enum Direction {
 }
 
 export class Character extends common.Character {
-  static image = new Image();
+  static characterImage = new Image();
   direction = Direction.DOWN;
   animationTime = 0;
   leftArmPhase = 0;
   rightArmPhase = 0;
   inventory = new Inventory();
   isLocal = true;
+
+  get image(){
+    return Character.characterImage;
+  }
 
   update(dt: Seconds) {
     super.update(dt);
@@ -46,8 +50,8 @@ export class Character extends common.Character {
     } else {
       this.animationTime = 0;
     }
-    this.rightArmPhase = clamp(this.rightArmPhase + (2 * inputs.primary - 1) * 20 * dt, 0, 1);
-    this.leftArmPhase = clamp(this.leftArmPhase + (2 * inputs.secondary - 1) * 20 * dt, 0, 1);
+    this.rightArmPhase = clamp(this.rightArmPhase + (2 * this.inputs.primary - 1) * 20 * dt, 0, 1);
+    this.leftArmPhase = clamp(this.leftArmPhase + (2 * this.inputs.secondary - 1) * 20 * dt, 0, 1);
   }
 
   draw(context: CanvasRenderingContext2D): void {
@@ -65,7 +69,7 @@ export class Character extends common.Character {
       // We have to scale the image to counteract the non-square grid transform.
       const height = 32 / 24;
       const offset = (32 - feetOffset) / 24;
-      context.drawImage(Character.image, 32 * column, 32 * row, 32, 32, -0.5, -offset, 1, height);
+      context.drawImage(this.image, 32 * column, 32 * row, 32, 32, -0.5, -offset, 1, height);
     };
     if (row < 3) {
       draw(row, leftColumn);
@@ -83,7 +87,8 @@ export class Character extends common.Character {
     return `${this.inventory.usedWeight}/${this.inventory.maxWeight} | ${this.inventory.usedVolume}/${this.inventory.maxVolume}`;
   }
 }
-Character.image.src = '/assets/character.png';
+
+Character.characterImage.src = '/assets/character.png';
 
 export const localPlayer = new Character();
 localPlayer.inputs = inputs;

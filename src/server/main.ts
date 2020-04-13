@@ -7,7 +7,7 @@ const channel = net.createChannel('chat', new chat.Handler());
 
 const zones: Map<string, Zone> = new Map();
 
-const example = generateZone(15, 15, 9);
+const example = generateZone(30, 20, 12);
 
 async function init() {
   zones.set('example', await Zone.open('example', example));
