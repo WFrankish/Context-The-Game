@@ -2,6 +2,11 @@ import { ZoneData } from '../common/zone.js';
 import { shuffle } from '../common/utils.js';
 import { Vector2 } from '../common/vector2.js';
 
+const minRoom = 3;
+const maxRoom = 5;
+const branchFactor = 0.05;
+const noDeadEndsFactor = 0.99;
+
 let dungeon: string[] = [];
 
 /**
@@ -62,13 +67,25 @@ export function generateZone(x: number, y: number, roomCount: number): ZoneData 
 
   shuffle(rooms);
 
+  // double size
+  const newResult = new Array<string>();
+  for(let j = 0; j < y; j++){
+    let newRow = "";
+    for(let i = 0; i < x; i++){
+      newRow += dungeon[j][i] + dungeon[j][i];
+    }
+    newResult.push(newRow);
+    newResult.push(newRow);
+  }
+  dungeon = newResult;
+
   ['a', 'b', 'x', 'y'].forEach((c, i) => {
     let room = rooms[i];
     let x: number;
     let y: number;
     do {
-      x = randBetween(room.x, room.x + room.w);
-      y = randBetween(room.y, room.y + room.h);
+      x = randBetween(room.x*2, room.x*2 + room.w*2);
+      y = randBetween(room.y*2, room.y*2 + room.h*2);
     } while (dungeon[y][x] !== ' ');
     setTile(x, y, c, -1);
   });
@@ -208,7 +225,7 @@ function connectUp() {
       const randPos = new Vector2(rand[0], rand[1]);
       setTile(randPos.x, randPos.y, ' ', rand[2])
       for (let option of options) {
-        if (0.05 > Math.random() && option[2] == rand[2]) {
+        if (branchFactor > Math.random() && option[2] == rand[2]) {
           const vector = new Vector2(option[0], option[1]);
           setTile(vector.x, vector.y, ' ', rand[2]);
         }
@@ -253,7 +270,7 @@ function quashDeadEnds() {
   }
   while (deadEnds.length > 0) {
     const deadend = deadEnds.shift()!;
-    if (0.99 >  Math.random()) {
+    if (noDeadEndsFactor >  Math.random()) {
       const dim1 = deadend[0];
       const dim2 = deadend[1];
       setTile(dim1.x, dim1.y, '#', 0);
@@ -294,5 +311,5 @@ function randBetween(low: number, high: number) {
 }
 
 function randomDimentions() {
-  return [makeOdd(randBetween(3, 11)), makeOdd(randBetween(3, 7))];
+  return [makeOdd(randBetween(minRoom, maxRoom)), makeOdd(randBetween(minRoom, maxRoom))];
 }
