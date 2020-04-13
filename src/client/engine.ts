@@ -6,7 +6,7 @@ import { HudPiece, Anchor, Tile, Drawable, HudText } from './drawing/drawable.js
 import { localPlayer } from './character.js';
 import { Obstacle, Zone } from './zone.js';
 import { CameraControl } from './camera_control.js';
-import { showInventory, drawInventory } from './inventory.js';
+import { showInventory, drawInventory, init as initInventory } from './inventory.js';
 
 let previousFrameTime: Seconds = 0;
 
@@ -21,6 +21,7 @@ async function init() {
   if (isAlive) throw new Error('engine is already initialized!');
   isAlive = true;
   arrow = await openStatic('arrow_left.png');
+  await initInventory();
   camera = new CameraControl();
   zone = await Zone.open('example');
   localPlayer.position = [...zone.portals.values()][0].position;

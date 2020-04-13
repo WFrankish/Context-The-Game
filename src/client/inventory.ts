@@ -1,12 +1,19 @@
 import { Drawable, HudText, Anchor } from './drawing/drawable.js';
 import { Vector2 } from '../common/vector2.js';
 import * as display from './display.js';
-import { Image } from './drawing/image.js';
-import BodyPart from 'src/common/character/body_part.js';
-import { localPlayer } from './character';
+import { Image, openStatic } from './drawing/image.js';
+import BodyPart from '../common/character/body_part.js';
+import { localPlayer } from './character.js';
 
 const inventoryTileWidth = 32;
 const inventoryTileHeight = 32;
+const inventoryImages = new Map<string, Image>();
+
+export async function init() {
+  const equipmentSquare = await openStatic('inventory_square.png');
+
+  inventoryImages.set('default', equipmentSquare);
+}
 
 addEventListener('keypress', (event: KeyboardEvent) => {
   if (event.code === 'KeyI') {
@@ -45,9 +52,13 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
     new EquipmentTile(
       new Vector2(equipmentMidX - inventoryTileWidth / 2, equipmentTopY + inventoryTileHeight),
       BodyPart.Head,
-      null
+      inventoryImages.get('default')!
     ),
   ];
+
+  for (const square of equipmentSquares) {
+    square.draw(context, dt);
+  }
 
   context.fillStyle = oldFillStyle;
 }
@@ -69,7 +80,7 @@ export class EquipmentTile implements Drawable {
     } else if (localPlayer.inventory.equippedWeaponsByPart.has(this.bodyPart)) {
       // TODO: Draw weapon
     } else {
-      ctx.drawImage(this.defaultImage.getImage(dt).data, this.position.x, this.position.y);
+      ctx.drawImage(this.defaultImage.get().data, this.position.x, this.position.y);
     }
   }
 }
