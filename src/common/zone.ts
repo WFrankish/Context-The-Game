@@ -67,6 +67,10 @@ export interface ZoneData {
   characters: Set<string>;
 }
 
+export type Update =
+  | {type: 'Enter', id: string}
+  | {type: 'Leave', id: string};
+
 export interface Neighbours {
   up: string;
   left: string;
@@ -134,6 +138,20 @@ export async function load(data: ZoneData, loadWall: LoadWall, loadObstacle: Loa
   return { floor, obstacles };
 }
 
+export abstract class ZoneHandler implements net.BaseHandler<ZoneData, Update> {
+  applyUpdate(state: ZoneData, update: Update) {
+    switch (update.type) {
+      case 'Enter':
+        state.characters.add(update.id);
+        break;
+      case 'Leave':
+        state.characters.delete(update.id);
+        break;
+    }
+  }
+  onChange(state: ZoneData): void {}
+}
+
 export abstract class Zone {
   constructor(floor: Set<string>, obstacles: Map<string, Obstacle>) {
     this.floor = floor;
@@ -195,11 +213,13 @@ export abstract class Zone {
       }
     }
   }
+  channel?: net.Channel<ZoneData, Update>;
   // Set of stringified positions for floor tiles.
   readonly floor: Set<string>;
   // Map from stringified position to obstacle.
   readonly obstacles: Map<string, Obstacle>;
+  // All the characters.
+  readonly characters: Set<Character> = new Set();
   // Map from portal name to portal.
   abstract readonly portals: Map<string, Portal>;
-  characters: Set<Character> = new Set();
 }

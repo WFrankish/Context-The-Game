@@ -191,15 +191,13 @@ async function loadObstacle(name: string, position: Vector2, data: common.Obstac
   }
 }
 
-class ZoneHandler implements net.Handler<common.ZoneData, null> {
+class ZoneHandler extends common.ZoneHandler implements net.Handler<common.ZoneData, common.Update> {
   copyState(state: common.ZoneData): common.ZoneData {
     return JSON.parse(JSON.stringify(state));
   }
   loadSnapshot(data: netCommon.JsonObject): common.ZoneData {
     return (data as unknown) as common.ZoneData;
   }
-  applyUpdate(state: common.ZoneData, update: null): void {}
-  onChange(state: common.ZoneData): void {}
 }
 
 const characterRadius = 0.3;
