@@ -1,7 +1,7 @@
 import * as display from './display.js';
 import { Vector2 } from '../common/vector2.js';
 import { HudPiece, Anchor, Tile, Drawable } from './drawing/drawable.js';
-import { StaticImage, LoopingImage, Image } from './drawing/image.js';
+import { Image } from './drawing/image.js';
 
 let position: Vector2 | null = null;
 let curr = 2;
@@ -45,6 +45,7 @@ function render(totalMilliseconds: number): void {
   display.draw((context) => {
     context.imageSmoothingEnabled = false;
     drawPreset(context);
+  }, (context) => {
     let arrowLeft = new Image();
     arrowLeft.src = '../assets/arrow_left.png';
     arrowLeft.onload = function () {
