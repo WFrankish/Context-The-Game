@@ -7,7 +7,7 @@ let position: Vector2 | null = null;
 let img : Sprite | undefined;
 let curr = 2;
 let presets : Sprite[] | undefined[];
-
+let presetNames = ["gern", "bleh", "rad", "puprupple"];
 async function init() {
   let preset_assets = ['gandalf_the_girthy_green.png',
     'gandalf_the_girthy_blue.png',
@@ -22,9 +22,11 @@ async function init() {
     console.log(`Mouse up position: ${position?.x} ${position?.y}`);
     if (isLeftArrowClicked()) {
       curr = (curr + 4 - 1) % 4;
+      (document.getElementById('preset') as HTMLInputElement)!.value = presetNames[curr];
       requestAnimationFrame(render);
     } else if (isRightArrowClicked()) {
         curr = (curr + 1) % 4;
+        (document.getElementById('preset') as HTMLInputElement)!.value = presetNames[curr];
         requestAnimationFrame(render);
     }
   });
