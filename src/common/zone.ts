@@ -25,6 +25,7 @@ export class Wall extends Obstacle {
   }
 }
 
+// TODO: Remove this once we've made some real obstacle types.
 export interface PlainObstacleData {
   type: 'Obstacle';
   image: string;
@@ -32,7 +33,9 @@ export interface PlainObstacleData {
 }
 
 export interface PortalDestination {
+  // The zone which this portal takes the player to.
   zone: string;
+  // The portal within the target zone from which the player should spawn.
   portal: string;
 }
 
@@ -42,6 +45,19 @@ export interface PortalData {
 }
 
 export type ObstacleData = PlainObstacleData | PortalData;
+
+// The network representation of a zone.
+export interface ZoneData {
+  // A string containing an ascii-art depiction of the map:
+  //
+  //   `~`: The void, which appears on the outside of all external-edge walls.
+  //   '#': Walls
+  //   ' ': Floor which can be reached by players.
+  //   alphanumeric: Obstacles described by the "obstacles" field.
+  layout: string;
+  // Custom/unique obstacles present in the layout diagram.
+  obstacles: {[name: string]: ObstacleData};
+}
 
 export interface Neighbours {
   up: string;
@@ -110,11 +126,6 @@ export async function load(data: ZoneData, loadWall: LoadWall, loadObstacle: Loa
     obstacles.set(key, await obstaclePromise);
   }
   return { floor, obstacles };
-}
-
-export interface ZoneData {
-  layout: string;
-  obstacles: {[name: string]: ObstacleData};
 }
 
 export abstract class Zone {
