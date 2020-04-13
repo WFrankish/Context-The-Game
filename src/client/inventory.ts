@@ -44,31 +44,26 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   context.fillStyle = '#633c12dd';
   context.fillRect(0, 0, display.width, display.height);
   context.fillStyle = '#ffffff';
-  const text: Drawable[] = [
-    new HudText('INVENTORY', 36, new Vector2(display.width / 2, 10), Anchor.Top),
-    new HudText('Backpack', 24, new Vector2(display.width / 4, 100), Anchor.Top),
-    new HudText('Equipped', 24, new Vector2((display.width * 3) / 4, 100), Anchor.Top),
-  ];
-  for (const hudText of text) {
-    hudText.draw(context, dt);
-  }
 
-  // Y-coord of the top of the backpack and equipped sections
-  const topOfSquares = 120;
+  const minYCoordOfSquares = 120;
   const padding = 15;
+
+  // Total width of equipped section - 3 tiles wide (torso & arms), 4 sets of padding (edges and between tiles)
+  const equippedSectionWidth = tileWidth * 3 + padding * 4;
+  const backpackSectionWidth = display.width - equippedSectionWidth;
 
   // Backpack section
   const numSquares = localPlayer.inventory.maxVolume;
 
-  const availableWidth = display.width / 2 - padding;
+  const availableWidth = backpackSectionWidth - padding;
   const numSquaresPerRow = Math.floor(availableWidth / (tileWidth + padding));
-  const backpackSidePadding = (display.width / 2 - (numSquaresPerRow * (tileWidth + padding) - padding)) / 2;
+  const backpackSidePadding = (backpackSectionWidth - (numSquaresPerRow * (tileWidth + padding) - padding)) / 2;
 
   const numRows = Math.ceil(numSquares / numSquaresPerRow);
 
   const backpackSquares: Drawable[] = [];
   const topLeftX = backpackSidePadding;
-  const topLeftY = topOfSquares + tileHeight;
+  const topLeftY = minYCoordOfSquares + tileHeight;
 
   for (let i = 0; i < numRows; i++) {
     for (let j = 0; j < numSquaresPerRow; j++) {
@@ -86,8 +81,8 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   }
 
   // Y-coord of the top-most equipment tile
-  const equipmentTopY = topOfSquares;
-  const equipmentMidX = (display.width * 3) / 4;
+  const equipmentTopY = minYCoordOfSquares;
+  const equipmentMidX = backpackSectionWidth + equippedSectionWidth / 2;
 
   const headLocation = new Vector2(equipmentMidX - tileWidth / 2, equipmentTopY + tileHeight);
   const torsoLocation = new Vector2(headLocation.x, headLocation.y + tileHeight + padding);
@@ -121,6 +116,15 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   }
 
   context.fillStyle = oldFillStyle;
+
+  const text: Drawable[] = [
+    new HudText('INVENTORY', 36, new Vector2(display.width / 2, 10), Anchor.Top),
+    new HudText('Backpack', 24, new Vector2(backpackSectionWidth / 2, 100), Anchor.Top),
+    new HudText('Equipped', 24, new Vector2(backpackSectionWidth + equippedSectionWidth / 2, 100), Anchor.Top),
+  ];
+  for (const hudText of text) {
+    hudText.draw(context, dt);
+  }
 }
 
 export class EquipmentTile implements Drawable {
