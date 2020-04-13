@@ -1,6 +1,7 @@
 import { Transform } from '../common/transform.js';
 import { Vector2 } from '../common/vector2.js';
 import { Image, openStatic } from './drawing/image.js';
+import { tileWidth, tileHeight } from '../common/constants.js';
 
 export const width = 640;
 export const height = 480;
@@ -24,7 +25,7 @@ export function draw(
   context.save();
   context.translate(0.5 * width, 0.5 * height);
   context.scale(camera.scale, camera.scale);
-  context.translate(-camera.position.x, -camera.position.y);
+  context.translate(-camera.position.x * tileWidth, -camera.position.y * tileHeight);
   worldCallback(context);
   context.restore();
 

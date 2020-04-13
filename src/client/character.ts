@@ -6,6 +6,7 @@ import Inventory from '../common/character/inventory.js';
 import { Updatable } from './updatable.js';
 import { Drawable } from './drawing/drawable.js';
 import * as common from '../common/character.js';
+import * as display from './display.js';
 
 enum Direction {
   RIGHT = 0,
@@ -21,9 +22,17 @@ export class Character extends common.Character {
   leftArmPhase = 0;
   rightArmPhase = 0;
   inventory = new Inventory();
+  isLocal = true;
 
   update(dt: Seconds) {
     super.update(dt);
+    if(this.isLocal){
+      const x = clamp(display.camera.position.x, this.position.x - 10, this.position.x + 10);
+      const y = clamp(display.camera.position.y, this.position.y - 6, this.position.y + 6);
+
+      display.camera.position = new Vector2(x,y);
+    }
+
     if (this.velocity.dotProduct(this.velocity) > 0) {
       this.direction =
         this.velocity.x < 0
