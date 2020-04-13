@@ -48,7 +48,7 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   context.fillStyle = '#ffffff';
 
   const minYCoordOfSquares = 120;
-  const padding = 15;
+  const padding = 10;
 
   // Total width of equipped section - 3 tiles wide (torso & arms), 4 sets of padding (edges and between tiles)
   const equippedSectionWidth = tileWidth * 3 + padding * 4;
