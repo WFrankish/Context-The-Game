@@ -98,7 +98,7 @@ function send(message: common.ClientMessage): void {
 }
 
 async function sendLoop() {
-  const sendInterval: Milliseconds = 1000;
+  const sendInterval: Milliseconds = 100;
   const maxSendSize = 100000;
   let nextStart = Date.now();
   while (true) {
