@@ -1,38 +1,30 @@
 import * as display from './display.js';
 import { Vector2 } from '../common/vector2.js';
 import { HudPiece, Anchor, Tile, Drawable } from './drawing/drawable.js';
-import { Image } from './drawing/image.js';
+import { openStatic, Sprite } from './drawing/image.js';
 
 let position: Vector2 | null = null;
+let img : Sprite | undefined;
 let curr = 2;
-let img = new Image();
-let presets: Array<string>;
-presets = [
-  '../assets/gandalf_the_girthy_green.png',
-  '../assets/gandalf_the_girthy_blue.png',
-  '../assets/gandalf_the_girthy_red.png',
-  '../assets/gandalf_the_girthy_purple.png',
-];
+let presets : Sprite[] | undefined[];
 
-function init(): void {
+async function init() {
+  let preset_assets = ['gandalf_the_girthy_green.png',
+    'gandalf_the_girthy_blue.png',
+    'gandalf_the_girthy_red.png',
+    'gandalf_the_girthy_purple.png',
+  ];
+  presets = await Promise.all(preset_assets.map(openStatic))
   display.onMouseMove((event) => {
     position = event.position;
-    
-    console.log(`position: ${position?.x} ${position?.y}`);
   });
   display.onMouseUp((event) => {
     console.log(`Mouse up position: ${position?.x} ${position?.y}`);
     if (isLeftArrowClicked()) {
       curr = (curr + 4 - 1) % 4;
-      // display.draw((context) => {
-      //   drawPreset(context);
-      // });
       requestAnimationFrame(render);
     } else if (isRightArrowClicked()) {
         curr = (curr + 1) % 4;
-        // display.draw((context) => {
-        //     drawPreset(context)
-        // })
         requestAnimationFrame(render);
     }
   });
@@ -42,10 +34,14 @@ init();
 window.requestAnimationFrame(render);
 
 function render(totalMilliseconds: number): void {
-  display.draw((context) => {
+  if (presets == undefined || presets[curr] == undefined) {
+    window.requestAnimationFrame(render);
+    return;
+  }
+  display.draw((context) => {},
+    (context) => {
     context.imageSmoothingEnabled = false;
     drawPreset(context);
-  }, (context) => {
     let arrowLeft = new Image();
     arrowLeft.src = '../assets/arrow_left.png';
     arrowLeft.onload = function () {
@@ -87,8 +83,17 @@ function isRightArrowClicked(): boolean {
 }
 
 function drawPreset(context: CanvasRenderingContext2D): void {
-  img.src = presets[curr];
-  img.onload = function () {
-    context.drawImage(img, 0, 0, 256, 256);
-  };
+  img = presets[curr];
+  if (img == undefined) return;
+  context.drawImage(
+    img.get().data,
+    img.get().startX,
+    img.get().startY,
+    img.get().width,
+    img.get().height,
+    0,
+    0,
+    256,
+    256
+  );
 }

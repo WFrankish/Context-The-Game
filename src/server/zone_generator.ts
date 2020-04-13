@@ -95,7 +95,7 @@ export function generateZone(x: number, y: number, roomCount: number): ZoneData 
         },
       },
     },
-    characters: new Map
+    characters: new Set
   };
 }
 
