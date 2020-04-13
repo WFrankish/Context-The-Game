@@ -99,7 +99,7 @@ export function generateZone(x: number, y: number, roomCount: number): ZoneData 
         },
       },
     },
-    characters: new Set(),
+    characters: new Set
   };
 }
 

@@ -12,7 +12,7 @@ const tileHeight = 32;
 const sprites = new Map<BodyPart | string, Sprite>();
 
 export async function init() {
-  const inventoryPics = await openSprites('inventory.png', 32, 32);
+  const inventoryPics = await openSprites('inventory.png', tileWidth - 2, tileHeight - 2);
 
   sprites.set('default', inventoryPics[0]);
   sprites.set(BodyPart.Torso, inventoryPics[1]);
