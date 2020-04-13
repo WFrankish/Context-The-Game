@@ -1,16 +1,9 @@
 import { Milliseconds, Timestamp, time } from '../common/time.js';
 import * as metrics from '../common/metrics.js';
 import * as common from '../common/net.js';
+export { Channel } from '../common/net.js';
 
 export type Handler<SnapshotType, UpdateType> = common.ClientHandler<SnapshotType, UpdateType>;
-
-export interface Channel<SnapshotType, UpdateType> {
-  readonly id: string;
-  // Apply a new update originating from the client.
-  update(update: UpdateType): void;
-  // Access the current state.
-  state(): SnapshotType;
-}
 
 // Wait for the network connection to establish. This should be called exactly
 // once, and should return before any other use of the network library is made.
@@ -46,7 +39,7 @@ const startupPromise = new Promise((resolve, reject) => {
   socket.onopen = () => resolve();
 });
 
-class ChannelState<SnapshotType, UpdateType> implements Channel<SnapshotType, UpdateType> {
+class ChannelState<SnapshotType, UpdateType> implements common.Channel<SnapshotType, UpdateType> {
   constructor(id: string, handler: Handler<SnapshotType, UpdateType>) {
     this.id = id;
     this.handler = handler;

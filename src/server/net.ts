@@ -2,26 +2,19 @@ import * as http from 'http';
 import WebSocket from 'ws';
 
 import * as common from '../common/net.js';
+export { Channel } from '../common/net.js';
 
 import { Milliseconds, time } from '../common/time.js';
 import { server } from './http.js';
 
 export type Handler<SnapshotType, UpdateType> = common.ServerHandler<SnapshotType, UpdateType>;
 
-export interface Channel<SnapshotType, UpdateType> {
-  readonly id: string;
-  // Apply a new update originating from the server.
-  update(update: UpdateType): void;
-  // Access the current state.
-  state(): SnapshotType;
-}
-
 // Create a new channel with the given id and handler. Immediately returns the
 // associated channel. The state can be accessed immediately.
 export function createChannel<SnapshotType, UpdateType>(
   id: string,
   handler: Handler<SnapshotType, UpdateType>
-): Channel<SnapshotType, UpdateType> {
+): common.Channel<SnapshotType, UpdateType> {
   if (channels.has(id)) throw new Error('channel ' + id + ' already exists.');
   const channel: ChannelState<SnapshotType, UpdateType> = new ChannelState(id, handler);
   channels.set(id, channel);
@@ -43,7 +36,7 @@ class Subscription {
   numLocalUpdates = 0;
 }
 
-class ChannelState<SnapshotType, UpdateType> implements Channel<SnapshotType, UpdateType> {
+class ChannelState<SnapshotType, UpdateType> implements common.Channel<SnapshotType, UpdateType> {
   constructor(id: string, handler: Handler<SnapshotType, UpdateType>) {
     this.id = id;
     this.handler = handler;

@@ -2,16 +2,8 @@ import { Timestamp } from './time.js';
 
 export type JsonObject = boolean | number | string | JsonObject[] | { [key: string]: JsonObject };
 
-// The minimum interface that must be implemented on the client side.
-export interface ClientHandler<SnapshotType, UpdateType> {
-  // Copy a snapshot state into a new state object. This must create a separate
-  // object, as the implementation may internally have multiple snapshots in use
-  // at one time.
-  copyState(state: SnapshotType): SnapshotType;
-  // Decode the network format into a state object. If there is no difference
-  // between the snapshot format and the network format, this function may
-  // simply return its argument.
-  loadSnapshot(data: JsonObject): SnapshotType;
+// Interface components which are common between the server and the client.
+export interface BaseHandler<SnapshotType, UpdateType> {
   // Apply an update to a snapshot object, updating it in-place. The client must
   // not assume anything about the order of multiple invocations of applyUpdate.
   // Internally, to ensure eventual consistency, the implementation may need
@@ -24,24 +16,34 @@ export interface ClientHandler<SnapshotType, UpdateType> {
   onChange(state: SnapshotType): void;
 }
 
+// The minimum interface that must be implemented on the client side.
+export interface ClientHandler<SnapshotType, UpdateType> extends BaseHandler<SnapshotType, UpdateType> {
+  // Copy a snapshot state into a new state object. This must create a separate
+  // object, as the implementation may internally have multiple snapshots in use
+  // at one time.
+  copyState(state: SnapshotType): SnapshotType;
+  // Decode the network format into a state object. If there is no difference
+  // between the snapshot format and the network format, this function may
+  // simply return its argument.
+  loadSnapshot(data: JsonObject): SnapshotType;
+}
+
 // The minimum interface that must be implemented on the server side.
-export interface ServerHandler<SnapshotType, UpdateType> {
+export interface ServerHandler<SnapshotType, UpdateType> extends BaseHandler<SnapshotType, UpdateType> {
   // Default state used when creating new instances of the snapshot type. Called exactly once for a given channel.
   defaultState(): SnapshotType;
   // Encode a state object into the network format. If there is no difference
   // between the snapshot format and the network format, this function may
   // simply return its argument.
   encodeSnapshot(state: SnapshotType): JsonObject;
-  // Apply an update to a snapshot object, updating it in-place. The client must
-  // not assume anything about the order of multiple invocations of applyUpdate.
-  // Internally, to ensure eventual consistency, the implementation may need
-  // multiple versions of the state available and switch between applying
-  // updates to one, or the other, or both.
-  applyUpdate(state: SnapshotType, update: UpdateType): void;
-  // Invoked when a new version of the state becomes available. May sometimes be
-  // skipped if many updates arrive at once, so is not intended to detect every
-  // change.
-  onChange(state: SnapshotType): void;
+}
+
+export interface Channel<SnapshotType, UpdateType> {
+  readonly id: string;
+  // Apply a new update.
+  update(update: UpdateType): void;
+  // Access the current state.
+  state(): SnapshotType;
 }
 
 // The combination of the client and server interfaces. If the object
