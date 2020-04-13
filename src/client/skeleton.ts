@@ -11,7 +11,8 @@ export class Skeleton extends Character {
   isLocal = false;
 
   constructor(position: Vector2){
-    super();
+    // TODO: This needs a unique ID per skeleton to work properly.
+    super('skeleton');
 
     this.totalTime += Math.random();
 

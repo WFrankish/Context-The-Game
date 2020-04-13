@@ -94,7 +94,7 @@ let initialized = false;
 let _localPlayer: Character | undefined;
 export async function init() {
   if (initialized) throw new Error('Initialized multiple times.');
-  _localPlayer = new Character();
+  _localPlayer = new Character('steve');
   _localPlayer.inputs = inputs;
 }
 
