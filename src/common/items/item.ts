@@ -10,5 +10,4 @@ export default interface Item {
   weight: number;
   volume: number;
   value: number;
-  imagePath: string;
 }

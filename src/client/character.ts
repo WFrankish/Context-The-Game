@@ -16,6 +16,12 @@ enum Direction {
 
 export class Character extends common.Character {
   static image = new Image();
+  direction = Direction.DOWN;
+  animationTime = 0;
+  leftArmPhase = 0;
+  rightArmPhase = 0;
+  inventory = new Inventory();
+
   update(dt: Seconds) {
     super.update(dt);
     if (this.velocity.dotProduct(this.velocity) > 0) {
@@ -34,6 +40,7 @@ export class Character extends common.Character {
     this.rightArmPhase = clamp(this.rightArmPhase + (2 * inputs.primary - 1) * 20 * dt, 0, 1);
     this.leftArmPhase = clamp(this.leftArmPhase + (2 * inputs.secondary - 1) * 20 * dt, 0, 1);
   }
+
   draw(context: CanvasRenderingContext2D): void {
     context.save();
     context.translate(this.position.x, this.position.y);
@@ -66,12 +73,6 @@ export class Character extends common.Character {
   get hudText(): string {
     return `${this.inventory.usedWeight}/${this.inventory.maxWeight} | ${this.inventory.usedVolume}/${this.inventory.maxVolume}`;
   }
-
-  direction = Direction.DOWN;
-  animationTime = 0;
-  leftArmPhase = 0;
-  rightArmPhase = 0;
-  inventory = new Inventory();
 }
 Character.image.src = '/assets/character.png';
 

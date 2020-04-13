@@ -4,6 +4,8 @@ import * as display from './display.js';
 import { Sprite, openSprites } from './drawing/image.js';
 import BodyPart from '../common/character/body_part.js';
 import { localPlayer } from './character.js';
+import Item from '../common/items/item.js';
+import ItemImages from './items.js';
 
 const tileWidth = 32;
 const tileHeight = 32;
@@ -64,13 +66,26 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   const backpackSquares: Drawable[] = [];
   const topLeftX = backpackSidePadding;
   const topLeftY = minYCoordOfSquares + tileHeight;
+  const backpack = localPlayer.inventory.getAllStored();
+  let hasMoreItems = backpack.size > 0;
+  const backpackIterator = backpack[Symbol.iterator]();
 
   for (let i = 0; i < numRows; i++) {
     for (let j = 0; j < numSquaresPerRow; j++) {
+      let storedItem: Item | undefined;
+
+      if (hasMoreItems) {
+        const next = backpackIterator.next();
+        storedItem = next.value;
+        hasMoreItems = !next.done;
+      }
+
       backpackSquares.push(
         new EquipmentTile(
           new Vector2(topLeftX + j * (tileWidth + padding), topLeftY + i * (tileHeight + padding)),
-          sprites.get('default')!
+          sprites.get('default')!,
+          undefined,
+          storedItem
         )
       );
     }
@@ -128,14 +143,16 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
 }
 
 export class EquipmentTile implements Drawable {
+  item?: Item;
   bodyPart?: BodyPart;
   backImage: Sprite;
   position: Vector2;
 
-  constructor(pos: Vector2, backImage: Sprite, bodyPart?: BodyPart, item?: any) {
+  constructor(pos: Vector2, backImage: Sprite, bodyPart?: BodyPart, item?: Item) {
     this.position = pos;
     this.backImage = backImage;
     this.bodyPart = bodyPart;
+    this.item = item;
   }
 
   draw(ctx: CanvasRenderingContext2D, dt: number): void {
@@ -148,6 +165,14 @@ export class EquipmentTile implements Drawable {
         // TODO: Draw armour
       } else if (localPlayer.inventory.equippedWeaponsByPart.has(this.bodyPart)) {
         // TODO: Draw weapon
+      }
+    } else if (this.item) {
+      const img = ItemImages.get(this.item.category)?.get(this.item.name);
+
+      if (img) {
+        const { data, startX, startY, width, height } = img.get();
+
+        ctx.drawImage(data, startX, startY, width, height, this.position.x, this.position.y, width, height);
       }
     }
   }

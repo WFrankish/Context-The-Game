@@ -7,6 +7,8 @@ import { localPlayer } from './character.js';
 import { Obstacle, Zone } from './zone.js';
 import { CameraControl } from './camera_control.js';
 import { showInventory, drawInventory, init as initInventory } from './inventory.js';
+import { init as initItemSprites } from './items.js';
+import HealthPotion from '../common/items/consumables/health_potion.js';
 
 let previousFrameTime: Seconds = 0;
 
@@ -22,9 +24,11 @@ async function init() {
   isAlive = true;
   arrow = await openStatic('arrow_left.png');
   await initInventory();
+  await initItemSprites();
   camera = new CameraControl();
   zone = await Zone.open('example');
   localPlayer.position = [...zone.portals.values()][0].position;
+  localPlayer.inventory.store(new HealthPotion());
   zone.characters.add(localPlayer);
 }
 
