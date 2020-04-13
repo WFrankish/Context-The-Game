@@ -67,17 +67,23 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   const topLeftX = backpackSidePadding;
   const topLeftY = minYCoordOfSquares + tileHeight;
   const backpack = localPlayer.inventory.getAllStored();
-  let hasMoreItems = backpack.size > 0;
   const backpackIterator = backpack[Symbol.iterator]();
+  let hasMoreItems = backpack.size > 0;
+  let numIterationsDrawn = 0;
+  let storedItem: Item | undefined;
 
   for (let i = 0; i < numRows; i++) {
     for (let j = 0; j < numSquaresPerRow; j++) {
-      let storedItem: Item | undefined;
+      let isDisabled = false;
 
-      if (hasMoreItems) {
+      if (storedItem && numIterationsDrawn < storedItem.volume) {
+        isDisabled = true;
+        numIterationsDrawn++;
+      } else if (hasMoreItems) {
         const next = backpackIterator.next();
         storedItem = next.value;
         hasMoreItems = !next.done;
+        numIterationsDrawn = 1;
       }
 
       backpackSquares.push(
@@ -85,7 +91,8 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
           new Vector2(topLeftX + j * (tileWidth + padding), topLeftY + i * (tileHeight + padding)),
           sprites.get('default')!,
           undefined,
-          storedItem
+          storedItem,
+          isDisabled
         )
       );
     }
@@ -147,12 +154,14 @@ export class EquipmentTile implements Drawable {
   bodyPart?: BodyPart;
   backImage: Sprite;
   position: Vector2;
+  disabled: boolean;
 
-  constructor(pos: Vector2, backImage: Sprite, bodyPart?: BodyPart, item?: Item) {
+  constructor(pos: Vector2, backImage: Sprite, bodyPart?: BodyPart, item?: Item, disabled: boolean = false) {
     this.position = pos;
     this.backImage = backImage;
     this.bodyPart = bodyPart;
     this.item = item;
+    this.disabled = disabled;
   }
 
   draw(ctx: CanvasRenderingContext2D, dt: number): void {
@@ -171,9 +180,15 @@ export class EquipmentTile implements Drawable {
 
       if (img) {
         const { data, startX, startY, width, height } = img.get();
-
         ctx.drawImage(data, startX, startY, width, height, this.position.x, this.position.y, width, height);
       }
+    }
+
+    if (this.disabled) {
+      const oldFill = ctx.fillStyle;
+      ctx.fillStyle = '#77777777';
+      ctx.fillRect(this.position.x, this.position.y, width, height);
+      ctx.fillStyle = oldFill;
     }
   }
 }
