@@ -41,12 +41,13 @@ async function loadObstacle(name: string, position: Vector2, data: common.Obstac
   }
 }
 
-class ZoneHandler implements net.Handler<common.ZoneData, null> {
+class ZoneHandler extends common.ZoneHandler implements net.Handler<common.ZoneData, common.Update> {
   static async create(data: common.ZoneData) {
     const { floor, obstacles } = await common.load(data, loadWall, loadObstacle);
     return new ZoneHandler(data, new Zone(floor, obstacles));
   }
   constructor(data: common.ZoneData, zone: Zone) {
+    super();
     this.data = data;
     this.zone = zone;
   }
@@ -57,8 +58,6 @@ class ZoneHandler implements net.Handler<common.ZoneData, null> {
   encodeSnapshot(data: common.ZoneData): netCommon.JsonObject {
     return (data as unknown) as netCommon.JsonObject;
   }
-  applyUpdate(state: common.ZoneData, update: null) {}
-  onChange(state: common.ZoneData) {}
   data: common.ZoneData;
   zone: Zone;
 }
