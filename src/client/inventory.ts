@@ -1,27 +1,20 @@
-import { inputs } from './inputs.js';
 import { Drawable, HudText, Anchor } from './drawing/drawable.js';
 import { Vector2 } from '../common/vector2.js';
 import * as display from './display.js';
+import { Image } from './drawing/image.js';
+import BodyPart from 'src/common/character/body_part.js';
+import { localPlayer } from './character';
 
-let wasInventoryKeyPressed: boolean = false;
-let showInventory: boolean = false;
+const inventoryTileWidth = 32;
+const inventoryTileHeight = 32;
 
-export function shouldShowInventory(): boolean {
-  if (inputs.inventory) {
-    if (wasInventoryKeyPressed) {
-      // Was pressed last update, still pressed; don't update.
-      return showInventory;
-    }
-
-    // Inventory key was not pressed last update; toggle whether the inventory is open.
-    wasInventoryKeyPressed = true;
+addEventListener('keypress', (event: KeyboardEvent) => {
+  if (event.code === 'KeyI') {
     showInventory = !showInventory;
-  } else {
-    wasInventoryKeyPressed = false;
   }
+});
 
-  return showInventory;
-}
+export let showInventory: boolean = false;
 
 /**
  * Draws the inventory drawables into the HUD
@@ -33,7 +26,50 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   context.fillStyle = '#633c12dd';
   context.fillRect(0, 0, display.width, display.height);
   context.fillStyle = '#ffffff';
-  new HudText('INVENTORY', 36, new Vector2(display.width / 2, 10), Anchor.Top).draw(context, dt);
+  const text: Drawable[] = [
+    new HudText('INVENTORY', 36, new Vector2(display.width / 2, 10), Anchor.Top),
+    new HudText('Backpack', 24, new Vector2(display.width / 4, 100), Anchor.Top),
+    new HudText('Equipped', 24, new Vector2((display.width * 3) / 4, 100), Anchor.Top),
+  ];
+  for (const hudText of text) {
+    hudText.draw(context, dt);
+  }
+
+  // Backpack section
+
+  // Y-coord of the top-most equipment tile
+  const equipmentTopY = 140;
+  const equipmentMidX = (display.width * 3) / 4;
+
+  const equipmentSquares: Drawable[] = [
+    new EquipmentTile(
+      new Vector2(equipmentMidX - inventoryTileWidth / 2, equipmentTopY + inventoryTileHeight),
+      BodyPart.Head,
+      null
+    ),
+  ];
 
   context.fillStyle = oldFillStyle;
+}
+
+export class EquipmentTile implements Drawable {
+  bodyPart: BodyPart;
+  defaultImage: Image;
+  position: Vector2;
+
+  constructor(pos: Vector2, bodyPart: BodyPart, defaultImage: Image) {
+    this.position = pos;
+    this.defaultImage = defaultImage;
+    this.bodyPart = bodyPart;
+  }
+
+  draw(ctx: CanvasRenderingContext2D, dt: number): void {
+    if (localPlayer.inventory.equippedArmourByPart.has(this.bodyPart)) {
+      // TODO: Draw armour
+    } else if (localPlayer.inventory.equippedWeaponsByPart.has(this.bodyPart)) {
+      // TODO: Draw weapon
+    } else {
+      ctx.drawImage(this.defaultImage.getImage(dt).data, this.position.x, this.position.y);
+    }
+  }
 }
