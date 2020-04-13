@@ -1,8 +1,12 @@
 import { Transform } from '../common/transform.js';
 import { Vector2 } from '../common/vector2.js';
+import { Image, openStatic } from './drawing/image.js';
 
 export const width = 640;
 export const height = 480;
+
+let bgImage: Image | undefined;
+openStatic("bg.png").then(i => bgImage = i);
 
 // Apply the suitable transform for drawing the user interface over the game
 // world. The callback will receive the context it needs to draw, and can assume
@@ -12,7 +16,13 @@ export function draw(
   hudCallback: (context: CanvasRenderingContext2D) => void
 ): void {
   context.setTransform(1, 0, 0, 1, 0, 0);
-  context.fillStyle = '#000';
+
+  if(bgImage){
+    context.fillStyle = context.createPattern(bgImage.get().data, 'repeat')!;
+  } else {
+    context.fillStyle = "black";
+  }
+
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const { scale, offset } = computeScale();

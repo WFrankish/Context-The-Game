@@ -79,16 +79,16 @@ export async function load(data: string, loadWall: LoadWall, loadObstacle: LoadO
           floor.add(position.toString());
           break;
         case '#':
-          const edge = '~';
+          const edge = '#';
           const neighbours: Neighbours = {
-            up: lines[y - 1][x] || edge,
-            left: lines[y][x - 1] || edge,
-            down: lines[y + 1][x] || edge,
-            right: lines[y][x + 1] || edge,
-            upLeft: lines[y - 1][x - 1] || edge,
-            upRight: lines[y - 1][x + 1] || edge,
-            downLeft: lines[y + 1][x - 1] || edge,
-            downRight: lines[y + 1][x + 1] || edge,
+            up: lines[y - 1]?.[x] ?? edge,
+            left: lines[y]?.[x - 1] ?? edge,
+            down: lines[y + 1]?.[x] ?? edge,
+            right: lines[y]?.[x + 1] ?? edge,
+            upLeft: lines[y - 1]?.[x - 1] ?? edge,
+            upRight: lines[y - 1]?.[x + 1] ?? edge,
+            downLeft: lines[y + 1]?.[x - 1] ?? edge,
+            downRight: lines[y + 1]?.[x + 1] ?? edge,
           };
           placedObstacles.set(position.toString(), loadWall(position, neighbours));
           break;

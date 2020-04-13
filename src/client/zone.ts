@@ -61,12 +61,12 @@ export class Wall extends Obstacle {
         // need tall bits for top
         const sprites = await Wall.tallWalls;
         if (down && left && right) {
-          if (upLeft && upRight) {
-            image = sprites[18];
-          } else if (!upLeft && upRight) {
-            image = sprites[17];
-          } else if (upLeft && !upRight) {
-            image = sprites[16];
+          if (downLeft && downRight) {
+            image = sprites[2];
+          } else if (!downLeft && downRight) {
+            image = sprites[8];
+          } else if (downLeft && !downRight) {
+            image = sprites[9];
           } else {
             image = sprites[10];
           }
@@ -155,16 +155,16 @@ export class Portal extends Obstacle {
 }
 
 const example = `
-~~~~~~~~~~~~~~~~~~~
-~#################~
-~#  a  #    x    #~
-~#     #         #~
-~#               #~
-~#               #~
-~#     #         #~
-~#  b  #    y    #~
-~#################~
-~~~~~~~~~~~~~~~~~~~
+###################
+###################
+##  a  #    x    ##
+##     #         ##
+##               ##
+##               ##
+##               ##
+##  b  #    y    ##
+###################
+###################
 
 {
   "a": {
