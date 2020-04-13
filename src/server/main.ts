@@ -42,6 +42,7 @@ const example: ZoneData = {
       },
     },
   },
+  characters: new Map;
 };
 
 async function init() {
