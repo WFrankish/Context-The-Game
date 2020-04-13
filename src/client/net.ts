@@ -6,17 +6,10 @@ export { JsonObject } from '../common/net.js';
 
 export type Handler<SnapshotType, UpdateType> = common.ClientHandler<SnapshotType, UpdateType>;
 
-// Wait for the network connection to establish. This should be called exactly
-// once, and should return before any other use of the network library is made.
-export async function start() {
-  await startupPromise;
-  console.log('Connected.');
-  sendLoop();
-}
-
 // Subscribe to a channel identified by `id`. Asynchronously returns the
 // associated channel once it has initialized with a state from the server.
 export async function subscribe<SnapshotType, UpdateType>(id: string, handler: Handler<SnapshotType, UpdateType>) {
+  await startupPromise;
   if (channels.has(id)) {
     throw new Error(id + ' is already subscribed.');
   }
@@ -38,6 +31,10 @@ socket.onerror = (event) => {
 };
 const startupPromise = new Promise((resolve, reject) => {
   socket.onopen = () => resolve();
+});
+startupPromise.then(() => {
+  console.log('Connected.');
+  sendLoop();
 });
 
 class ChannelState<SnapshotType, UpdateType> implements common.Channel<SnapshotType, UpdateType> {

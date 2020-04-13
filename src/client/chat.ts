@@ -11,7 +11,6 @@ export class Handler extends common.Handler {
   }
   async start() {
     if (this.channel) return;
-    await net.start();
     this.channel = await net.subscribe('chat', this);
     this.input.addEventListener('keydown', (event: KeyboardEvent) => this.handleInput(event));
     this.channel!.update(this.username + ' has connected.');
