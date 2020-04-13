@@ -77,6 +77,7 @@ export async function load(data: ZoneData, loadWall: LoadWall, loadObstacle: Loa
           floor.add(position.toString());
           break;
         case '#':
+          floor.add(position.toString());
           const edge = '#';
           const neighbours: Neighbours = {
             up: lines[y - 1]?.[x] ?? edge,
