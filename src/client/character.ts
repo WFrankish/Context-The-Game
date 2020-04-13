@@ -7,12 +7,25 @@ import { Updatable } from './updatable.js';
 import { Drawable } from './drawing/drawable.js';
 import * as common from '../common/character.js';
 import * as display from './display.js';
+import * as net from './net.js';
 
 enum Direction {
   RIGHT = 0,
   UP = 1,
   LEFT = 2,
   DOWN = 3,
+}
+
+class CharacterHandler extends common.CharacterHandler {
+  constructor(character: Character) {
+    super(character);
+  }
+  copyState(state: common.Snapshot): common.Snapshot {
+    return JSON.parse(JSON.stringify(state)) as common.Snapshot;
+  }
+  loadSnapshot(data: net.JsonObject): common.Snapshot {
+    return (data as unknown) as common.Snapshot;
+  }
 }
 
 export class Character extends common.Character {
@@ -26,10 +39,13 @@ export class Character extends common.Character {
     const character = new Character(id);
     character.isLocal = true;
     character.inputs = inputs;
+    character.channel = await net.subscribe('/character/' + id, new CharacterHandler(character));
     return character;
   }
   static async remote(id: string): Promise<Character> {
-    return new Character(id);
+    const character = new Character(id);
+    character.channel = await net.subscribe('/character/' + id, new CharacterHandler(character));
+    return character;
   }
 
   update(dt: Seconds) {
