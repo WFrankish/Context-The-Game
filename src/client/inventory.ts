@@ -1,18 +1,29 @@
 import { Drawable, HudText, Anchor } from './drawing/drawable.js';
 import { Vector2 } from '../common/vector2.js';
 import * as display from './display.js';
-import { Image, openStatic } from './drawing/image.js';
+import { Sprite, openSprites } from './drawing/image.js';
 import BodyPart from '../common/character/body_part.js';
 import { localPlayer } from './character.js';
 
 const inventoryTileWidth = 32;
 const inventoryTileHeight = 32;
-const inventoryImages = new Map<string, Image>();
+const inventoryImages = new Map<BodyPart | string, Sprite>();
 
 export async function init() {
-  const equipmentSquare = await openStatic('inventory_square.png');
+  const inventoryPics = await openSprites('inventory.png', 32, 32);
 
-  inventoryImages.set('default', equipmentSquare);
+  inventoryImages.set('default', inventoryPics[0]);
+  inventoryImages.set(BodyPart.Torso, inventoryPics[1]);
+  inventoryImages.set(BodyPart.Head, inventoryPics[2]);
+  inventoryImages.set(BodyPart.LeftArm, inventoryPics[3]);
+  inventoryImages.set(BodyPart.RightArm, inventoryPics[4]);
+  inventoryImages.set(BodyPart.LeftHand, inventoryPics[5]);
+  inventoryImages.set(BodyPart.RightHand, inventoryPics[6]);
+  inventoryImages.set(BodyPart.LeftLeg, inventoryPics[7]);
+  inventoryImages.set(BodyPart.RightLeg, inventoryPics[8]);
+  inventoryImages.set(BodyPart.LeftFoot, inventoryPics[9]);
+  inventoryImages.set(BodyPart.RightFoot, inventoryPics[10]);
+  inventoryImages.set(BodyPart.Back, inventoryPics[11]);
 }
 
 addEventListener('keypress', (event: KeyboardEvent) => {
@@ -85,16 +96,16 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   );
 
   const equipmentSquares: Drawable[] = [
-    new EquipmentTile(headLocation, BodyPart.Head, inventoryImages.get('default')!),
-    new EquipmentTile(torsoLocation, BodyPart.Torso, inventoryImages.get('default')!),
-    new EquipmentTile(leftArmLocation, BodyPart.LeftArm, inventoryImages.get('default')!),
-    new EquipmentTile(rightArmLocation, BodyPart.RightArm, inventoryImages.get('default')!),
-    new EquipmentTile(leftHandLocation, BodyPart.LeftHand, inventoryImages.get('default')!),
-    new EquipmentTile(rightHandLocation, BodyPart.RightHand, inventoryImages.get('default')!),
-    new EquipmentTile(leftLegLocation, BodyPart.LeftLeg, inventoryImages.get('default')!),
-    new EquipmentTile(rightLegLocation, BodyPart.RightLeg, inventoryImages.get('default')!),
-    new EquipmentTile(leftFootLocation, BodyPart.LeftFoot, inventoryImages.get('default')!),
-    new EquipmentTile(rightFootLocation, BodyPart.RightFoot, inventoryImages.get('default')!),
+    new EquipmentTile(headLocation, BodyPart.Head, inventoryImages.get(BodyPart.Head)!),
+    new EquipmentTile(torsoLocation, BodyPart.Torso, inventoryImages.get(BodyPart.Torso)!),
+    new EquipmentTile(leftArmLocation, BodyPart.LeftArm, inventoryImages.get(BodyPart.LeftArm)!),
+    new EquipmentTile(rightArmLocation, BodyPart.RightArm, inventoryImages.get(BodyPart.RightArm)!),
+    new EquipmentTile(leftHandLocation, BodyPart.LeftHand, inventoryImages.get(BodyPart.LeftHand)!),
+    new EquipmentTile(rightHandLocation, BodyPart.RightHand, inventoryImages.get(BodyPart.RightHand)!),
+    new EquipmentTile(leftLegLocation, BodyPart.LeftLeg, inventoryImages.get(BodyPart.LeftLeg)!),
+    new EquipmentTile(rightLegLocation, BodyPart.RightLeg, inventoryImages.get(BodyPart.RightLeg)!),
+    new EquipmentTile(leftFootLocation, BodyPart.LeftFoot, inventoryImages.get(BodyPart.LeftFoot)!),
+    new EquipmentTile(rightFootLocation, BodyPart.RightFoot, inventoryImages.get(BodyPart.RightFoot)!),
   ];
 
   for (const square of equipmentSquares) {
@@ -106,12 +117,12 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
 
 export class EquipmentTile implements Drawable {
   bodyPart: BodyPart;
-  defaultImage: Image;
+  backImage: Sprite;
   position: Vector2;
 
-  constructor(pos: Vector2, bodyPart: BodyPart, defaultImage: Image) {
+  constructor(pos: Vector2, bodyPart: BodyPart, backImage: Sprite) {
     this.position = pos;
-    this.defaultImage = defaultImage;
+    this.backImage = backImage;
     this.bodyPart = bodyPart;
   }
 
@@ -121,7 +132,9 @@ export class EquipmentTile implements Drawable {
     } else if (localPlayer.inventory.equippedWeaponsByPart.has(this.bodyPart)) {
       // TODO: Draw weapon
     } else {
-      ctx.drawImage(this.defaultImage.get().data, this.position.x, this.position.y);
+      const { data, startX, startY, width, height } = this.backImage.get();
+
+      ctx.drawImage(data, startX, startY, width, height, this.position.x, this.position.y, width, height);
     }
   }
 }
