@@ -16,6 +16,7 @@ export class Obstacle {
   onInteract(character: Character): void {}
   position: Vector2;
   radius = 0.4;
+  collides = true;
 }
 
 export interface Portal extends Obstacle {
@@ -62,6 +63,8 @@ export interface ZoneData {
   layout: string;
   // Custom/unique obstacles present in the layout diagram.
   obstacles: {[name: string]: ObstacleData};
+  // IDs of all characters in the zone.
+  characters: Set<string>;
 }
 
 export interface Neighbours {
@@ -98,7 +101,6 @@ export async function load(data: ZoneData, loadWall: LoadWall, loadObstacle: Loa
           floor.add(position.toString());
           break;
         case '#':
-          floor.add(position.toString());
           const edge = '#';
           const neighbours: Neighbours = {
             up: lines[y - 1]?.[x] ?? edge,
@@ -113,10 +115,9 @@ export async function load(data: ZoneData, loadWall: LoadWall, loadObstacle: Loa
           placedObstacles.set(position.toString(), loadWall(position, neighbours));
           break;
         default:
-          floor.add(position.toString());
           const obstacle = obstacleData.get(type);
-          if (!obstacle) throw new Error('Undefined obstacle type: ' + type);
-          if (obstacle == null) throw new Error('Obstacle type ' + type + ' used multiple times.');
+          if (obstacle === undefined) throw new Error('Undefined obstacle type: ' + type);
+          if (obstacle === null) throw new Error('Obstacle type ' + type + ' used multiple times.');
           placedObstacles.set(position.toString(), loadObstacle(type, position, obstacle));
           obstacleData.set(type, null);
       }
@@ -168,6 +169,7 @@ export abstract class Zone {
           const key = new Vector2(x + dx, y + dy).toString();
           const obstacle = this.obstacles.get(key);
           if (!obstacle) continue;
+          if (!obstacle.collides) continue;
           // Check for overlap with the obstacle by computing overlap in each axis.
           const offset = obstacle.position.subtract(character.position);
           const minDistance = Character.radius + obstacle.radius;

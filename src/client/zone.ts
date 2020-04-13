@@ -37,6 +37,7 @@ export class Obstacle extends common.Obstacle {
       height
     );
   }
+  drawFloor = true;
   readonly image: Image;
 }
 
@@ -53,7 +54,6 @@ export class Wall extends Obstacle {
     const right = neighbours.right === "#";
     const downLeft = neighbours.downLeft === "#";
     const downRight = neighbours.downRight === "#";
-
     if (!up || !down) {
       if (!up) {
         // need tall bits for top
@@ -146,10 +146,15 @@ export class Wall extends Obstacle {
       }
     }
 
-    return new Wall(image, position);
+    const floorLeft = neighbours.left != '#' && neighbours.left != '~';
+    const floorRight = neighbours.right != '#' && neighbours.right != '~';
+    const floorDown = neighbours.down != '#' && neighbours.down != '~';
+    let drawFloor = floorLeft || floorRight || floorDown;
+    return new Wall(drawFloor, image, position);
   }
-  private constructor(image: Image, position: Vector2) {
+  private constructor(drawFloor: boolean, image: Image, position: Vector2) {
     super(image, position);
+    this.drawFloor = drawFloor;
     this.radius = 0.5;
   }
 }
@@ -161,6 +166,7 @@ export class Portal extends Obstacle {
   }
   private constructor(name: string, image: Image, position: Vector2, destination: common.PortalDestination) {
     super(image, position);
+    this.collides = false;
     this.name = name;
     this.destination = destination;
   }
@@ -227,6 +233,10 @@ export class Zone extends common.Zone {
     for (const cell of this.floor) {
       const position = Vector2.fromString(cell);
       context.rect(32 * position.x, 24 * position.y, 32, 24);
+    }
+    for (const [cell, obstacle] of this.obstacles) {
+      if (!(obstacle as Obstacle).drawFloor) continue;
+      context.rect(32 * obstacle.position.x, 24 * obstacle.position.y, 32, 24);
     }
     context.fill();
     context.translate(16, 12);

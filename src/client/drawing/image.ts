@@ -59,8 +59,9 @@ export async function openStatic(path: string): Promise<Sprite> {
 export async function openSprites(path: string, width: number, height: number): Promise<Sprite[]> {
   const image = await open(path);
   const sprites = [];
-  for (let y = 0; y < image.height; y += height) {
-    for (let x = 0; x < image.width; x += width) {
+  const border = 1;
+  for (let y = border; y < image.height; y += height + 2 * border) {
+    for (let x = border; x < image.width; x += width + 2 * border) {
       sprites.push(new Sprite(image, x, y, width, height));
     }
   }
