@@ -1,5 +1,6 @@
 import { Transform } from '../common/transform.js';
 import { Vector2 } from '../common/vector2.js';
+import { Image, openStatic } from './drawing/image.js';
 
 export const width = 640;
 export const height = 480;
@@ -12,7 +13,7 @@ export function draw(
   hudCallback: (context: CanvasRenderingContext2D) => void
 ): void {
   context.setTransform(1, 0, 0, 1, 0, 0);
-  context.fillStyle = '#000';
+  context.fillStyle = '#2a2626';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const { scale, offset } = computeScale();

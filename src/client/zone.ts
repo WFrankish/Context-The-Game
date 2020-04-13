@@ -51,23 +51,20 @@ export class Wall extends Obstacle {
     const left = neighbours.left === "#";
     const down = neighbours.down === "#";
     const right = neighbours.right === "#";
-    const upLeft = neighbours.upLeft === "#";
-    const upRight = neighbours.upRight === "#";
     const downLeft = neighbours.downLeft === "#";
     const downRight = neighbours.downRight === "#";
 
-    // This isn't complete
     if (!up || !down) {
       if (!up) {
         // need tall bits for top
         const sprites = await Wall.tallWalls;
         if (down && left && right) {
-          if (upLeft && upRight) {
-            image = sprites[18];
-          } else if (!upLeft && upRight) {
-            image = sprites[17];
-          } else if (upLeft && !upRight) {
-            image = sprites[16];
+          if (downLeft && downRight) {
+            image = sprites[2];
+          } else if (!downLeft && downRight) {
+            image = sprites[8];
+          } else if (downLeft && !downRight) {
+            image = sprites[9];
           } else {
             image = sprites[10];
           }
@@ -111,11 +108,31 @@ export class Wall extends Obstacle {
       // top && bottom
       const sprites = await Wall.walls;
       if (left && right) {
-        image = sprites[0];
+        if(downLeft && downRight){
+          image = sprites[0];
+        }
+        else if (!downLeft && downRight){
+          image = sprites[19];
+        }
+        else if (downLeft && !downRight){
+          image = sprites[20];
+        }
+        else {
+          image = sprites[21];
+        }
       } else if (!left && right) {
-        image = sprites[5];
+        if(downLeft){
+          image = sprites[16];
+        }
+        else {
+          image = sprites[1];
+        }
       } else if (left && !right) {
-        image = sprites[4];
+        if(downRight){
+          image = sprites[17];
+        } else {
+          image = sprites[4];
+        }
       } else {
         if (downLeft && downRight) {
           image = sprites[18];

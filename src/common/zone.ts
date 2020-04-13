@@ -8,6 +8,11 @@ export class Obstacle {
     this.position = position;
   }
   update(dt: Seconds): void {}
+  // TODO: Figure out how this should be invoked. For the local player, we should probably have some code which looks
+  // for an obstacle in the direction the character is facing when the player hits the primary action key, and calls
+  // onInteract on it. After we've got the local player part working we'll need to figure out how to network it
+  // properly. Probably we can simply ignore this event for networked characters and rely on the consequences being
+  // visible directly.
   onInteract(character: Character): void {}
   position: Vector2;
   radius = 0.4;
@@ -25,6 +30,7 @@ export class Wall extends Obstacle {
   }
 }
 
+// TODO: Remove this once we've made some real obstacle types.
 export interface PlainObstacleData {
   type: 'Obstacle';
   image: string;
@@ -32,7 +38,9 @@ export interface PlainObstacleData {
 }
 
 export interface PortalDestination {
+  // The zone which this portal takes the player to.
   zone: string;
+  // The portal within the target zone from which the player should spawn.
   portal: string;
 }
 
@@ -42,6 +50,19 @@ export interface PortalData {
 }
 
 export type ObstacleData = PlainObstacleData | PortalData;
+
+// The network representation of a zone.
+export interface ZoneData {
+  // A string containing an ascii-art depiction of the map:
+  //
+  //   `~`: The void, which appears on the outside of all external-edge walls.
+  //   '#': Walls
+  //   ' ': Floor which can be reached by players.
+  //   alphanumeric: Obstacles described by the "obstacles" field.
+  layout: string;
+  // Custom/unique obstacles present in the layout diagram.
+  obstacles: {[name: string]: ObstacleData};
+}
 
 export interface Neighbours {
   up: string;
@@ -77,16 +98,17 @@ export async function load(data: ZoneData, loadWall: LoadWall, loadObstacle: Loa
           floor.add(position.toString());
           break;
         case '#':
-          const edge = '~';
+          floor.add(position.toString());
+          const edge = '#';
           const neighbours: Neighbours = {
-            up: lines[y - 1][x] || edge,
-            left: lines[y][x - 1] || edge,
-            down: lines[y + 1][x] || edge,
-            right: lines[y][x + 1] || edge,
-            upLeft: lines[y - 1][x - 1] || edge,
-            upRight: lines[y - 1][x + 1] || edge,
-            downLeft: lines[y + 1][x - 1] || edge,
-            downRight: lines[y + 1][x + 1] || edge,
+            up: lines[y - 1]?.[x] ?? edge,
+            left: lines[y]?.[x - 1] ?? edge,
+            down: lines[y + 1]?.[x] ?? edge,
+            right: lines[y]?.[x + 1] ?? edge,
+            upLeft: lines[y - 1]?.[x - 1] ?? edge,
+            upRight: lines[y - 1]?.[x + 1] ?? edge,
+            downLeft: lines[y + 1]?.[x - 1] ?? edge,
+            downRight: lines[y + 1]?.[x + 1] ?? edge,
           };
           placedObstacles.set(position.toString(), loadWall(position, neighbours));
           break;
@@ -109,11 +131,6 @@ export async function load(data: ZoneData, loadWall: LoadWall, loadObstacle: Loa
     obstacles.set(key, await obstaclePromise);
   }
   return { floor, obstacles };
-}
-
-export interface ZoneData {
-  layout: string;
-  obstacles: {[name: string]: ObstacleData};
 }
 
 export abstract class Zone {
