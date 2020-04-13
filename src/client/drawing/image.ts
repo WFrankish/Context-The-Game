@@ -9,7 +9,8 @@ export interface ImageData {
 }
 
 export interface Image {
-  getImage(dt: Seconds): ImageData;
+  update(dt: Seconds): void;
+  get(): ImageData;
 }
 
 // Asynchronously load an image.
@@ -22,39 +23,14 @@ function open(path: string): Promise<HTMLImageElement> {
   });
 }
 
-export class StaticImage implements Image {
-  static async open(path: string): Promise<StaticImage> {
-    return new StaticImage(await open(path));
-  }
-
-  private constructor(image: HTMLImageElement) {
-    if (!image.complete) {
-      throw new Error('Image must be loaded before StaticImage can be constructed.');
-    }
-    this.imageData = {
-      data: image,
-      startX: 0,
-      startY: 0,
-      width: image.width,
-      height: image.height,
-    };
-  }
-
-  getImage(): ImageData {
-    return this.imageData;
-  }
-
-  private imageData: ImageData;
-}
-
 export class Sprite implements Image {
-  private readonly image: Image;
+  private readonly image: HTMLImageElement;
   private readonly startX: number;
   private readonly startY: number;
   private readonly width: number;
   private readonly height: number;
 
-  constructor(image: Image, x: number, y: number, width: number, height: number) {
+  constructor(image: HTMLImageElement, x: number, y: number, width: number, height: number) {
     this.image = image;
     this.startX = x;
     this.startY = y;
@@ -62,15 +38,33 @@ export class Sprite implements Image {
     this.height = height;
   }
 
-  getImage(dt: Seconds): ImageData {
+  update(dt: Seconds): void {}
+
+  get(): ImageData {
     return {
-      data: this.image.getImage(dt).data,
+      data: this.image,
       startX: this.startX,
       startY: this.startY,
       width: this.width,
       height: this.height,
     };
   }
+}
+
+export async function openStatic(path: string): Promise<Sprite> {
+  const image = await open(path);
+  return new Sprite(image, 0, 0, image.width, image.height);
+}
+
+export async function openSprites(path: string, width: number, height: number): Promise<Sprite[]> {
+  const image = await open(path);
+  const sprites = [];
+  for (let y = 0; y < image.height; y += height) {
+    for (let x = 0; x < image.width; x += width) {
+      sprites.push(new Sprite(image, x, y, width, height));
+    }
+  }
+  return sprites;
 }
 
 export class LoopingImage implements Image {
@@ -88,11 +82,12 @@ export class LoopingImage implements Image {
     this.drawables = images;
   }
 
-  getImage(dt: Seconds): ImageData {
-    const frame = Math.trunc(this.currentTime / this.frameLength);
-
+  update(dt: Seconds): void {
     this.currentTime = (this.currentTime + dt) % (this.frameLength * this.drawables.length);
+  }
 
-    return this.drawables[frame].getImage(dt);
+  get(): ImageData {
+    const frame = Math.trunc(this.currentTime / this.frameLength);
+    return this.drawables[frame].get();
   }
 }

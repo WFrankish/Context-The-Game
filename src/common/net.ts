@@ -26,14 +26,8 @@ export interface ClientHandler<SnapshotType, UpdateType> {
 
 // The minimum interface that must be implemented on the server side.
 export interface ServerHandler<SnapshotType, UpdateType> {
-  // Default state used when creating new instances of the snapshot type. This
-  // function should return a new object each time it is called. It must not
-  // return a reference to the same object twice.
+  // Default state used when creating new instances of the snapshot type. Called exactly once for a given channel.
   defaultState(): SnapshotType;
-  // Copy a snapshot state into a new state object. This must create a separate
-  // object, as the implementation may internally have multiple snapshots in use
-  // at one time.
-  copyState(state: SnapshotType): SnapshotType;
   // Encode a state object into the network format. If there is no difference
   // between the snapshot format and the network format, this function may
   // simply return its argument.

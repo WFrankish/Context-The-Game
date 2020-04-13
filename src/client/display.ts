@@ -12,7 +12,7 @@ export function draw(
   hudCallback: (context: CanvasRenderingContext2D) => void
 ): void {
   context.setTransform(1, 0, 0, 1, 0, 0);
-  context.fillStyle = 'grey';
+  context.fillStyle = '#000';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const { scale, offset } = computeScale();
@@ -20,21 +20,19 @@ export function draw(
   context.scale(scale, scale);
   context.imageSmoothingEnabled = false;
 
-  context.fillStyle = 'black';
-  context.fillRect(0, 0, width, height);
-
+  context.save();
+  context.translate(0.5 * width, 0.5 * height);
+  context.scale(camera.scale, camera.scale);
   context.translate(-camera.position.x, -camera.position.y);
-
   worldCallback(context);
-
-  context.translate(camera.position.x, camera.position.y);
+  context.restore();
 
   hudCallback(context);
 }
 
 export const camera = {
   position: new Vector2(0, 0),
-  scale: 100,
+  scale: 1,
 };
 
 // Mouse events for the canvas, translated into the same coordinate space as the transform used by draw().
