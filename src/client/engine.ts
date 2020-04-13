@@ -6,6 +6,9 @@ import { HudPiece, Anchor, Tile, Drawable, HudText } from './drawing/drawable.js
 import { localPlayer } from './character.js';
 import { Obstacle, Zone } from './zone.js';
 import { CameraControl } from './camera_control.js';
+import { showInventory, drawInventory, init as initInventory } from './inventory.js';
+import { init as initItemSprites } from './items.js';
+import HealthPotion from '../common/items/consumables/health_potion.js';
 
 let previousFrameTime: Seconds = 0;
 
@@ -20,9 +23,12 @@ async function init() {
   if (isAlive) throw new Error('engine is already initialized!');
   isAlive = true;
   arrow = await openStatic('arrow_left.png');
+  await initInventory();
+  await initItemSprites();
   camera = new CameraControl();
   zone = await Zone.open('example');
   localPlayer.position = [...zone.portals.values()][0].position;
+  localPlayer.inventory.store(new HealthPotion());
   zone.characters.add(localPlayer);
 }
 
@@ -56,19 +62,13 @@ function render(totalMilliseconds: number): void {
       zone!.draw(context);
     },
     (context) => {
-      const hud: Drawable[] = [
-      // new HudPiece(arrow!, new Vector2(0, 0), Anchor.TopLeft),
-      // new HudPiece(arrow!, new Vector2(200, 0), Anchor.Top),
-      // new HudPiece(arrow!, new Vector2(-1, 0), Anchor.TopRight),
-      // new HudPiece(arrow!, new Vector2(0, 200), Anchor.Left),
-      // new HudPiece(arrow!, new Vector2(200, 200), Anchor.Centre),
-      // new HudPiece(arrow!, new Vector2(-1, 200), Anchor.Right),
-      // new HudPiece(arrow!, new Vector2(0, -1), Anchor.BottomLeft),
-      // new HudPiece(arrow!, new Vector2(200, -1), Anchor.Bottom),
-      // new HudPiece(arrow!, new Vector2(-1, -1), Anchor.BottomRight),
-      new HudText(localPlayer.hudText, 24, new Vector2(0, 0), Anchor.TopLeft),
-      ];
-      for (const item of hud) item.draw(context, dt);
+      if (showInventory) {
+        drawInventory(context, dt);
+      } else {
+        const hud: Drawable[] = [new HudText(localPlayer.hudText, 24, new Vector2(0, 0), Anchor.TopLeft)];
+
+        for (const item of hud) item.draw(context, dt);
+      }
     }
   );
   requestAnimationFrame(render);

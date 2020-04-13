@@ -7,11 +7,11 @@ const keyBindings: Map<string, common.Input> = new Map([
   ['KeyA', 'left'],
   ['KeyS', 'down'],
   ['KeyD', 'right'],
+  ['KeyI', 'inventory'],
   ['ArrowUp', 'camUp'],
   ['ArrowLeft', 'camLeft'],
   ['ArrowDown', 'camDown'],
   ['ArrowRight', 'camRight'],
-  ['KeyI', 'inventory'],
 ]);
 const mouseBindings: Map<number, common.Input> = new Map([
   [0, 'primary'],

@@ -1,4 +1,6 @@
 enum BodyPart {
+  LeftFoot,
+  RightFoot,
   LeftLeg,
   RightLeg,
   Torso,

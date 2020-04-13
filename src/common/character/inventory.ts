@@ -35,7 +35,7 @@ export default class Inventory {
   private _maxWeight: number;
   private _usedWeight = 0;
 
-  constructor({ volume = 50, weight = 100 }: InventoryConstructorOptions = {}) {
+  constructor({ volume = 30, weight = 100 }: InventoryConstructorOptions = {}) {
     this._baseVolume = volume;
     this._maxVolume = volume;
     this._baseWeight = weight;
