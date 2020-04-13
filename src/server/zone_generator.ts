@@ -3,6 +3,10 @@ import { shuffle } from '../common/utils.js';
 import { Vector2 } from '../common/vector2.js';
 
 let dungeon: string[] = [];
+
+/**
+ * a copy of the maze with an index for each area of space
+ */
 let mazeLogic: number[][] = [];
 let rooms: { x: number; y: number; w: number; h: number }[];
 let index = 0;
@@ -18,7 +22,7 @@ export function generateZone(x: number, y: number, roomCount: number): ZoneData 
 
   for (let j = 0; j < y; j++) {
     const row = new Array<number>();
-    for(let i = 0; i < x; i++){
+    for (let i = 0; i < x; i++) {
       row.push(0);
     }
     mazeLogic.push(row);
@@ -95,7 +99,7 @@ export function generateZone(x: number, y: number, roomCount: number): ZoneData 
         },
       },
     },
-    characters: new Map
+    characters: new Set(),
   };
 }
 
@@ -104,12 +108,23 @@ function setTile(x: number, y: number, val: string, index: number) {
   y = Math.trunc(y);
   const row = dungeon[y];
   dungeon[y] = row.substr(0, x) + val + row.substr(x + 1);
-  if(val === ' '){
+  if (val === ' ') {
     mazeLogic[y][x] = index;
   }
 }
 
 function makeRoom(x: number, y: number, w: number, h: number) {
+  let clear = true;
+  for (let j = 0; j < h; j++) {
+    for (let i = 0; i < w; i++) {
+      clear == clear && wallAt(i + x, j + y);
+    }
+  }
+
+  if (!clear) {
+    return;
+  }
+
   index++;
   for (let j = 0; j < h; j++) {
     for (let i = 0; i < w; i++) {
@@ -120,31 +135,32 @@ function makeRoom(x: number, y: number, w: number, h: number) {
   rooms.push({ x, y, w, h });
 }
 
+// use random depth first search to explore every space
 function makeCorridor(x: number, y: number) {
   index++;
-  let loc = new Vector2(x, y);
+  let location = new Vector2(x, y);
   setTile(x, y, ' ', index);
-  const stack = [loc];
+  const stack = [location];
   while (stack.length !== 0) {
-    loc = stack[0];
+    location = stack[0];
     const options = new Array<Vector2>();
-    if (wallAt(loc.x - 2, loc.y)) {
-      options.push(loc.add(new Vector2(-2, 0)));
+    if (wallAt(location.x - 2, location.y)) {
+      options.push(location.add(new Vector2(-2, 0)));
     }
-    if (wallAt(loc.x + 2, loc.y)) {
-      options.push(loc.add(new Vector2(2, 0)));
+    if (wallAt(location.x + 2, location.y)) {
+      options.push(location.add(new Vector2(2, 0)));
     }
-    if (wallAt(loc.x, loc.y - 2)) {
-      options.push(new Vector2(loc.x, loc.y - 2));
+    if (wallAt(location.x, location.y - 2)) {
+      options.push(new Vector2(location.x, location.y - 2));
     }
-    if (wallAt(loc.x, loc.y + 2)) {
-      options.push(new Vector2(loc.x, loc.y + 2));
+    if (wallAt(location.x, location.y + 2)) {
+      options.push(new Vector2(location.x, location.y + 2));
     }
     if (options.length !== 0) {
       const rand = randBetween(0, options.length);
       const [newLoc] = options.splice(rand, 1);
-      const mx = loc.x + (newLoc.x - loc.x) / 2;
-      const my = loc.y + (newLoc.y - loc.y) / 2;
+      const mx = location.x + (newLoc.x - location.x) / 2;
+      const my = location.y + (newLoc.y - location.y) / 2;
       setTile(mx, my, ' ', index);
       setTile(newLoc.x, newLoc.y, ' ', index);
       stack.unshift(newLoc);
@@ -154,6 +170,7 @@ function makeCorridor(x: number, y: number) {
   }
 }
 
+// connect up all the seperate rooms and corridors by knocking down random adjacent walls
 function connectUp() {
   const indices = new Array<number>();
   for (let x = 0; x < index; x++) {
@@ -162,43 +179,36 @@ function connectUp() {
   let [chosen] = indices.splice(randBetween(0, indices.length), 1);
 
   while (indices.length > 0) {
-    const options = new Array<number[]>();
-    for (let y = 2; y < dungeon.length - 2; y += 2) {
-      for (let x = 0; x < dungeon[y].length - 1; x++) {
-        if (
-          mazeLogic[y-1][x] !== mazeLogic[y+1][x] &&
-          mazeLogic[y-1][x] != 0 &&
-          mazeLogic[y+1][x] != 0
-        ) {
-          if (mazeLogic[y-1][x] == chosen) {
-            options.push([x, y, mazeLogic[y+1][x]]);
-          } else if (mazeLogic[y+1][x] == chosen) {
-            options.push([x, y, mazeLogic[y-1][x]]);
+    const options = new Array<[number, number, number]>();
+    for (let x = 0; x < dungeon[0].length - 1; x++) {
+      for (let y = 2; y < dungeon.length - 2; y += 2) {
+        if (mazeLogic[y - 1][x] !== mazeLogic[y + 1][x] && mazeLogic[y - 1][x] != 0 && mazeLogic[y + 1][x] != 0) {
+          if (mazeLogic[y - 1][x] == chosen) {
+            options.push([x, y, mazeLogic[y + 1][x]]);
+          } else if (mazeLogic[y + 1][x] == chosen) {
+            options.push([x, y, mazeLogic[y - 1][x]]);
           }
         }
       }
     }
-    for (let y = 0; y < dungeon.length - 1; y++) {
-      for (let x = 2; x < dungeon[y].length - 2; x += 2) {
-        if (
-          mazeLogic[y][x-1] !== mazeLogic[y][x+1] &&
-          mazeLogic[y][x-1]  != 0 &&
-          mazeLogic[y][x+1]  != 0
-        ) {
-          if (mazeLogic[y][x-1]  == chosen) {
-            options.push([x, y, mazeLogic[y][x+1] ]);
-          } else if (mazeLogic[y][x+1]  == chosen) {
-            options.push([x, y, mazeLogic[y][x-1] ]);
+
+    for (let x = 2; x < dungeon[0].length - 2; x += 2) {
+      for (let y = 0; y < dungeon.length - 1; y++) {
+        if (mazeLogic[y][x - 1] !== mazeLogic[y][x + 1] && mazeLogic[y][x - 1] != 0 && mazeLogic[y][x + 1] != 0) {
+          if (mazeLogic[y][x - 1] == chosen) {
+            options.push([x, y, mazeLogic[y][x + 1]]);
+          } else if (mazeLogic[y][x + 1] == chosen) {
+            options.push([x, y, mazeLogic[y][x - 1]]);
           }
         }
       }
     }
-    if (options.length > 1) {
+    if (options.length > 0) {
       const [rand] = options.splice(randBetween(0, options.length), 1);
       const randPos = new Vector2(rand[0], rand[1]);
-      mazeLogic[randPos.y][randPos.x] = rand[2];
+      setTile(randPos.x, randPos.y, ' ', rand[2])
       for (let option of options) {
-        if (Math.random() > 0.005 && option[2] == rand[2]) {
+        if (0.05 > Math.random() && option[2] == rand[2]) {
           const vector = new Vector2(option[0], option[1]);
           setTile(vector.x, vector.y, ' ', rand[2]);
         }
@@ -206,13 +216,13 @@ function connectUp() {
       for (let y = 0; y < dungeon.length; y++) {
         for (let x = 0; x < dungeon[y].length; x++) {
           if (mazeLogic[y][x] == chosen) {
-            mazeLogic[y][x] =rand[2];
+            mazeLogic[y][x] = rand[2];
           }
         }
       }
       chosen = rand[2];
-      indices.splice(indices.indexOf(chosen), 1);
     }
+    indices.splice(indices.indexOf(chosen), 1);
   }
 }
 
@@ -243,7 +253,7 @@ function quashDeadEnds() {
   }
   while (deadEnds.length > 0) {
     const deadend = deadEnds.shift()!;
-    if (Math.random() > 0.99) {
+    if (0.99 >  Math.random()) {
       const dim1 = deadend[0];
       const dim2 = deadend[1];
       setTile(dim1.x, dim1.y, '#', 0);
