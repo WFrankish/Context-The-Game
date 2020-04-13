@@ -90,5 +90,15 @@ export class Character extends common.Character {
 
 Character.characterImage.src = '/assets/character.png';
 
-export const localPlayer = new Character();
-localPlayer.inputs = inputs;
+let initialized = false;
+let _localPlayer: Character | undefined;
+export async function init() {
+  if (initialized) throw new Error('Initialized multiple times.');
+  _localPlayer = new Character();
+  _localPlayer.inputs = inputs;
+}
+
+export function localPlayer() {
+  if (!_localPlayer) throw new Error('Local player is not initialized.');
+  return _localPlayer;
+}

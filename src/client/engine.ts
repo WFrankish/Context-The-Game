@@ -3,7 +3,7 @@ import { Seconds, delay } from '../common/time.js';
 import { Vector2 } from '../common/vector2.js';
 import { Sprite, LoopingImage, Image, openStatic } from './drawing/image.js';
 import { HudPiece, Anchor, Tile, Drawable, HudText } from './drawing/drawable.js';
-import { localPlayer } from './character.js';
+import * as character from './character.js';
 import { Obstacle, Zone } from './zone.js';
 import { CameraControl } from './camera_control.js';
 import { showInventory, drawInventory, init as initInventory } from './inventory.js';
@@ -26,11 +26,12 @@ async function init() {
   arrow = await openStatic('arrow_left.png');
   await initInventory();
   await initItemSprites();
+  await character.init();
   camera = new CameraControl();
   zone = await Zone.open('example');
-  localPlayer.position = [...zone.portals.values()][0].position;
+  character.localPlayer().position = [...zone.portals.values()][0].position;
   //localPlayer.inventory.store(new HealthPotion());
-  zone.characters.add(localPlayer);
+  zone.characters.add(character.localPlayer());
 
   for(let i = 0; i<20; i++){
     const position = new Vector2(10 - Math.round(Math.random() * 20), 10 - Math.round(Math.random() * 20));
@@ -74,7 +75,7 @@ function render(totalMilliseconds: number): void {
       if (showInventory) {
         drawInventory(context, dt);
       } else {
-        const hud: Drawable[] = [new HudText(localPlayer.hudText, 24, new Vector2(0, 0), Anchor.TopLeft)];
+        const hud: Drawable[] = [new HudText(character.localPlayer().hudText, 24, new Vector2(0, 0), Anchor.TopLeft)];
 
         for (const item of hud) item.draw(context, dt);
       }

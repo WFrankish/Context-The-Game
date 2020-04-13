@@ -1,7 +1,7 @@
 import * as display from './display.js';
 import { Vector2 } from '../common/vector2.js';
 import { Seconds } from '../common/time.js';
-import { Character, localPlayer } from './character.js';
+import { Character } from './character.js';
 import { Updatable } from './updatable.js';
 import { Tile } from './drawing/drawable.js';
 import { Sprite, Image, openStatic, openSprites } from './drawing/image.js';
@@ -171,7 +171,6 @@ export class Portal extends Obstacle {
     this.destination = destination;
   }
   onInteract(character: Character): void {
-    if (character != localPlayer) return;
     console.log('Travel to zone %s, enter through portal %s.', this.destination.zone, this.destination.portal);
   }
   readonly name: string;

@@ -55,7 +55,7 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   const backpackSectionWidth = display.width - equippedSectionWidth;
 
   // Backpack section
-  const numSquares = localPlayer.inventory.maxVolume;
+  const numSquares = localPlayer().inventory.maxVolume;
 
   const availableWidth = backpackSectionWidth - padding;
   const numSquaresPerRow = Math.floor(availableWidth / (tileWidth + padding));
@@ -66,7 +66,7 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   const backpackSquares: Drawable[] = [];
   const topLeftX = backpackSidePadding;
   const topLeftY = minYCoordOfSquares + tileHeight;
-  const backpack = localPlayer.inventory.getAllStored();
+  const backpack = localPlayer().inventory.getAllStored();
   const backpackIterator = backpack[Symbol.iterator]();
   let hasMoreItems = backpack.size > 0;
   let numIterationsDrawn = 0;
@@ -177,9 +177,9 @@ export class EquipmentTile implements Drawable {
     ctx.drawImage(data, startX, startY, width, height, this.position.x, this.position.y, width, height);
 
     if (this.bodyPart) {
-      if (localPlayer.inventory.equippedArmourByPart.has(this.bodyPart)) {
+      if (localPlayer().inventory.equippedArmourByPart.has(this.bodyPart)) {
         // TODO: Draw armour
-      } else if (localPlayer.inventory.equippedWeaponsByPart.has(this.bodyPart)) {
+      } else if (localPlayer().inventory.equippedWeaponsByPart.has(this.bodyPart)) {
         // TODO: Draw weapon
       }
     } else if (this.item) {
