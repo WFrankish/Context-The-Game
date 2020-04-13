@@ -5,9 +5,6 @@ import { Image, openStatic } from './drawing/image.js';
 export const width = 640;
 export const height = 480;
 
-let bgImage: Image | undefined;
-openStatic("bg.png").then(i => bgImage = i);
-
 // Apply the suitable transform for drawing the user interface over the game
 // world. The callback will receive the context it needs to draw, and can assume
 // a resolution of (display.width, display.height) which will be scaled to fit.
@@ -16,13 +13,7 @@ export function draw(
   hudCallback: (context: CanvasRenderingContext2D) => void
 ): void {
   context.setTransform(1, 0, 0, 1, 0, 0);
-
-  if(bgImage){
-    context.fillStyle = context.createPattern(bgImage.get().data, 'repeat')!;
-  } else {
-    context.fillStyle = "black";
-  }
-
+  context.fillStyle = '#2a2626';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const { scale, offset } = computeScale();
