@@ -6,12 +6,14 @@ export class Skeleton extends Character {
   static skeletonImage = new Image();
 
   private totalTime = 0;
-  private lastUpdate = -999;
+  private lastUpdate = -1;
 
   isLocal = false;
 
   constructor(position: Vector2){
     super();
+
+    this.totalTime += Math.random();
 
     this.position = position;
   }
