@@ -2,6 +2,7 @@ import { Milliseconds, Timestamp, time } from '../common/time.js';
 import * as metrics from '../common/metrics.js';
 import * as common from '../common/net.js';
 export { Channel } from '../common/net.js';
+export { JsonObject } from '../common/net.js';
 
 export type Handler<SnapshotType, UpdateType> = common.ClientHandler<SnapshotType, UpdateType>;
 

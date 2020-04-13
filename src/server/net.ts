@@ -7,6 +7,8 @@ export { Channel } from '../common/net.js';
 import { Milliseconds, time } from '../common/time.js';
 import { server } from './http.js';
 
+export { JsonObject } from '../common/net.js';
+
 export type Handler<SnapshotType, UpdateType> = common.ServerHandler<SnapshotType, UpdateType>;
 
 // Create a new channel with the given id and handler. Immediately returns the
