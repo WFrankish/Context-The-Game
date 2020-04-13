@@ -14,7 +14,7 @@ async function init() {
     'gandalf_the_girthy_red.png',
     'gandalf_the_girthy_purple.png',
   ];
-  presets = await Promise.all(preset_assets.map(openStatic))
+  presets = await Promise.all(preset_assets.map(openStatic));
   display.onMouseMove((event) => {
     position = event.position;
   });
@@ -53,7 +53,6 @@ function render(totalMilliseconds: number): void {
       context.drawImage(arrowRight, 128, 256, 128, 64);
     };
   });
-
 }
 
 function isLeftArrowClicked(): boolean {
@@ -81,7 +80,6 @@ function isRightArrowClicked(): boolean {
   }
   return true;
 }
-
 function drawPreset(context: CanvasRenderingContext2D): void {
   img = presets[curr];
   if (img == undefined) return;
