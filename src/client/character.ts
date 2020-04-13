@@ -16,16 +16,20 @@ enum Direction {
 }
 
 export class Character extends common.Character {
-  static characterImage = new Image();
-  direction = Direction.DOWN;
-  animationTime = 0;
-  leftArmPhase = 0;
-  rightArmPhase = 0;
-  inventory = new Inventory();
-  isLocal = true;
+  static image = new Image();
 
-  get image(){
-    return Character.characterImage;
+  get image() {
+    return Character.image;
+  }
+
+  static async local(id: string): Promise<Character> {
+    const character = new Character(id);
+    character.isLocal = true;
+    character.inputs = inputs;
+    return character;
+  }
+  static async remote(id: string): Promise<Character> {
+    return new Character(id);
   }
 
   update(dt: Seconds) {
@@ -86,15 +90,26 @@ export class Character extends common.Character {
   get hudText(): string {
     return `${this.inventory.usedWeight}/${this.inventory.maxWeight} | ${this.inventory.usedVolume}/${this.inventory.maxVolume}`;
   }
+
+  direction = Direction.DOWN;
+  animationTime = 0;
+  leftArmPhase = 0;
+  rightArmPhase = 0;
+  inventory = new Inventory();
 }
 
-Character.characterImage.src = '/assets/character.png';
+Character.image.src = '/assets/character.png';
 
 let initialized = false;
 let _localPlayer: Character | undefined;
 export async function init() {
   if (initialized) throw new Error('Initialized multiple times.');
-  _localPlayer = new Character('steve');
+  initialized = true;
+  if (localStorage.watch) {
+    _localPlayer = await Character.remote('steve');
+  } else {
+    _localPlayer = await Character.local('steve');
+  }
   _localPlayer.inputs = inputs;
 }
 

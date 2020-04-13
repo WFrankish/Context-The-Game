@@ -28,6 +28,8 @@ async function init() {
   await initItemSprites();
   await character.init();
   camera = new CameraControl();
+  // TODO: We don't want everyone to control the same character, so we'll need a way to figure out what the id is for
+  // the player so we can use the right character.
   zone = await Zone.open('example');
   character.localPlayer().position = [...zone.portals.values()][0].position;
   //localPlayer.inventory.store(new HealthPotion());

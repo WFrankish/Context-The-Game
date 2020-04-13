@@ -3,24 +3,20 @@ import {Character} from './character.js';
 import { Vector2 } from '../common/vector2.js';
 
 export class Skeleton extends Character {
-  static skeletonImage = new Image();
+  static image = new Image();
 
   private totalTime = 0;
   private lastUpdate = -1;
 
-  isLocal = false;
-
-  constructor(position: Vector2){
+  constructor(position: Vector2) {
     // TODO: This needs a unique ID per skeleton to work properly.
     super('skeleton');
-
     this.totalTime += Math.random();
-
     this.position = position;
   }
 
   get image(){
-    return Skeleton.skeletonImage;
+    return Skeleton.image;
   }
 
   update(dt: Seconds){
@@ -28,7 +24,7 @@ export class Skeleton extends Character {
 
     this.totalTime += dt;
 
-    if(this.totalTime - this.lastUpdate > 2){
+    if (this.totalTime - this.lastUpdate > 2) {
       this.lastUpdate = this.totalTime;
       this.inputs.left = Math.random() > 0.5 ? 1 : 0;
       this.inputs.up = Math.random() > 0.5 ? 1 : 0;
@@ -36,9 +32,8 @@ export class Skeleton extends Character {
       this.inputs.right = Math.random() > 0.5 ? 1 : 0;
       this.inputs.primary = Math.random() > 0.2 ? this.inputs.primary : 1 - this.inputs.primary;
       this.inputs.secondary = Math.random() > 0.2 ? this.inputs.secondary : 1 - this.inputs.secondary
+      this.processInputs();
     }
   }
 }
-Skeleton.skeletonImage.src = '/assets/mrskeltal.png';
-
-
+Skeleton.image.src = '/assets/mrskeltal.png';
