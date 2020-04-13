@@ -6,6 +6,8 @@ import { Updatable } from './updatable.js';
 import { Tile } from './drawing/drawable.js';
 import { Sprite, Image, openStatic, openSprites } from './drawing/image.js';
 import * as common from '../common/zone.js';
+import * as netCommon from '../common/net.js';
+import * as net from './net.js';
 
 interface Drawable {
   draw(context: CanvasRenderingContext2D): void;
@@ -17,7 +19,6 @@ export class Obstacle extends common.Obstacle {
     super(position);
     this.image = image;
   }
-  onInteract(character: Character): void {}
   update(dt: Seconds): void {
     this.image.update(dt);
   }
@@ -154,44 +155,6 @@ export class Portal extends Obstacle {
   readonly destination: common.PortalDestination;
 }
 
-const example = `
-###################
-###################
-##  a  #    x    ##
-##     #         ##
-##               ##
-##               ##
-##               ##
-##  b  #    y    ##
-###################
-###################
-
-{
-  "a": {
-    "type": "Obstacle",
-    "image": "chest.png"
-  },
-  "b": {
-    "type": "Obstacle",
-    "image": "chest.png"
-  },
-  "x": {
-    "type": "Portal",
-    "destination": {
-      "zone": "example",
-      "portal": "y"
-    }
-  },
-  "y": {
-    "type": "Portal",
-    "destination": {
-      "zone": "example",
-      "portal": "x"
-    }
-  }
-}
-`;
-
 async function loadObstacle(name: string, position: Vector2, data: common.ObstacleData): Promise<Obstacle> {
   switch (data.type) {
     case 'Obstacle': {
@@ -206,11 +169,23 @@ async function loadObstacle(name: string, position: Vector2, data: common.Obstac
   }
 }
 
+class ZoneHandler implements net.Handler<common.ZoneData, null> {
+  copyState(state: common.ZoneData): common.ZoneData {
+    return JSON.parse(JSON.stringify(state));
+  }
+  loadSnapshot(data: netCommon.JsonObject): common.ZoneData {
+    return (data as unknown) as common.ZoneData;
+  }
+  applyUpdate(state: common.ZoneData, update: null): void {}
+  onChange(state: common.ZoneData): void {}
+}
+
 const characterRadius = 0.3;
 export class Zone extends common.Zone {
   static async open(id: string): Promise<Zone> {
     const floorImage = openStatic('floor.png');
-    const { floor, obstacles } = await common.load(example, Wall.create, loadObstacle);
+    const channel = await net.subscribe('/zone/' + id, new ZoneHandler);
+    const { floor, obstacles } = await common.load(channel.state(), Wall.create, loadObstacle);
     return new Zone(await floorImage, floor, obstacles as Map<string, Obstacle>);
   }
   private constructor(floorImage: Image, floor: Set<string>, obstacles: Map<string, Obstacle>) {

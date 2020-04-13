@@ -2,14 +2,6 @@ import { Seconds } from './time.js';
 import { Vector2 } from './vector2.js';
 import { Inputs } from './inputs.js';
 
-// The values for the enum correspond to the rows in the character sprite sheet.
-export enum Direction {
-  Right = 0,
-  Up = 1,
-  Left = 2,
-  Down = 3,
-}
-
 export class Character {
   static radius = 0.3;
   static walkSpeed = 3;

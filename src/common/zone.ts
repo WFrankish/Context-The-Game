@@ -1,6 +1,7 @@
 import { Vector2 } from './vector2.js';
 import { Seconds } from './time.js';
 import { Character } from './character.js';
+import * as net from './net.js';
 
 export class Obstacle {
   constructor(position: Vector2) {
@@ -56,14 +57,11 @@ export interface Neighbours {
 export type LoadWall = (position: Vector2, neighbours: Neighbours) => Promise<Obstacle>;
 export type LoadObstacle = (name: string, position: Vector2, data: ObstacleData) => Promise<Obstacle>;
 
-export async function load(data: string, loadWall: LoadWall, loadObstacle: LoadObstacle) {
-  // TODO: Load the zone from the server rather than from the example.
-  const sections = data.split('\n\n');
-  if (sections.length != 2) throw new Error('Invalid map.');
+export async function load(data: ZoneData, loadWall: LoadWall, loadObstacle: LoadObstacle) {
   // Build the objects in the tile data.
-  const obstacleData: Map<string, ObstacleData | null> = new Map(Object.entries(JSON.parse(sections[1])));
+  const obstacleData: Map<string, ObstacleData | null> = new Map(Object.entries(data.obstacles));
   // Load the layout.
-  const lines = sections[0].split('\n');
+  const lines = data.layout.split('\n');
   const width = Math.max(...lines.map((x) => x.length));
   const height = lines.length;
   const floor: Set<string> = new Set();
@@ -111,6 +109,11 @@ export async function load(data: string, loadWall: LoadWall, loadObstacle: LoadO
     obstacles.set(key, await obstaclePromise);
   }
   return { floor, obstacles };
+}
+
+export interface ZoneData {
+  layout: string;
+  obstacles: {[name: string]: ObstacleData};
 }
 
 export abstract class Zone {
