@@ -45,15 +45,56 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   // Backpack section
 
   // Y-coord of the top-most equipment tile
-  const equipmentTopY = 140;
+  const equipmentTopY = 120;
   const equipmentMidX = (display.width * 3) / 4;
+  const equipmentPaddingAmount = 15;
+
+  const headLocation = new Vector2(equipmentMidX - inventoryTileWidth / 2, equipmentTopY + inventoryTileHeight);
+  const torsoLocation = new Vector2(headLocation.x, headLocation.y + inventoryTileHeight + equipmentPaddingAmount);
+  const leftArmLocation = new Vector2(
+    torsoLocation.x - inventoryTileWidth - equipmentPaddingAmount,
+    torsoLocation.y - equipmentPaddingAmount
+  );
+  const rightArmLocation = new Vector2(
+    torsoLocation.x + inventoryTileWidth + equipmentPaddingAmount,
+    leftArmLocation.y
+  );
+  const leftHandLocation = new Vector2(
+    leftArmLocation.x,
+    leftArmLocation.y + inventoryTileHeight + equipmentPaddingAmount
+  );
+  const rightHandLocation = new Vector2(
+    rightArmLocation.x,
+    rightArmLocation.y + inventoryTileHeight + equipmentPaddingAmount
+  );
+  const leftLegLocation = new Vector2(
+    torsoLocation.x - inventoryTileWidth / 2 - equipmentPaddingAmount / 2,
+    leftHandLocation.y + inventoryTileHeight + equipmentPaddingAmount / 2
+  );
+  const rightLegLocation = new Vector2(
+    leftLegLocation.x + inventoryTileWidth + equipmentPaddingAmount,
+    leftLegLocation.y
+  );
+  const leftFootLocation = new Vector2(
+    leftLegLocation.x,
+    leftLegLocation.y + inventoryTileHeight + equipmentPaddingAmount
+  );
+  const rightFootLocation = new Vector2(
+    rightLegLocation.x,
+    rightLegLocation.y + inventoryTileHeight + equipmentPaddingAmount
+  );
 
   const equipmentSquares: Drawable[] = [
-    new EquipmentTile(
-      new Vector2(equipmentMidX - inventoryTileWidth / 2, equipmentTopY + inventoryTileHeight),
-      BodyPart.Head,
-      inventoryImages.get('default')!
-    ),
+    new EquipmentTile(headLocation, BodyPart.Head, inventoryImages.get('default')!),
+    new EquipmentTile(torsoLocation, BodyPart.Torso, inventoryImages.get('default')!),
+    new EquipmentTile(leftArmLocation, BodyPart.LeftArm, inventoryImages.get('default')!),
+    new EquipmentTile(rightArmLocation, BodyPart.RightArm, inventoryImages.get('default')!),
+    new EquipmentTile(leftHandLocation, BodyPart.LeftHand, inventoryImages.get('default')!),
+    new EquipmentTile(rightHandLocation, BodyPart.RightHand, inventoryImages.get('default')!),
+    new EquipmentTile(leftLegLocation, BodyPart.LeftLeg, inventoryImages.get('default')!),
+    new EquipmentTile(rightLegLocation, BodyPart.RightLeg, inventoryImages.get('default')!),
+    new EquipmentTile(leftFootLocation, BodyPart.LeftFoot, inventoryImages.get('default')!),
+    new EquipmentTile(rightFootLocation, BodyPart.RightFoot, inventoryImages.get('default')!),
   ];
 
   for (const square of equipmentSquares) {
