@@ -71,9 +71,14 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
   let hasMoreItems = backpack.size > 0;
   let numIterationsDrawn = 0;
   let storedItem: Item | undefined;
+  let numSquaresDrawn = 0;
 
   for (let i = 0; i < numRows; i++) {
     for (let j = 0; j < numSquaresPerRow; j++) {
+      if (numSquaresDrawn === numSquares) {
+        break;
+      }
+
       let isDisabled = false;
 
       if (storedItem && numIterationsDrawn < storedItem.volume) {
@@ -95,6 +100,8 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
           isDisabled
         )
       );
+
+      numSquaresDrawn++;
     }
   }
 
