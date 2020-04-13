@@ -5,7 +5,7 @@ import HealthPotion from '../common/items/consumables/health_potion.js';
 const itemImageMap: Map<ItemCategory, Map<string, Sprite>> = new Map<ItemCategory, Map<string, Sprite>>();
 
 export async function init(): Promise<void> {
-  const itemSprites = await openSprites('items.png', 32, 32);
+  const itemSprites = await openSprites('items.png', 30, 30);
 
   const consumables = new Map<string, Sprite>();
 
