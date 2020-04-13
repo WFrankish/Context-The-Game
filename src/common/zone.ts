@@ -8,6 +8,11 @@ export class Obstacle {
     this.position = position;
   }
   update(dt: Seconds): void {}
+  // TODO: Figure out how this should be invoked. For the local player, we should probably have some code which looks
+  // for an obstacle in the direction the character is facing when the player hits the primary action key, and calls
+  // onInteract on it. After we've got the local player part working we'll need to figure out how to network it
+  // properly. Probably we can simply ignore this event for networked characters and rely on the consequences being
+  // visible directly.
   onInteract(character: Character): void {}
   position: Vector2;
   radius = 0.4;
