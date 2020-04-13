@@ -5,25 +5,25 @@ import { Sprite, openSprites } from './drawing/image.js';
 import BodyPart from '../common/character/body_part.js';
 import { localPlayer } from './character.js';
 
-const inventoryTileWidth = 32;
-const inventoryTileHeight = 32;
-const inventoryImages = new Map<BodyPart | string, Sprite>();
+const tileWidth = 32;
+const tileHeight = 32;
+const sprites = new Map<BodyPart | string, Sprite>();
 
 export async function init() {
   const inventoryPics = await openSprites('inventory.png', 32, 32);
 
-  inventoryImages.set('default', inventoryPics[0]);
-  inventoryImages.set(BodyPart.Torso, inventoryPics[1]);
-  inventoryImages.set(BodyPart.Head, inventoryPics[2]);
-  inventoryImages.set(BodyPart.LeftArm, inventoryPics[3]);
-  inventoryImages.set(BodyPart.RightArm, inventoryPics[4]);
-  inventoryImages.set(BodyPart.LeftHand, inventoryPics[5]);
-  inventoryImages.set(BodyPart.RightHand, inventoryPics[6]);
-  inventoryImages.set(BodyPart.LeftLeg, inventoryPics[7]);
-  inventoryImages.set(BodyPart.RightLeg, inventoryPics[8]);
-  inventoryImages.set(BodyPart.LeftFoot, inventoryPics[9]);
-  inventoryImages.set(BodyPart.RightFoot, inventoryPics[10]);
-  inventoryImages.set(BodyPart.Back, inventoryPics[11]);
+  sprites.set('default', inventoryPics[0]);
+  sprites.set(BodyPart.Torso, inventoryPics[1]);
+  sprites.set(BodyPart.Head, inventoryPics[2]);
+  sprites.set(BodyPart.LeftArm, inventoryPics[3]);
+  sprites.set(BodyPart.RightArm, inventoryPics[4]);
+  sprites.set(BodyPart.LeftHand, inventoryPics[5]);
+  sprites.set(BodyPart.RightHand, inventoryPics[6]);
+  sprites.set(BodyPart.LeftLeg, inventoryPics[7]);
+  sprites.set(BodyPart.RightLeg, inventoryPics[8]);
+  sprites.set(BodyPart.LeftFoot, inventoryPics[9]);
+  sprites.set(BodyPart.RightFoot, inventoryPics[10]);
+  sprites.set(BodyPart.Back, inventoryPics[11]);
 }
 
 addEventListener('keypress', (event: KeyboardEvent) => {
@@ -53,59 +53,67 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
     hudText.draw(context, dt);
   }
 
+  // Y-coord of the top of the backpack and equipped sections
+  const topOfSquares = 120;
+  const padding = 15;
+
   // Backpack section
+  const numSquares = localPlayer.inventory.maxVolume;
+
+  const availableWidth = display.width / 2 - padding;
+  const numSquaresPerRow = Math.floor(availableWidth / (tileWidth + padding));
+  const backpackSidePadding = (display.width / 2 - (numSquaresPerRow * (tileWidth + padding) - padding)) / 2;
+
+  const numRows = Math.ceil(numSquares / numSquaresPerRow);
+
+  const backpackSquares: Drawable[] = [];
+  const topLeftX = backpackSidePadding;
+  const topLeftY = topOfSquares + tileHeight;
+
+  for (let i = 0; i < numRows; i++) {
+    for (let j = 0; j < numSquaresPerRow; j++) {
+      backpackSquares.push(
+        new EquipmentTile(
+          new Vector2(topLeftX + j * (tileWidth + padding), topLeftY + i * (tileHeight + padding)),
+          sprites.get('default')!
+        )
+      );
+    }
+  }
+
+  for (const square of backpackSquares) {
+    square.draw(context, dt);
+  }
 
   // Y-coord of the top-most equipment tile
-  const equipmentTopY = 120;
+  const equipmentTopY = topOfSquares;
   const equipmentMidX = (display.width * 3) / 4;
-  const equipmentPaddingAmount = 15;
 
-  const headLocation = new Vector2(equipmentMidX - inventoryTileWidth / 2, equipmentTopY + inventoryTileHeight);
-  const torsoLocation = new Vector2(headLocation.x, headLocation.y + inventoryTileHeight + equipmentPaddingAmount);
-  const leftArmLocation = new Vector2(
-    torsoLocation.x - inventoryTileWidth - equipmentPaddingAmount,
-    torsoLocation.y - equipmentPaddingAmount
-  );
-  const rightArmLocation = new Vector2(
-    torsoLocation.x + inventoryTileWidth + equipmentPaddingAmount,
-    leftArmLocation.y
-  );
-  const leftHandLocation = new Vector2(
-    leftArmLocation.x,
-    leftArmLocation.y + inventoryTileHeight + equipmentPaddingAmount
-  );
-  const rightHandLocation = new Vector2(
-    rightArmLocation.x,
-    rightArmLocation.y + inventoryTileHeight + equipmentPaddingAmount
-  );
+  const headLocation = new Vector2(equipmentMidX - tileWidth / 2, equipmentTopY + tileHeight);
+  const torsoLocation = new Vector2(headLocation.x, headLocation.y + tileHeight + padding);
+  const leftArmLocation = new Vector2(torsoLocation.x - tileWidth - padding, torsoLocation.y - padding);
+  const rightArmLocation = new Vector2(torsoLocation.x + tileWidth + padding, leftArmLocation.y);
+  const leftHandLocation = new Vector2(leftArmLocation.x, leftArmLocation.y + tileHeight + padding);
+  const rightHandLocation = new Vector2(rightArmLocation.x, rightArmLocation.y + tileHeight + padding);
   const leftLegLocation = new Vector2(
-    torsoLocation.x - inventoryTileWidth / 2 - equipmentPaddingAmount / 2,
-    leftHandLocation.y + inventoryTileHeight + equipmentPaddingAmount / 2
+    torsoLocation.x - tileWidth / 2 - padding / 2,
+    leftHandLocation.y + tileHeight + padding / 2
   );
-  const rightLegLocation = new Vector2(
-    leftLegLocation.x + inventoryTileWidth + equipmentPaddingAmount,
-    leftLegLocation.y
-  );
-  const leftFootLocation = new Vector2(
-    leftLegLocation.x,
-    leftLegLocation.y + inventoryTileHeight + equipmentPaddingAmount
-  );
-  const rightFootLocation = new Vector2(
-    rightLegLocation.x,
-    rightLegLocation.y + inventoryTileHeight + equipmentPaddingAmount
-  );
+  const rightLegLocation = new Vector2(leftLegLocation.x + tileWidth + padding, leftLegLocation.y);
+  const leftFootLocation = new Vector2(leftLegLocation.x, leftLegLocation.y + tileHeight + padding);
+  const rightFootLocation = new Vector2(rightLegLocation.x, rightLegLocation.y + tileHeight + padding);
 
   const equipmentSquares: Drawable[] = [
-    new EquipmentTile(headLocation, BodyPart.Head, inventoryImages.get(BodyPart.Head)!),
-    new EquipmentTile(torsoLocation, BodyPart.Torso, inventoryImages.get(BodyPart.Torso)!),
-    new EquipmentTile(leftArmLocation, BodyPart.LeftArm, inventoryImages.get(BodyPart.LeftArm)!),
-    new EquipmentTile(rightArmLocation, BodyPart.RightArm, inventoryImages.get(BodyPart.RightArm)!),
-    new EquipmentTile(leftHandLocation, BodyPart.LeftHand, inventoryImages.get(BodyPart.LeftHand)!),
-    new EquipmentTile(rightHandLocation, BodyPart.RightHand, inventoryImages.get(BodyPart.RightHand)!),
-    new EquipmentTile(leftLegLocation, BodyPart.LeftLeg, inventoryImages.get(BodyPart.LeftLeg)!),
-    new EquipmentTile(rightLegLocation, BodyPart.RightLeg, inventoryImages.get(BodyPart.RightLeg)!),
-    new EquipmentTile(leftFootLocation, BodyPart.LeftFoot, inventoryImages.get(BodyPart.LeftFoot)!),
-    new EquipmentTile(rightFootLocation, BodyPart.RightFoot, inventoryImages.get(BodyPart.RightFoot)!),
+    new EquipmentTile(headLocation, sprites.get(BodyPart.Head)!, BodyPart.Head),
+    new EquipmentTile(torsoLocation, sprites.get(BodyPart.Torso)!, BodyPart.Torso),
+    new EquipmentTile(leftArmLocation, sprites.get(BodyPart.LeftArm)!, BodyPart.LeftArm),
+    new EquipmentTile(rightArmLocation, sprites.get(BodyPart.RightArm)!, BodyPart.RightArm),
+    new EquipmentTile(leftHandLocation, sprites.get(BodyPart.LeftHand)!, BodyPart.LeftHand),
+    new EquipmentTile(rightHandLocation, sprites.get(BodyPart.RightHand)!, BodyPart.RightHand),
+    new EquipmentTile(leftLegLocation, sprites.get(BodyPart.LeftLeg)!, BodyPart.LeftLeg),
+    new EquipmentTile(rightLegLocation, sprites.get(BodyPart.RightLeg)!, BodyPart.RightLeg),
+    new EquipmentTile(leftFootLocation, sprites.get(BodyPart.LeftFoot)!, BodyPart.LeftFoot),
+    new EquipmentTile(rightFootLocation, sprites.get(BodyPart.RightFoot)!, BodyPart.RightFoot),
   ];
 
   for (const square of equipmentSquares) {
@@ -116,25 +124,27 @@ export function drawInventory(context: CanvasRenderingContext2D, dt: number): vo
 }
 
 export class EquipmentTile implements Drawable {
-  bodyPart: BodyPart;
+  bodyPart?: BodyPart;
   backImage: Sprite;
   position: Vector2;
 
-  constructor(pos: Vector2, bodyPart: BodyPart, backImage: Sprite) {
+  constructor(pos: Vector2, backImage: Sprite, bodyPart?: BodyPart, item?: any) {
     this.position = pos;
     this.backImage = backImage;
     this.bodyPart = bodyPart;
   }
 
   draw(ctx: CanvasRenderingContext2D, dt: number): void {
-    if (localPlayer.inventory.equippedArmourByPart.has(this.bodyPart)) {
-      // TODO: Draw armour
-    } else if (localPlayer.inventory.equippedWeaponsByPart.has(this.bodyPart)) {
-      // TODO: Draw weapon
-    } else {
-      const { data, startX, startY, width, height } = this.backImage.get();
+    const { data, startX, startY, width, height } = this.backImage.get();
 
-      ctx.drawImage(data, startX, startY, width, height, this.position.x, this.position.y, width, height);
+    ctx.drawImage(data, startX, startY, width, height, this.position.x, this.position.y, width, height);
+
+    if (this.bodyPart) {
+      if (localPlayer.inventory.equippedArmourByPart.has(this.bodyPart)) {
+        // TODO: Draw armour
+      } else if (localPlayer.inventory.equippedWeaponsByPart.has(this.bodyPart)) {
+        // TODO: Draw weapon
+      }
     }
   }
 }
